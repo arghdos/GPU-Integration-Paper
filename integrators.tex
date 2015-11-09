@@ -1,0 +1,71 @@
+\pdfminorversion=4
+
+\documentclass[preprint,12pt]{elsarticle}
+\usepackage[utf8]{inputenc}
+
+%packages
+\usepackage[margin=1in]{geometry}
+
+\usepackage[hyphens]{url}
+\biboptions{sort&compress, square, comma}
+\usepackage[breaklinks=true, linkcolor=blue, citecolor=blue, colorlinks=true]{hyperref}
+
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{subcaption}
+
+\usepackage[version=3]{mhchem} % Formula subscripts using \ce{}, e.g., \ce{H2SO4}
+\usepackage{latexsym,amsmath,amssymb}
+
+\usepackage{mathtools}
+
+\usepackage{siunitx}
+\sisetup{group-separator={,},
+     detect-all,
+     binary-units,
+     list-units = single,
+     range-units = single,
+     tophrase = --, 
+     per-mode = symbol-or-fraction,
+     separate-uncertainty = true,
+     list-final-separator = {, and }
+%    scientific-notation = fixed
+}
+\DeclareSIUnit\atm{atm}
+
+\graphicspath{{./figures/}}
+
+\journal{36th International Symposium on Combustion}
+
+\begin{document}
+\begin{frontmatter}
+
+\title{An Investigation into GPU accelerated Chemical Kinetic Integration}
+
+\author[uconn]{Nicholas~J.\ Curtis}
+\author[osu]{Kyle~E.\ Niemeyer}
+\author[uconn]{Chih-Jen Sung\corref{cor1}}
+\ead{cjsung@engr.uconn.edu}
+
+% addresses
+\address[uconn]{Department of Mechanical Engineering\\
+  University of Connecticut, Storrs, CT, 06269, USA}
+\address[osu]{School of Mechanical, Industrial, and Manufacturing Engineering\\
+  Oregon State University, Corvallis, OR 97331, USA}
+  
+\cortext[cor1]{Corresponding author}
+
+\begin{abstract}
+TODO
+\end{abstract}
+
+\begin{keyword}
+ Chemical Kinetics \sep Stiff Chemistry Integration \sep SIMD \sep GPU
+\end{keyword}
+
+\end{frontmatter}
+
+\section{Introduction}
+\label{sec:Intro}
+
+\end{document}
