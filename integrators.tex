@@ -68,4 +68,30 @@ TODO
 \section{Introduction}
 \label{sec:Intro}
 
+The need for detailed, accurate chemical kinetic models for predictive reacting-flow simulations has driven the developement of large hydrocarbon oxidation models for transport and energy relevant fuels.
+At the same time, the growing understanding of the hydrocarbon oxidation process has resulted in orders of magnitude growth in mechanism size and complexity.  
+For instance, a recently developed 2-methylalkane model, relevant for jet and diesel fuel surrogates, consists of over 7000 species and 30000 reactions \cite{Sarathy:2011kx} while a recent detailed gasoline surrogate mechanism contains over 1500 species and 6000 reactions \cite{Mehl:2011jn}.
+Further, large hydrocarbon fuels tend to exhibit high levels of chemical stiffness \cite{Lu:2009gh}; the solution cost of which scales at best quadratically, and at worst cubically with the number of species in a mechanism \cite{Lu:2009gh}.
+
+Consequently, a number of techniques have been developed to accelerate chemical kinetic integration.
+These can be roughly categorized as: skeletal mechanism reduction and removal of unimportant species and reactions \cite{Lu:2005,Lu:2006bb,Lu:2008bi,Pepiot-Desjardins:2008,Niemeyer:2010bt,Niemeyer:2014,Curtis:2015aa,rabitz_sa,turanyi_sa_1,turanyi_sa_2,vajda_pca,valorani_csp2,valorani_csp}, time-scale analysis 
+\cite{qssa,pe_approx1,pe_approx2} and dimensional reduction \cite{Lam:1993ub,Lam:1988wc,Lam:1994ws,Lu:2001ve,ildm}, and tabulation and interpolation of expensive terms \cite{Pope:1997wu,prism,Christo1996}.
+In addition to these cost-reduction methods, significant work has been directed towards improvements of the integration algorithmns themselves.
+
+Typically to solve the highly stiff set of governing equations associated with transport and fuel relevant chemical kinetics mechanisms, high-order implicit integration techniques are used.
+These methods require repeated evaluation and factorization of the chemical kinetic Jacobian matrix in order to solve the associated non-linear algebraic equations during iteration, the cost of which scale quadratically and cubically with the number of species in a mechanism.
+However, significant cost savings can be realized in Jacobian evaluation through the use of an analytic formulation, rather than the typical evaluation via a finite difference approximation.
+This approach eliminates the numerous right-hand side function evaluations, and the cost of Jacobian evaluation drops to a linear dependence on the number of species in the mechanism \cite{Lu:2009gh}.
+Several analytical Jacobian matrix codes have been developed \cite{Safta:2011vn,Youssefi:2011tm,Bisetti:2012jw,Perini:2012gy,Dijkmans:2014bb}, but the recently released \texttt{pyJac} \cite{Niemeyer:2015im,Niemeyer:2015ws} software is the only open-source analytical chemical kinetic Jacobian tool capable of both generating code for new SIMD processor types, as well as handling newer pressure dependence formulations (e.g. pressure-log or Chebyshev rate formulations).
+Further, when the governing equations of the chemical kinetic system are formulated in terms of species concentrations, the resulting Jacobian matrix is sparse and the factorization and solutions can be accelerated using sparse matrix techniques \cite{Lu:2009gh}; it is noted however that the majority of simulations are still formulated in terms of species mass fractions.
+
+Another research thrust has been aimed at evaluation of new integration algorithmns, specifically targeted at exploiting the power of high-performance hardware accelerators such as the Graphics Processing Unit (GPU) and other similar single-instruction multiple-data devices.
+Central processing units (CPU) clock speeds have increased regularly--commonly known as Moore's Law--over the past few decades, however power consumption and heat dissapation issues have slowed this trend recently.
+While multiple-core parallelism has increased CPU performance somewhat, recently SIMD processors have gained popularity as a low-cost, low-power and massively parallel high-performance computing alternative.
+
+\pagebreak
+
+\bibliography{refs}
+\bibliographystyle{elsarticle-num}
+
 \end{document}
