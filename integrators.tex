@@ -14,6 +14,8 @@
 \usepackage{caption}
 \usepackage{subcaption}
 
+\usepackage{booktabs}
+
 \usepackage[version=3]{mhchem} % Formula subscripts using \ce{}, e.g., \ce{H2SO4}
 \usepackage{latexsym,amsmath,amssymb}
 
@@ -132,11 +134,34 @@ As suggested by Bissetti et al. \cite{Bisetti:2012jw} the method of rational app
 Unlike Bissetti et al., a custom routine based on the algorithm presented by Stewart \cite{stewart:1998} was developed in order to find the LU decomposition of the Hessenberg matrix resulting from the Arnoldi process.
 The GPU versions of the \texttt{Radau-IIA}, \texttt{exp4}, and \texttt{exprb43} were largely similar to the CPU versions, except they required implementation of several BLAS/LAPACK methods, mostly related to LU factorization (or Hessenberg LU factorization for the exponential integrators) for the GPU.
 
+\subsection{Tested Conditions}
+
+\begin{table}[tbp]
+\centering
+\begin{tabular}{@{}l l l l@{}}
+\toprule
+Fuel species & Number of species & Number of reactions & Reference \\
+\midrule
+\ce{H2}\slash \ce{CO} & 13 & 27 & \cite{Burke:2011fh} \\
+\ce{CH4} & 53 & 325 & \cite{smith_gri-mech_30} \\
+\ce{C2H4} & 111 & 784 & \cite{Wang:2007} \\
+%\ce{C4H9OH} & 372 & 8723 & \cite{Merchant:2013kz,Hansen:2013fe} \\
+\bottomrule
+\end{tabular}
+\caption{
+Summary of chemical kinetic models used as benchmark test cases.
+}
+\label{T:mechanisms}
+\end{table}
+
+In order to validate and measure the performance of the integrators for realistic conditions, a database of thermochemical conditions covering a wide range of temperatures and species mass fractions was generated using previously developed \cite{Niemeyer:2015ws} stochastic partially stirred reactor (PaSR) simulations.
+In addition, three chemical kinetic mechanisms, listed in Table \ref{T:mechanisms} were selected to represent a wide range of model sizes and fuel species.
+For more details on the PaSR simulation and testing conditions the reader is referred to the previous work \cite{Niemeyer:2015ws}.
 
 \subsection{Validation}
+%todo, get output from the logger
 
 \section{Discussion}
-
 %todo note about Leja polynomials, and inexact W-methods
 
 \pagebreak
