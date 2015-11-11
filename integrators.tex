@@ -113,8 +113,7 @@ Sewerin et al. \cite{Sewerin20151375} implemented a 3-stage/5th order implicit R
 In this work we will investigate GPU implementations of several semi-implicit and implicit integration techniques, as compared to their CPU counterparts and a baseline CPU VODE implementation \cite{Hindmarsh:2005hg}.
 Several previous works \cite{Stone:2013aa,Bisetti:2012jw,Niemeyer:2014aa,Perini20141180,McNenly2015581} have suggested so called matrix-free methods---which do not require direct factorization of the Jacobian, but instead use an iterative process to approximate the action of the factorized Jacobian on a vector---as potential improvements to the linear-system solver.
 In particular, semi-implicit exponential integration methods have been suggested as a good fit for the SIMD parallelism model \cite{Stone:2013aa,Bisetti:2012jw,Niemeyer:2014aa} due to their relatively comparable performance with high-order implicit methods and the lesser expected thread-divergence performance impact as compared to fully implicit method.
-Further, the 3-stage/5th order implicit Runge--Kutta algorithm investigated by Sewerin et al. \cite{Sewerin20151375} will be studied on a one-thread per ODE bases, in particular to determine the impact of increasing chemical stiffness on the algorithm.
-
+Further, the 3-stage/5th order implicit Runge--Kutta algorithm \cite{hairer1996solving} investigated by Sewerin et al. \cite{Sewerin20151375} will be studied on a one-thread per ODE bases, in particular to determine the impact of increasing chemical stiffness on the algorithm.
 
 
 \pagebreak
