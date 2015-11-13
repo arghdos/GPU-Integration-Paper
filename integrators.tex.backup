@@ -108,11 +108,59 @@ Stone et al. \cite{Stone:2013aa} implemented the implicit VODE \cite{brown1989vo
 Additionally, it was found that the implicit VODE algorithm was highly susciptible to thread divergence, as expected from its relatively complicated (compared to an explicit integration scheme) program flow and if/then branching.
 Further, for reasonable numbers of independent ODEs (e.g. $\mathcal{10^3}$) it was more efficient for each GPU thread solve one independent chemical kinetic ODE, rather than having a block of GPU threads cooperate to solve a single ODE \cite{Stone:2013aa}.
 Niemeyer et al. \cite{Niemeyer:2014aa} found over an order of magnitude speedup for an implementation of a stabilized explicit second corder Runge-Kutta-Chebyshev algorithmn over a CPU implementation of VODE for moderately stiff chemical kinetics.
-Sewerin et al. \cite{Sewerin20151375} implemented a 3-stage/5th order implicit Runge--Kutta method on a one-block per ODE basis, and found a maximum 5$\times$ speedup.
+Sewerin et al. \cite{Sewerin20151375} implemented a 3-stage/5th order implicit Runge--Kutta method \cite{hairer1996solving} on a one-block per ODE basis, and found a maximum 5$\times$ speedup.
 
 In this work we will investigate GPU implementations of several semi-implicit and implicit integration techniques, as compared to their CPU counterparts and a baseline CPU VODE implementation \cite{Hindmarsh:2005hg}.
 Several previous works \cite{Stone:2013aa,Bisetti:2012jw,Niemeyer:2014aa,Perini20141180,McNenly2015581} have suggested so called matrix-free methods---which do not require direct factorization of the Jacobian, but instead use an iterative process to approximate the action of the factorized Jacobian on a vector---as potential improvements to the linear-system solver.
-In particular, 
+In particular, semi-implicit exponential integration methods have been suggested as a good fit for the SIMD parallelism model \cite{Stone:2013aa,Bisetti:2012jw,Niemeyer:2014aa} due to their relatively comparable performance with high-order implicit methods and the lesser expected thread-divergence performance impact as compared to fully implicit method.
+Further, the 3-stage/5th order implicit Runge--Kutta algorithm \cite{hairer1996solving} investigated by Sewerin et al. \cite{Sewerin20151375} will be studied on a one-thread per ODE bases, in particular to determine the impact of increasing chemical stiffness on the algorithm.
+
+\section{Methodology}
+\label{sec:Method}
+
+\subsection{Integration techniques}
+
+Several integration methods were implemented/utilized for this work.
+The aforementioned \texttt{pyJac} code \cite{Niemeyer:2015im} was used to provide both rate and analytical Jacobian subroutines for both CPU and GPU based algorithms.
+For valididation and performance assessments of \texttt{pyJac} the reader is directed to our previous work \cite{Niemeyer:2015ws}.
+
+To provide a good assessment of the baseline performance of a CPU based high-order implicit integration technique the CVODEs package \cite{Hindmarsh:2005hg} was utilized.
+In addition, the 3-stage/5th order implicit Runge--Kutta algorithm \cite{hairer1996solving}, termed \texttt{Radau-IIA} algorithm in this work, was implemented for the CPU.
+Version 11.1.3 of the Intel MKL library was used to accelerate BLAS/LAPACK operations.
+The commonly used fourth-order exponential Rosenbrock-like method \texttt{exp4} of Hochbruck et al. \cite{Hochbruck:1998} as well as their newer fourth-order exponential Rosenbrock method \cite{Hockbruck:2009}, termed \texttt{exprb43} in this work, were first implemented for the CPU for direct comparison to the high-order implicit techniques.
+As suggested by Bissetti et al. \cite{Bisetti:2012jw} the method of rational approximants \cite{gallopoulos:1992} paired with the Carath\'edothy--Fej\'er method \cite{trefethen:2006} was used to compute the the approximation of the matrix-exponetial's action on a vector.
+Unlike Bissetti et al., a custom routine based on the algorithm presented by Stewart \cite{stewart:1998} was developed in order to find the LU decomposition of the Hessenberg matrix resulting from the Arnoldi process.
+The GPU versions of the \texttt{Radau-IIA}, \texttt{exp4}, and \texttt{exprb43} were largely similar to the CPU versions, except they required implementation of several BLAS/LAPACK methods, mostly related to LU factorization (or Hessenberg LU factorization for the exponential integrators) for the GPU.
+
+\subsection{Tested Conditions}
+\begin{table}[tbp]
+\centering
+\begin{tabular}{@{}l l l l@{}}
+\toprule
+Fuel species & Number of species & Number of reactions & Reference \\
+\midrule
+\ce{H2}\slash \ce{CO} & 13 & 27 & \cite{Burke:2011fh} \\
+\ce{CH4} & 53 & 325 & \cite{smith_gri-mech_30} \\
+\ce{C2H4} & 111 & 784 & \cite{Wang:2007} \\
+%\ce{C4H9OH} & 372 & 8723 & \cite{Merchant:2013kz,Hansen:2013fe} \\
+\bottomrule
+\end{tabular}
+\caption{
+Summary of chemical kinetic models used as benchmark test cases.
+}
+\label{T:mechanisms}
+\end{table}
+
+In order to validate and measure the performance of the integrators for realistic conditions, a database of thermochemical conditions covering a wide range of temperatures and species mass fractions was generated using previously developed \cite{Niemeyer:2015ws} stochastic partially stirred reactor (PaSR) simulations.
+In addition, three chemical kinetic mechanisms, listed in \ref{T:mechanisms} were selected to represent a wide range of model sizes and fuel species.
+We performed nine premixed PaSR simulations for each fuel\slash mechanism, with the parameters given in Table~\ref{T:pasr_parameters}.
+Each simulation ran for 10 residence times ($\tau_{\text{res}}$) to ensure reaching statistical steady state.
+
+\subsection{Validation}
+%todo, get output from the logger
+
+\section{Discussion}
+%todo note about Leja polynomials, and inexact W-methods
 
 \pagebreak
 
