@@ -1,3 +1,4 @@
+\pdfoutput=1
 \pdfminorversion=4
 
 \documentclass[preprint,12pt]{elsarticle}
@@ -19,6 +20,12 @@
 
 \usepackage{mathtools}
 
+%better printing of numbers
+\usepackage[T1]{fontenc}
+\usepackage[english]{babel}
+\usepackage{csquotes}
+\usepackage{textcomp}
+
 \usepackage{siunitx}
 \sisetup{group-separator={,},
      detect-all,
@@ -34,6 +41,11 @@
 \DeclareSIUnit\atm{atm}
 
 \graphicspath{{./figures/}}
+
+% Add [disable] option to quickly remove any
+\usepackage[textsize=small,textwidth=2.5cm]{todonotes}
+
+
 
 \journal{36th International Symposium on Combustion}
 
@@ -60,7 +72,7 @@ TODO
 \end{abstract}
 
 \begin{keyword}
- Chemical Kinetics \sep Stiff Chemistry Integration \sep SIMD \sep GPU
+ Chemical kinetics \sep Stiff chemistry \sep SIMD \sep GPU
 \end{keyword}
 
 \end{frontmatter}
@@ -68,52 +80,54 @@ TODO
 \section{Introduction}
 \label{sec:Intro}
 
-The need for detailed, accurate chemical kinetic models for predictive reacting-flow simulations has driven the developement of large hydrocarbon oxidation models for transport and energy relevant fuels.
-At the same time, the growing understanding of the hydrocarbon oxidation process has resulted in orders of magnitude growth in mechanism size and complexity.  
-For instance, a recently developed 2-methylalkane model, relevant for jet and diesel fuel surrogates, consists of over 7000 species and 30000 reactions \cite{Sarathy:2011kx} while a recent detailed gasoline surrogate mechanism contains over 1500 species and 6000 reactions \cite{Mehl:2011jn}.
-Further, large hydrocarbon fuels tend to exhibit high levels of chemical stiffness \cite{Lu:2009gh}; the solution cost of which scales at best quadratically, and at worst cubically with the number of species in a mechanism \cite{Lu:2009gh}.
+The need for detailed, accurate chemical kinetic models for predictive reacting-flow simulations has driven the development of detailed oxidation models for hydrocarbon fuels relevant to transportation and energy applications.
+At the same time, growing understanding of the hydrocarbon oxidation process resulted in orders of magnitude increases in model size and complexity.  
+For instance, a recently developed model for 2-methylalkanes, relevant for jet and diesel fuel surrogates, consists of over 7000 species and 30000 reactions~\cite{Sarathy:2011kx} while a recent detailed gasoline surrogate mechanism contains over 1500 species and 6000 reactions~\cite{Mehl:2011jn}.
+Furthermore, kinetic models for large hydrocarbon fuels tend to exhibit chemical stiffness requiring implicit integration algorithms~\cite{Lu:2009gh}, the solution cost of which scale at best quadratically---and at worst cubically---with the number of species in a mechanism~\cite{Lu:2009gh}.
 
-Consequently, a number of techniques have been developed to accelerate chemical kinetic integration.
-These can be roughly categorized as: skeletal mechanism reduction and removal of unimportant species and reactions \cite{Lu:2005,Lu:2006bb,Lu:2008bi,Pepiot-Desjardins:2008,Niemeyer:2010bt,Niemeyer:2014,Curtis:2015aa,rabitz_sa,turanyi_sa_1,turanyi_sa_2,vajda_pca,valorani_csp2,valorani_csp}, time-scale analysis 
-\cite{qssa,pe_approx1,pe_approx2} and dimensional reduction \cite{Lam:1993ub,Lam:1988wc,Lam:1994ws,Lu:2001ve,ildm}, and tabulation and interpolation of expensive terms \cite{Pope:1997wu,prism,Christo1996}.
-In addition to these cost-reduction methods, significant work has been directed towards improvements of the integration algorithmns themselves.
+Consequently, a number of techniques have been developed to accelerate chemical kinetics integration.
+As Lu and Law reviewed more extensively~\cite{Lu:2009gh}, these methods can be roughly categorized into three classes: skeletal reduction and removal of unimportant species and reactions~\cite{vajda_pca,rabitz_sa,turanyi_sa_1,turanyi_sa_2,Lu:2005,Lu:2006bb,valorani_csp,valorani_csp2,Lu:2008bi,Pepiot-Desjardins:2008,Niemeyer:2010bt,Niemeyer:2014,Curtis:2015aa}, time-scale analysis~\cite{qssa,pe_approx1,pe_approx2} and dimensional reduction~\cite{Lam:1988wc,Maas:1992aa,Lam:1993ub,Lam:1994ws,Lu:2001ve}, and tabulation\slash interpolation of expensive terms~\cite{Pope:1997wu,Christo1996,Tonse:1999aa}.
+In addition to these cost-reduction methods, significant work has been directed towards improvements of the integration algorithms themselves.
 
-Typically to efficiently solve the highly stiff set of governing equations associated with transport and fuel relevant chemical kinetics mechanisms, high-order implicit integration techniques are used.
-These methods require repeated evaluation and factorization of the chemical kinetic Jacobian matrix in order to solve the associated non-linear algebraic equations during iteration, the cost of which scale quadratically and cubically with the number of species in a mechanism.
-However, significant cost savings can be realized in Jacobian evaluation through the use of an analytic formulation, rather than the typical evaluation via a finite difference approximation.
-This approach eliminates the numerous right-hand side function evaluations, and the cost of Jacobian evaluation drops to a linear dependence on the number of species in the mechanism \cite{Lu:2009gh}.
-Several analytical Jacobian matrix codes have been developed \cite{Safta:2011vn,Youssefi:2011tm,Bisetti:2012jw,Perini:2012gy,Dijkmans:2014bb}, but the recently released \texttt{pyJac} \cite{Niemeyer:2015im,Niemeyer:2015ws} software is currently the only open-source analytical chemical kinetic Jacobian tool capable of both generating code for new SIMD processor types, as well as handling newer pressure dependence formulations (e.g. pressure-log or Chebyshev rate formulations).
+Reactive-flow modeling codes typically rely on high-order implicit integration techniques to efficiently solve the stiff governing equations associated with transport and fuel-relevant chemical kinetics models\todo{Is the transport part true?}.
+These methods require repeated evaluation and factorization of the chemical kinetic Jacobian matrix in order to solve the associated non-linear algebraic equations through iterations of linear system solutions, the cost of which scales quadratically and cubically, respectively, with the number of species in a mechanism.\todo{check this updated description}
+However, significant cost savings in the Jacobian evaluation can be realized through the use of an analytic formulation, rather than the typical evaluation via finite difference approximations.
+This approach eliminates numerous right-hand side function evaluations, and the cost of Jacobian evaluation drops to a linear dependence on the number of species in the mechanism~\cite{Lu:2009gh}.
+Several analytical Jacobian matrix codes have been developed~\cite{Safta:2011vn,Youssefi:2011tm,Bisetti:2012jw,Perini:2012gy,Dijkmans:2014bb}, but the recently released \texttt{pyJac} software~\cite{Niemeyer:2015im,Niemeyer:2015ws} is currently the only open-source analytical chemical kinetic Jacobian tool capable of both generating code for new SIMD processor types, as well as handling newer pressure dependence formulations (e.g., pressure-log or Chebyshev rate formulations).
 
-Another research thrust has been aimed at evaluation of new integration algorithmns, specifically targeted at exploiting the power of high-performance hardware accelerators such as the Graphics Processing Unit (GPU) and other similar single-instruction multiple-data devices.
-Central processing units (CPU) clock speeds have increased regularly--commonly known as Moore's Law--over the past few decades, however power consumption and heat dissapation issues have slowed this trend recently.
-While multiple-core parallelism has increased CPU performance somewhat, recently SIMD processors have gained popularity as a low-cost, low-power and massively parallel high-performance computing alternative.
-GPUs were originally developed for graphics/video processing and consist of hundreds to thousands of separate cores, compared to the tens of cores found on typical CPUs.
+Another research thrust has been aimed at evaluation of alternative integration algorithms, specifically targeted at exploiting the power of high-performance hardware accelerators such as graphics processing unit (GPUs) and other similar single-instruction multiple-data (SIMD) devices\todo{I think this paragraph could open more strongly}.
+Central processing unit (CPU) clock speeds increased regularly over the past few decades---commonly known as Moore's Law---however, power consumption and heat dissipation issues slowed this trend recently.
+While multicore parallelism somewhat increased CPU performance, recently SIMD processors gained in popularity as a low cost, low power consumption, and massively parallel high-performance computing alternative.
+GPUs were originally developed for graphics\slash video processing applications and consist of hundreds to thousands of separate cores, compared to the tens of cores found on typical CPUs.
 
-In the SIMD model, the total number of threads is broken into a grid of thread-blocks; each thread-block is assigned to a streaming multiprocessor (there are several on a SIMD device) and share a small memory cache, register bank and per block memory, known as shared memory.
-During execution, thread-blocks are broken into groups of up to 32 threads--known as a warp.
-Accelerations are achieved by applying the same operation across as a warp to a batch of data, when different threads in the warp must execute different instructions, as in a branching if/then statement, the different operations must be performed serially and a slowdown occurs -- an issue known as thread divergence.
-Additionally, SIMD processors typically feature very small (relative to modern CPUs) per-thread cache and register bank sizes.
+In the SIMD model, the total number of threads is broken into a grid of thread-blocks; each thread-block is assigned to a streaming multiprocessor (there are several on a SIMD device) and share a small memory cache, register bank, and per-block ``shared'' memory.
+During execution, thread-blocks are broken into ``warps'' of up to 32 threads.
+SIMD functions achieve high performance by applying the same operation across as a warp to a batch of data.
+When different threads in the warp execute different instructions, as in a branching if\slash then statement, the different operations must be performed serially and a slowdown occurs---an issue known as thread divergence.
+Additionally, SIMD processors typically feature small per-thread cache and register bank sizes (relative to modern CPUs).
 In order to avoid prohibitively slow memory access, accesses to the device memory should coalesced, that is all threads in a block should access memory locations that can be grouped together into one memory transaction.
-Further, the shared-memory can be utilized as a manually managed per-block cache and steps can be attemped to maximize register usage and cache-hit rates for maximum memory access speed.
-These two factors, thread-divergence and memory access patterns are two key perfomance parameters that determine the suitibility of an an algorithmn for SIMD parallelization.
+Further, the shared-memory can be utilized as a manually managed per-block cache and steps can be attempted to maximize register usage and cache-hit rates for maximum memory access speed.
+These two factors, thread-divergence and memory access patterns, are two key performance parameters that determine the suitability of an an algorithm for SIMD parallelization.
+\todo[inline]{There probably isn't a need to go into this sort of detail on GPU programming best practices; perhaps just point to other sources that discuss these topics? The audience here probably won't be too interested.}
+% you can cite ~\cite{Cruz:2011gc,Brodtkorb:2013hn,Niemeyer:2014hn}
 
-A number of studies in recent years have explored the use high-performance SIMD devices for acceleration of turbulent reacting flow simulations.
-Spafford et al. \cite{Spafford:2010aa} investigated the use of GPUs to accelerate S3D \cite{CHEN:2009s3d} a turbulent combustion direct numerical simulation code; they found around an order of magnitude speedup for evaluating the species production rates on the GPU.
-Shi et al. \cite{Shi:2011aa} used the GPU for evaluation of species rates and Jacobian factorization and similarly large speedups when evaulating the rates or factorizing Jacobians on the GPU.
-Niemeyer et al. \cite{Niemeyer:2011aa} implemented an explicit fourth-order Runge-Kutta integrator for the GPU, and found a speedup of nearly two orders of magnitude with a non-stiff hydrogen mechanism.
-Further, the level of thread-divergence due to differing integrator time step sizes was investigated and found to have a large negative impact on overall performance when the initial conditions for the ODEs in a thread-block were very different.
-Shi et al. \cite{Shi:2012aa} implemented a stabilized explicit solver, and paired it with a CPU based implicit solver which handled integration of the stiffest chemistry cells in a three-dimensional homogenous charge compression ignition engine simulation, domonstrating a 2-3$\times$ overall speedup for the full simulation.
-Le et al. \cite{Le2013596} implemented a GPU version of two high-order shock-capturing reacting flow codes, and found a 30-50$\times$ speedup over the baseline 
-Stone et al. \cite{Stone:2013aa} implemented the implicit VODE \cite{brown1989vode} solver for the GPU and achieved an order of magnitude speed-up over the baseline CPU version.
+A number of studies in recent years explored the use high-performance SIMD devices for acceleration of turbulent reacting flow simulations.
+Spafford et al.~\cite{Spafford:2010aa} first investigated the use of GPUs to accelerate S3D \cite{CHEN:2009s3d}, a turbulent combustion direct numerical simulation code; they showed around an order of magnitude speedup for evaluating the species production rates on the GPU.
+Shi et al.~\cite{Shi:2011aa} used a GPU to evaluate species rates and factorize the Jacobian, showing order-of-magnitude or greater speedups for large kinetic models.
+Niemeyer et al.~\cite{Niemeyer:2011aa} implemented an explicit fourth-order Runge--Kutta integrator for the GPU, and found a speedup of nearly two orders of magnitude with a non-stiff hydrogen mechanism.
+Furthermore, the level of thread-divergence due to differing integrator time step sizes was investigated and found to have a large negative impact on overall performance when the initial conditions for the ODEs in a thread-block were very different.\todo[inline]{in this paper? or the later one?}
+Shi et al.~\cite{Shi:2012aa} implemented a stabilized explicit solver, and paired it with a CPU-based implicit solver that handled integration of the most-stiff chemistry cells in a three-dimensional homogenous charge compression ignition engine simulation, demonstrating a 2--3$\times$ overall speedup.
+Le et al.~\cite{Le2013596} implemented a GPU version of two high-order shock-capturing reacting flow codes, and found a 30-50$\times$ speedup over the baseline 
+Stone et al.~\cite{Stone:2013aa} implemented the implicit VODE~\cite{brown1989vode} solver for the GPU and achieved an order of magnitude speed-up over the baseline CPU version.
 Additionally, it was found that the implicit VODE algorithm was highly susciptible to thread divergence, as expected from its relatively complicated (compared to an explicit integration scheme) program flow and if/then branching.
 Further, for reasonable numbers of independent ODEs (e.g. $\mathcal{10^3}$) it was more efficient for each GPU thread solve one independent chemical kinetic ODE, rather than having a block of GPU threads cooperate to solve a single ODE \cite{Stone:2013aa}.
-Niemeyer et al. \cite{Niemeyer:2014aa} found over an order of magnitude speedup for an implementation of a stabilized explicit second corder Runge-Kutta-Chebyshev algorithmn over a CPU implementation of VODE for moderately stiff chemical kinetics.
-Sewerin et al. \cite{Sewerin20151375} implemented a 3-stage/5th order implicit Runge--Kutta method on a one-block per ODE basis, and found a maximum 5$\times$ speedup.
+Niemeyer et al.~\cite{Niemeyer:2014aa} found over an order of magnitude speedup for an implementation of a stabilized explicit second corder Runge--Kutta--Chebyshev algorithm over a CPU implementation of VODE for moderately stiff chemical kinetics.
+Sewerin et al.~\cite{Sewerin20151375} implemented a 3-stage/5th order implicit Runge--Kutta method on a one-block per ODE basis, and found a maximum speedup of 5$\times$.
 
-In this work we will investigate GPU implementations of several semi-implicit and implicit integration techniques, as compared to their CPU counterparts and a baseline CPU VODE implementation \cite{Hindmarsh:2005hg}.
-Several previous works \cite{Stone:2013aa,Bisetti:2012jw,Niemeyer:2014aa,Perini20141180,McNenly2015581} have suggested so called matrix-free methods---which do not require direct factorization of the Jacobian, but instead use an iterative process to approximate the action of the factorized Jacobian on a vector---as potential improvements to the linear-system solver.
-In particular, semi-implicit exponential integration methods have been suggested as a good fit for the SIMD parallelism model \cite{Stone:2013aa,Bisetti:2012jw,Niemeyer:2014aa} due to their relatively comparable performance with high-order implicit methods and the lesser expected thread-divergence performance impact as compared to fully implicit method.
-Further, the 3-stage/5th order implicit Runge--Kutta algorithm investigated by Sewerin et al. \cite{Sewerin20151375} will be studied on a one-thread per ODE bases, in particular to determine the impact of increasing chemical stiffness on the algorithm.
+In this work we will investigate GPU implementations of several semi-implicit and implicit integration techniques, as compared to their CPU counterparts and a baseline CPU VODE implementation~\cite{Hindmarsh:2005hg}.
+Several previous works~\cite{Stone:2013aa,Bisetti:2012jw,Niemeyer:2014aa,Perini20141180,McNenly2015581} suggested so called matrix-free methods---which do not require direct factorization of the Jacobian, but instead use an iterative process to approximate the action of the factorized Jacobian on a vector---as potential improvements to the linear-system solver.
+In particular, semi-implicit exponential integration methods have been suggested as a good fit for the SIMD parallelism model~\cite{Stone:2013aa,Bisetti:2012jw,Niemeyer:2014aa} due to their relatively comparable performance with high-order implicit methods and the lesser expected thread-divergence performance impact as compared to fully implicit method.
+Further, the three-stage, fifth-order implicit Runge--Kutta algorithm investigated by Sewerin et al.~\cite{Sewerin20151375} will be studied on a one-thread per ODE bases, in particular to determine the impact of increasing chemical stiffness on the algorithm.
 
 
 
