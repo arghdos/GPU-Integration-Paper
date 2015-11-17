@@ -91,8 +91,8 @@ Consequently, a number of techniques have been developed to accelerate chemical 
 As Lu and Law reviewed more extensively~\cite{Lu:2009gh}, these methods can be roughly categorized into three classes: skeletal reduction and removal of unimportant species and reactions~\cite{vajda_pca,rabitz_sa,turanyi_sa_1,turanyi_sa_2,Lu:2005,Lu:2006bb,valorani_csp,valorani_csp2,Lu:2008bi,Pepiot-Desjardins:2008,Niemeyer:2010bt,Niemeyer:2014,Curtis:2015aa}, time-scale analysis~\cite{qssa,pe_approx1,pe_approx2} and dimensional reduction~\cite{Lam:1988wc,Maas:1992aa,Lam:1993ub,Lam:1994ws,Lu:2001ve}, and tabulation\slash interpolation of expensive terms~\cite{Pope:1997wu,Christo1996,Tonse:1999aa}.
 In addition to these cost-reduction methods, significant work has been directed towards improvements of the integration algorithms themselves.
 
-Reactive-flow modeling codes typically rely on high-order implicit integration techniques to efficiently solve the stiff governing equations associated with transport and fuel-relevant chemical kinetics models\todo{Is the transport part true?}.
-These methods require repeated evaluation and factorization of the chemical kinetic Jacobian matrix in order to solve the associated non-linear algebraic equations through iterations of linear system solutions, the cost of which scales quadratically and cubically, respectively, with the number of species in a mechanism.\todo{check this updated description}
+Reactive-flow modeling codes typically rely on high-order implicit integration techniques to efficiently solve the stiff governing equations associated with chemical kinetics models of fuels relevant to transportation and power-generation.
+These methods require repeated evaluation and factorization of the chemical kinetic Jacobian matrix in order to solve the associated non-linear algebraic equations through iterations of linear system solutions, the cost of which scales quadratically and cubically, respectively, with the number of species in a mechanism.
 However, significant cost savings in the Jacobian evaluation can be realized through the use of an analytic formulation, rather than the typical evaluation via finite difference approximations.
 This approach eliminates numerous right-hand side function evaluations, and the cost of Jacobian evaluation drops to a linear dependence on the number of species in the mechanism~\cite{Lu:2009gh}.
 Several analytical Jacobian matrix codes have been developed~\cite{Safta:2011vn,Youssefi:2011tm,Bisetti:2012jw,Perini:2012gy,Dijkmans:2014bb}, but the recently released \texttt{pyJac} software~\cite{Niemeyer:2015im,Niemeyer:2015ws} is currently the only open-source analytical chemical kinetic Jacobian tool capable of both generating code for new SIMD processor types, as well as handling newer pressure dependence formulations (e.g., pressure-log or Chebyshev rate formulations).
@@ -101,17 +101,8 @@ Another research thrust has been aimed at evaluation of alternative integration 
 Central processing unit (CPU) clock speeds increased regularly over the past few decades---commonly known as Moore's Law---however, power consumption and heat dissipation issues slowed this trend recently.
 While multicore parallelism somewhat increased CPU performance, recently SIMD processors gained in popularity as a low cost, low power consumption, and massively parallel high-performance computing alternative.
 GPUs were originally developed for graphics\slash video processing applications and consist of hundreds to thousands of separate cores, compared to the tens of cores found on typical CPUs.
-
-In the SIMD model, the total number of threads is broken into a grid of thread-blocks; each thread-block is assigned to a streaming multiprocessor (there are several on a SIMD device) and share a small memory cache, register bank, and per-block ``shared'' memory.
-During execution, thread-blocks are broken into ``warps'' of up to 32 threads.
-SIMD functions achieve high performance by applying the same operation across as a warp to a batch of data.
-When different threads in the warp execute different instructions, as in a branching if\slash then statement, the different operations must be performed serially and a slowdown occurs---an issue known as thread divergence.
-Additionally, SIMD processors typically feature small per-thread cache and register bank sizes (relative to modern CPUs).
-In order to avoid prohibitively slow memory access, accesses to the device memory should coalesced, that is all threads in a block should access memory locations that can be grouped together into one memory transaction.
-Further, the shared-memory can be utilized as a manually managed per-block cache and steps can be attempted to maximize register usage and cache-hit rates for maximum memory access speed.
-These two factors, thread-divergence and memory access patterns, are two key performance parameters that determine the suitability of an an algorithm for SIMD parallelization.
-\todo[inline]{There probably isn't a need to go into this sort of detail on GPU programming best practices; perhaps just point to other sources that discuss these topics? The audience here probably won't be too interested.}
-% you can cite ~\cite{Cruz:2011gc,Brodtkorb:2013hn,Niemeyer:2014hn}
+The SIMD parallelism model is very different from a traditional CPU based multithreading model, with small per-core memory caches and accelerations resulting from executing the same instruction on multiple data sets.
+For more details, the reader is referred to several works which have discussed these differences in depth~\cite{Cruz:2011gc,Brodtkorb:2013hn,Niemeyer:2014hn}.
 
 A number of studies in recent years explored the use high-performance SIMD devices for acceleration of turbulent reacting flow simulations.
 Spafford et al.~\cite{Spafford:2010aa} first investigated the use of GPUs to accelerate S3D \cite{CHEN:2009s3d}, a turbulent combustion direct numerical simulation code; they showed around an order of magnitude speedup for evaluating the species production rates on the GPU.
