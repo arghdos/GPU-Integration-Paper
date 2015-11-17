@@ -912,7 +912,6 @@ Eigenvectors of J are time-depedent but provide good trial basis vectors A and B
 	Bdsk-Url-1 = {http://dx.doi.org/10.1145/1365490.1365500}}
 
 @article{Sewerin20151375,
-<<<<<<< HEAD
 	Author = {Fabian Sewerin and Stelios Rigopoulos},
 	Date-Modified = {2015-11-11 21:34:00 +0000},
 	Journal = {Combust. Flame},
@@ -923,34 +922,14 @@ Eigenvectors of J are time-depedent but provide good trial basis vectors A and B
 	Year = {2015},
 	Bdsk-Url-1 = {http://dx.doi.org/10.1016/j.combustflame.2014.11.003}}
 
-=======
-title = "A methodology for the integration of stiff chemical kinetics on \{GPUs\} ",
-journal = "Combustion and Flame ",
-volume = "162",
-number = "4",
-pages = "1375 - 1394",
-year = "2015",
-note = "",
-issn = "0010-2180",
-doi = "http://dx.doi.org/10.1016/j.combustflame.2014.11.003",
-url = "http://www.sciencedirect.com/science/article/pii/S0010218014003459",
-author = "Fabian Sewerin and Stelios Rigopoulos",
-keywords = "GPU",
-keywords = "Chemical kinetics",
-keywords = "Implicit Runge–Kutta methods ",
-abstract = "Abstract Numerical schemes for reacting flows typically invoke the method of fractional steps in order to isolate the chemical kinetics model from diffusion/convection phenomena. Here, the reaction fractional step requires the solution of a collection of independent \{ODE\} systems which may be severely stiff. Recently, researchers have begun to explore the highly parallel structure of graphics processing units (GPUs) in order to accelerate integration schemes for these \{ODE\} systems. However, much of the existing work concentrates on explicit integration algorithms which may fall short in the presence of stiffness. In this light, we have carefully reimplemented in OpenCL C the Fortran 77 program of the 3-stage/5th order implicit Runge–Kutta method Radau5 by Hairer and Wanner (1991) and tested it extensively in the context of a transient equilibrium scheme for the flamelet model. Our implementation can easily be integrated with any existing reactive flow software in order to solve the reaction fractional step on an OpenCL-enabled GPU. Moreover, it is suited for any Chemkin-format reaction mechanism with ≲ 200 species without incurring a loss in occupancy and it reaches its limit speedup (which is largely independent of the mechanism size) at a small problem size (≈500 \{ODE\} systems). In view of memory constraints, we include an optimized scheme for splitting the \{ODE\} systems across several kernel invocations and overlapping the kernel execution with data transfers. An in-depth evaluation is based upon runtime measurements of the \{CPU\} and the \{GPU\} implementation on a user level and a high-end CPU/GPU for an increasing number of \{ODE\} systems, reduced and detailed reaction mechanisms and a range of time step sizes. "
-}
-
 @article{hairer1996solving,
-  title={Solving ordinary differential equations ii: Stiff and differential-algebraic problems second revised edition with 137 figures},
-  author={Hairer, Ernst and Wanner, Gerhard},
-  journal={Springer series in computational mathematics},
-  volume={14},
-  year={1996},
-  publisher={Springer-Verlag}
-}
-	
->>>>>>> 1e05ab7c386ea70e9f2cd1ec11e304e5984a16c0
+	title={Solving ordinary differential equations ii: Stiff and differential-algebraic problems second revised edition with 137 figures},
+	author={Hairer, Ernst and Wanner, Gerhard},
+	journal={Springer Ser. Comput. Math.},
+	volume={14},
+	year={1996},
+	publisher={Springer-Verlag}}
+
 @article{Le2013596,
 	Author = {Hai P. Le and Jean-Luc Cambier and Lord K. Cole},
 	Date-Modified = {2015-11-11 21:34:00 +0000},
