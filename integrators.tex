@@ -192,7 +192,7 @@ In addition, three chemical kinetic mechanisms, listed in Table~\ref{T:mechanism
 The PaSR simulations were run at the conditions listed in Table~\ref{T:pasr_parameters} for ten residence times to reach a statistical steady state, for further details of the PaSR simulations the reader is referred to Niemeyer et al.~\cite{Niemeyer:2015ws}.
 
 \subsection{Validation}
-%todo, get output from the logger
+%todo, get GPU output from the logger
 In order to validate the developed integrators, each integrator was used to run constant pressure simulations identical initial conditions (listed in Table~\ref{T:validation_ics}) throughout a stoichiometric autoignition process.
 The resulting temperature and species mass fraction traces were logged, and compared using the following formula:
 
@@ -230,15 +230,17 @@ Initial conditions for validation of integrators
 
 \begin{table}[tbp]
 \centering
-\begin{tabular}{@{}l l@{\slash}l l@{\slash}l l@{\slash}l l@{\slash}l @{}}
+\begin{tabular}{@{}l S[table-format = 1.1e-1]@{\slash}S[table-format = 1.1e-1]
+	S[table-format = 1.1e-1]@{\slash}S[table-format = 1.1e-1]
+	S[table-format = 1.1e-1]@{\slash}S[table-format = 1.1e-1]
+	S[table-format = 1.1e-1]@{\slash}l
+	@{}}
 \toprule
-		  & \multicolumn{4}{c}{Integration Error CPU\slash GPU \percent} \\
+		  & \headmulti{Integration Error CPU\slash GPU \percent}{8} \\
 Mechanism & \headmulti{\texttt{Radau-IIA}}{2} & \headmulti{\texttt{exp4}}{2} & \headmulti{\texttt{exprb43}}{2} & \headmulti{\texttt{CVODE}\tablefootnote{With a finite difference Jacobian}}{2} \\
 \midrule
-\ce{H2}\slash air & $2*10^{-4}$ & TODO \percent & $2*10^{-4}$ & TODO \percent & $2*10^{-4}$ & TODO & $10^{-5}$ & \NA \percent \\
-\ce{CH4}\slash air & $3.5*10^{-2}$ & TODO \percent & $1.8*10^{-2}$ & TODO \percent & $2.4*10^{-4}$ & TODO & $7*10^{-6}$ & \NA \percent \\
-\ce{C2H4}\slash air & $3.5*10^{-2}$ & TODO \percent & $1.8*10^{-2}$ & TODO \percent & $2.4*10^{-4}$ & TODO & $7*10^{-6}$ & \NA \percent \\
-\bottomrule
+\ce{H2}\slash air & $\SI{1.9e-4}{\percent}$ & $\SI{-1}{\percent}$ & $\SI{1.9e-4}{\percent}$ & $\SI{-1}{\percent}$ & $\SI{1.9e-4}{\percent}$ & $\SI{-1}{\percent}$ & $\SI{1.1e-5}{\percent}$ & \NA \\
+\ce{CH4}\slash air & $\SI{3.5e-2}{\percent}$ & $\SI{-1}{\percent}$ & $\SI{1.8e-2}{\percent}$ & $\SI{-1}{\percent}$ & $\SI{2.4e-2}{\percent}$ & $\SI{-1}{\percent}$ & $\SI{7.4e-6}{\percent}$ & \NA \\
 \end{tabular}
 \caption{
 Integration error with respect to \texttt{CVODE} paired with an analytic Jacobian provided by \texttt{pyJac}. 
