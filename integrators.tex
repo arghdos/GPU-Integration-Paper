@@ -21,6 +21,7 @@
 \usepackage{latexsym,amsmath,amssymb}
 
 \usepackage{mathtools}
+\usepackage{tablefootnote}
 
 %better printing of numbers
 \usepackage[T1]{fontenc}
@@ -47,7 +48,12 @@
 % Add [disable] option to quickly remove any
 \usepackage[textsize=small,textwidth=2.5cm]{todonotes}
 
-
+%custom commands
+\newcommand{\NA}{---}
+\newcommand{\centercell}[1]{\multicolumn{1}{c}{#1}}
+\newcommand{\centermulti}[2]{\multicolumn{#2}{c}{#1}}
+\newcommand{\head}[1]{\centercell{\bfseries#1}}
+\newcommand{\headmulti}[2]{\centermulti{\bfseries#1}{#2}}
 
 \journal{36th International Symposium on Combustion}
 
@@ -133,7 +139,7 @@ The aforementioned \texttt{pyJac} code \cite{Niemeyer:2015im} was used to provid
 For validation and performance assessments of \texttt{pyJac} the reader is directed to our previous work \cite{Niemeyer:2015ws}.
 
 To provide a good assessment of the baseline performance of a CPU based high-order implicit integration technique the \texttt{CVODE} package \cite{Hindmarsh:2005hg} was utilized.
-In addition, the 3-stage/5th order implicit Runge--Kutta algorithm \cite{hairer1996solving}, termed \texttt{Radau-IIA} algorithm in this work, was implemented for the CPU.
+In addition, the 3-stage/5th order implicit Runge--Kutta algorithm \cite{hairer1996solving}, termed \texttt{uu-IIA} algorithm in this work, was implemented for the CPU.
 Version 11.1.3 of the Intel \texttt{MKL} library was used to accelerate BLAS/LAPACK operations.
 The commonly used fourth-order exponential Rosenbrock-like method \texttt{exp4} of Hochbruck et al.~\cite{Hochbruck:1998} as well as their newer fourth-order exponential Rosenbrock method \cite{Hockbruck:2009}, termed \texttt{exprb43} in this work, were first implemented for the CPU for direct comparison to the high-order implicit techniques.
 As suggested by Bisetti et al.~\cite{Bisetti:2012jw} the method of rational approximants \cite{gallopoulos:1992} paired with the Carath\'edothy--Fej\'er method \cite{trefethen:2006} was used to compute the the approximation of the matrix-exponetial's action on a vector.
@@ -187,7 +193,7 @@ The PaSR simulations were run at the conditions listed in Table~\ref{T:pasr_para
 
 \subsection{Validation}
 %todo, get output from the logger
-In order to validate the developed integrators, each integrator was used to run constant pressure simulations identical initial conditions throughout a stoichiometric autoignition process.
+In order to validate the developed integrators, each integrator was used to run constant pressure simulations identical initial conditions (listed in Table~\ref{T:validation_ics}) throughout a stoichiometric autoignition process.
 The resulting temperature and species mass fraction traces were logged, and compared using the following formula:
 
 \begin{equation}
@@ -209,11 +215,33 @@ The maximum error of each integrator is reported in Table~\ref{T:validation}.
 \centering
 \begin{tabular}{@{}l l l l@{}}
 \toprule
+Mechanism & $\phi$ & \head{$T_0$} & \head{$P$} \\
 \midrule
+\ce{H2}\slash air & 1 & $1200$ \kelvin & $1$ \atm \\
+\ce{CH4}\slash air & 1 & $1600$ \kelvin & $1$ \atm \\
+\ce{C2H4}\slash air & 1 & $1600$ \kelvin & $1$ \atm \\
 \bottomrule
 \end{tabular}
 \caption{
-Integration error with respect to \texttt{CVODE} paired with an analytic Jacobian provided by \texttt{pyJac}
+Initial conditions for validation of integrators 
+}
+\label{T:validation_ics}
+\end{table}
+
+\begin{table}[tbp]
+\centering
+\begin{tabular}{@{}l l@{\slash}l l@{\slash}l l@{\slash}l l@{\slash}l @{}}
+\toprule
+		  & \multicolumn{4}{c}{Integration Error CPU\slash GPU \percent} \\
+Mechanism & \headmulti{\texttt{Radau-IIA}}{2} & \headmulti{\texttt{exp4}}{2} & \headmulti{\texttt{exprb43}}{2} & \headmulti{\texttt{CVODE}\tablefootnote{With a finite difference Jacobian}}{2} \\
+\midrule
+\ce{H2}\slash air & $2*10^{-4}$ & TODO \percent & $2*10^{-4}$ & TODO \percent & $2*10^{-4}$ & TODO & $10^{-5}$ & \NA \percent \\
+\ce{CH4}\slash air & $3.5*10^{-2}$ & TODO \percent & $1.8*10^{-2}$ & TODO \percent & $2.4*10^{-4}$ & TODO & $7*10^{-6}$ & \NA \percent \\
+\ce{C2H4}\slash air & $3.5*10^{-2}$ & TODO \percent & $1.8*10^{-2}$ & TODO \percent & $2.4*10^{-4}$ & TODO & $7*10^{-6}$ & \NA \percent \\
+\bottomrule
+\end{tabular}
+\caption{
+Integration error with respect to \texttt{CVODE} paired with an analytic Jacobian provided by \texttt{pyJac}. 
 }
 \label{T:validation}
 \end{table}
