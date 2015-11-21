@@ -132,9 +132,9 @@ Several integration methods were implemented/utilized for this work.
 The aforementioned \texttt{pyJac} code \cite{Niemeyer:2015im} was used to provide both rate and analytical Jacobian subroutines for both CPU and GPU based algorithms.
 For validation and performance assessments of \texttt{pyJac} the reader is directed to our previous work \cite{Niemeyer:2015ws}.
 
-To provide a good assessment of the baseline performance of a CPU based high-order implicit integration technique the CVODE package \cite{Hindmarsh:2005hg} was utilized.
+To provide a good assessment of the baseline performance of a CPU based high-order implicit integration technique the \texttt{CVODE} package \cite{Hindmarsh:2005hg} was utilized.
 In addition, the 3-stage/5th order implicit Runge--Kutta algorithm \cite{hairer1996solving}, termed \texttt{Radau-IIA} algorithm in this work, was implemented for the CPU.
-Version 11.1.3 of the Intel MKL library was used to accelerate BLAS/LAPACK operations.
+Version 11.1.3 of the Intel \texttt{MKL} library was used to accelerate BLAS/LAPACK operations.
 The commonly used fourth-order exponential Rosenbrock-like method \texttt{exp4} of Hochbruck et al.~\cite{Hochbruck:1998} as well as their newer fourth-order exponential Rosenbrock method \cite{Hockbruck:2009}, termed \texttt{exprb43} in this work, were first implemented for the CPU for direct comparison to the high-order implicit techniques.
 As suggested by Bisetti et al.~\cite{Bisetti:2012jw} the method of rational approximants \cite{gallopoulos:1992} paired with the Carath\'edothy--Fej\'er method \cite{trefethen:2006} was used to compute the the approximation of the matrix-exponetial's action on a vector.
 Unlike Bissetti et al., a custom routine based on the algorithm presented by Stewart \cite{stewart:1998} was developed in order to find the LU decomposition of the Hessenberg matrix resulting from the Arnoldi process.
@@ -187,6 +187,37 @@ The PaSR simulations were run at the conditions listed in Table~\ref{T:pasr_para
 
 \subsection{Validation}
 %todo, get output from the logger
+In order to validate the developed integrators, each integrator was used to run constant pressure simulations identical initial conditions throughout a stoichiometric autoignition process.
+The resulting temperature and species mass fraction traces were logged, and compared using the following formula:
+
+\begin{equation}
+e_i = \frac{\int_{0}^{t_{end}} \lvert Y_{i,cv} - Y_i \rvert dt}{\int_{0}^{t_{end}} \lvert Y_{i,cv} \rvert dt} \times 100
+\end{equation}
+
+where $Y_i$ is the ith entry of the state vector:
+
+\begin{equation}
+\vec{Y} = \{ T, y_1, y_2 \dots y_N \}
+\end{equation}
+
+and $Y_{i,cv}$ is the corresponding output from \texttt{CVODE}.
+
+The error was only computed for entries where the average value from \texttt{CVODE} was greater than the absolute tolerance, $10^{-15}$.
+The maximum error of each integrator is reported in Table~\ref{T:validation}.
+
+\begin{table}[tbp]
+\centering
+\begin{tabular}{@{}l l l l@{}}
+\toprule
+\midrule
+\bottomrule
+\end{tabular}
+\caption{
+Integration error with respect to \texttt{CVODE} paired with an analytic Jacobian provided by \texttt{pyJac}
+}
+\label{T:validation}
+\end{table}
+
 
 \section{Discussion}
 %todo note about Leja polynomials, and inexact W-methods
