@@ -29,6 +29,9 @@
 \usepackage{csquotes}
 \usepackage{textcomp}
 
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
+
 \usepackage{siunitx}
 \sisetup{group-separator={,},
      detect-all,
@@ -145,6 +148,7 @@ The commonly used fourth-order exponential Rosenbrock-like method \texttt{exp4} 
 As suggested by Bisetti et al.~\cite{Bisetti:2012jw} the method of rational approximants \cite{gallopoulos:1992} paired with the Carath\'edothy--Fej\'er method \cite{trefethen:2006} was used to compute the the approximation of the matrix-exponetial's action on a vector.
 Unlike Bissetti et al., a custom routine based on the algorithm presented by Stewart \cite{stewart:1998} was developed in order to find the LU decomposition of the Hessenberg matrix resulting from the Arnoldi process.
 The GPU versions of the \texttt{Radau-IIA}, \texttt{exp4}, and \texttt{exprb43} were largely similar to the CPU versions, except they required implementation of several BLAS/LAPACK methods, mostly related to LU factorization (or Hessenberg LU factorization for the exponential integrators) for the GPU.
+Finally, absolute and relative tolerances of $10^{-15}$ and $10^{-8}$ were used throughout the work for all integrators, and a rational approximant type of $\left(10,10\right)$ was used for the exponential integrators, as suggested by Bisetti et al~\cite{Bisetti:2012jw}.
 
 \subsection{Tested Conditions}
 
@@ -190,6 +194,50 @@ PaSR parameters used for hydrogen\slash air, methane\slash air, and ethylene\sla
 In order to validate and measure the performance of the integrators for realistic conditions, a database of thermochemical conditions covering a wide range of temperatures and species mass fractions was generated using previously developed~\cite{Niemeyer:2015ws} stochastic partially stirred reactor (PaSR) simulations.
 In addition, three chemical kinetic mechanisms, listed in Table~\ref{T:mechanisms} were selected to represent a wide range of model sizes and fuel species.
 The PaSR simulations were run at the conditions listed in Table~\ref{T:pasr_parameters} for ten residence times to reach a statistical steady state; Niemeyer et al.~\cite{Niemeyer:2015ws} describe the PaSR simulations in greater detail.
+
+\subsection{Shared Memory Caching}
+When formulated in a one ODE per thread basis GPU-based algorithms must split a relatively small cache, typically 64 KB, between all threads in a block (or potentially multiple blocks).
+Further, most versions of CUDA compute standards further segregate this cache into a L1 cache, and memory shared between threads in a block and allow the user to control whether the L1 cache or the shared memory will be larger.
+In our study, we have found that it is always faster to use a larger L1 cache, as expected on a one ODE per thread basis where register spilling and global memory accesses are unavoidable.
+This still leaves a significant portion of the cache as (typically 16 KB) as shared memory.
+It is difficult to utilize this available fast memory in an efficient manner in the integration algorithm itself, as the number of memory locations available per thread (2--4 doubles each) is prohibitively small.
+However, during the evaluation of the chemical source terms and analytical Jacobian, species concentrations and reaction rates are often used during consecutive operations, presenting an opportunity to use the available shared memory.
+An algorithm to utilize this available shared memory is outlined by example for the reaction rate subroutine in~\ref{A:shared_mem_caching}
+
+\begin{algorithm}
+\caption{Shared memory caching during evaluation of the reaction rates.}
+\begin{algorithmic}[0]
+  \For {$rxn$ in reactions}
+    \State Let $S_{rxn}$ be the set of participating species in $rxn$
+    \For {$S_{rxn,i}$ in $S_{rxn}$}
+      \State Let $P_{rxn, i}$ be the number of consecutive reactions $S_{rxn,i}$ participates in.
+    \EndFor
+    \State Let $S_{rxn}^{\prime}$ be the the set $S_{rxn}$ sorted in ascending descending order by $P_{rxn, i}$
+  \EndFor
+\end{algorithmic}
+
+\end{algorithm}
+
+For each reaction
+    Fo
+
+\begin{table}[tbp]
+\centering
+\begin{tabular}{l l}
+\toprule
+Subroutine & Shared Memory Variables\\
+\midrule
+Reaction Rates & Species Concentrations \\
+Species Rates & Species Rates \\
+Jacobian & Reaction Rates and Species Concentrations \\
+\bottomrule
+\end{tabular}
+\caption{
+Subroutines and variables stored in shared memory during evaluation of the chemical source terms and analytical Jacobian.
+}
+\label{T:shared_mem_caching}
+\end{table}
+
 
 \subsection{Validation}
 %todo, get GPU output from the logger
