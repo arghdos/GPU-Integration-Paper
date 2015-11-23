@@ -134,8 +134,8 @@ Further, the three-stage, fifth-order implicit Runge--Kutta algorithm~\cite{hair
 
 \subsection{Integration techniques}
 
-Several integration methods were implemented/utilized for this work.
-The aforementioned \texttt{pyJac} code \cite{Niemeyer:2015im} was used to provide both rate and analytical Jacobian subroutines for both CPU and GPU based algorithms.
+Several integration methods were investigated in this work.
+The aforementioned \texttt{pyJac} software~\cite{Niemeyer:2015im} provided both rate and analytical Jacobian subroutines for CPU- and GPU-based algorithms.
 For validation and performance assessments of \texttt{pyJac} the reader is directed to our previous work \cite{Niemeyer:2015ws}.
 
 To provide a good assessment of the baseline performance of a CPU based high-order implicit integration technique the \texttt{CVODE} package \cite{Hindmarsh:2005hg} was utilized.
@@ -189,7 +189,7 @@ PaSR parameters used for hydrogen\slash air, methane\slash air, and ethylene\sla
 
 In order to validate and measure the performance of the integrators for realistic conditions, a database of thermochemical conditions covering a wide range of temperatures and species mass fractions was generated using previously developed~\cite{Niemeyer:2015ws} stochastic partially stirred reactor (PaSR) simulations.
 In addition, three chemical kinetic mechanisms, listed in Table~\ref{T:mechanisms} were selected to represent a wide range of model sizes and fuel species.
-The PaSR simulations were run at the conditions listed in Table~\ref{T:pasr_parameters} for ten residence times to reach a statistical steady state, for further details of the PaSR simulations the reader is referred to Niemeyer et al.~\cite{Niemeyer:2015ws}.
+The PaSR simulations were run at the conditions listed in Table~\ref{T:pasr_parameters} for ten residence times to reach a statistical steady state; Niemeyer et al.~\cite{Niemeyer:2015ws} describe the PaSR simulations in greater detail.
 
 \subsection{Validation}
 %todo, get output from the logger
@@ -197,18 +197,15 @@ In order to validate the developed integrators, each integrator was used to run 
 The resulting temperature and species mass fraction traces were logged, and compared using the following formula:
 
 \begin{equation}
-e_i = \frac{\int_{0}^{t_{end}} \lvert Y_{i,cv} - Y_i \rvert dt}{\int_{0}^{t_{end}} \lvert Y_{i,cv} \rvert dt} \times 100
+e_i = \frac{\int_{0}^{t_{\text{end}}} \lvert Y_{i,cv} - Y_i \rvert dt}{\int_{0}^{t_{\text{end}}} \lvert Y_{i,cv} \rvert dt} \times 100 \;,
 \end{equation}
-
-where $Y_i$ is the ith entry of the state vector:
-
+where $Y_i$ is the $i$th entry of the state vector
 \begin{equation}
-\vec{Y} = \{ T, y_1, y_2 \dots y_N \}
+\mathbf{Y} = \{ T, y_1, y_2 \dots y_N \}
 \end{equation}
-
 and $Y_{i,cv}$ is the corresponding output from \texttt{CVODE}.
 
-The error was only computed for entries where the average value from \texttt{CVODE} was greater than the absolute tolerance, $10^{-15}$.
+The error was only computed for entries where the average value from \texttt{CVODE} was greater than the absolute tolerance, \num{e-15}.
 The maximum error of each integrator is reported in Table~\ref{T:validation}.
 
 \begin{table}[tbp]
@@ -235,9 +232,9 @@ Initial conditions for validation of integrators
 		  & \multicolumn{4}{c}{Integration Error CPU\slash GPU \percent} \\
 Mechanism & \headmulti{\texttt{Radau-IIA}}{2} & \headmulti{\texttt{exp4}}{2} & \headmulti{\texttt{exprb43}}{2} & \headmulti{\texttt{CVODE}\tablefootnote{With a finite difference Jacobian}}{2} \\
 \midrule
-\ce{H2}\slash air & $2*10^{-4}$ & TODO \percent & $2*10^{-4}$ & TODO \percent & $2*10^{-4}$ & TODO & $10^{-5}$ & \NA \percent \\
-\ce{CH4}\slash air & $3.5*10^{-2}$ & TODO \percent & $1.8*10^{-2}$ & TODO \percent & $2.4*10^{-4}$ & TODO & $7*10^{-6}$ & \NA \percent \\
-\ce{C2H4}\slash air & $3.5*10^{-2}$ & TODO \percent & $1.8*10^{-2}$ & TODO \percent & $2.4*10^{-4}$ & TODO & $7*10^{-6}$ & \NA \percent \\
+\ce{H2}\slash air & \num{2e-4} & TODO \percent & \num{2e-4} & TODO \percent & \num{2e-4} & TODO & \num{e-5} & \NA \percent \\
+\ce{CH4}\slash air & \num{3.5e-2} & TODO \percent & \num{1.8e-2} & TODO \percent & \num{2.4e-4} & TODO & \num{7e-6} & \NA \percent \\
+\ce{C2H4}\slash air & \num{3.5e-2} & TODO \percent & \num{1.8e-2} & TODO \percent & \num{2.4e-4} & TODO & \num{7e-6} & \NA \percent \\
 \bottomrule
 \end{tabular}
 \caption{
