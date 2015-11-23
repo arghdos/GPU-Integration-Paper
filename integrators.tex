@@ -31,6 +31,11 @@
 
 \usepackage{algorithm}
 \usepackage[noend]{algpseudocode}
+\makeatletter
+\let\OldStatex\Statex
+\renewcommand{\Statex}[1][3]{%
+  \setlength\@tempdima{\algorithmicindent}%
+  \OldStatex\hskip\dimexpr#1\@tempdima\relax}
 
 \usepackage{siunitx}
 \sisetup{group-separator={,},
@@ -202,24 +207,46 @@ In our study, we have found that it is always faster to use a larger L1 cache, a
 This still leaves a significant portion of the cache as (typically 16 KB) as shared memory.
 It is difficult to utilize this available fast memory in an efficient manner in the integration algorithm itself, as the number of memory locations available per thread (2--4 doubles each) is prohibitively small.
 However, during the evaluation of the chemical source terms and analytical Jacobian, species concentrations and reaction rates are often used during consecutive operations, presenting an opportunity to use the available shared memory.
-An algorithm to utilize this available shared memory is outlined by example for the reaction rate subroutine in~\ref{A:shared_mem_caching}
+An algorithm to utilize this available shared memory is outlined by example for the reaction rate subroutine in Algorithm~\ref{A:shared_mem_caching}.
+As this algorithm is used to generate the source code for the various subroutines, it introduces no computational or memory overhead related to determining the caching structure during runtime.
+Although relatively simple, significant performance benefits can be realized through its use, as will be seen in Section~\ref{whatever}
 
 \begin{algorithm}
 \caption{Shared memory caching during evaluation of the reaction rates.}
 \begin{algorithmic}[0]
-  \For {$rxn$ in reactions}
-    \State Let $S_{rxn}$ be the set of participating species in $rxn$
-    \For {$S_{rxn,i}$ in $S_{rxn}$}
-      \State Let $P_{rxn, i}$ be the number of consecutive reactions $S_{rxn,i}$ participates in.
+  \State {Initialize the cached species concentration set $C_{-1} = \varnothing$; the maximum set size is $C_{max}$}
+  \For {$R_i$ in reactions}
+    \State Let $S_i$ be the set of participating species in $R_i$
+    \For {$S_{i,j}$ in $S_{i}$}
+      \State Let $P_{i,j}$ be the number of consecutive reactions starting from $R_{i + 1}$
+      \Statex that $S_{i,j}$ participates in.
     \EndFor
-    \State Let $S_{rxn}^{\prime}$ be the the set $S_{rxn}$ sorted in ascending descending order by $P_{rxn, i}$
+    \For {$C_{i,j}$ in $C_i$}
+      \State Let $L_{i,j}$ be the index $k$ of the last reaction $R_k$ 
+      \Statex with $k < i$ that $S_{i,j}$ participated in.
+    \EndFor
+    \State Let $S_{i}^{\prime}$ be the the set $S_{i}$ sorted in descending order by $P_{i}$
+    \For {$S_{i,j}$ in $S_{i}^{\prime}$}
+      \If{$\|C_i\| < C_{max}$}
+	\State Add $S_{i,j}$ to $C_i$
+      \ElsIf{any $i - L_{i,j} >= 2$}
+	\State Set $C_{i,k}$ such that $i - L_{i, k}$ is maximum among $C_i$.
+	\If{$P_i$ > 1}
+	  \State Remove $C_{i,k}$ from $C_i$
+	  \State Add $S_{i,j}$ to $C_i$
+	\EndIf
+      \EndIf
+    \EndFor
+    \For {$S_{i,j}$ in $S_{i}^{\prime}$}
+      \If{$\|C_i\| < C_{max}$ and $S_{i,j}$ not in $C_i$}
+	\State Add $S_{i,j}$ to $C_i$
+      \EndIf
+    \EndFor
+    \State Compute reaction rate $i$ using values in $C_i$ where appropriate.
   \EndFor
 \end{algorithmic}
-
+\label{A:shared_mem_caching}
 \end{algorithm}
-
-For each reaction
-    Fo
 
 \begin{table}[tbp]
 \centering
