@@ -351,6 +351,7 @@ The resulting (approximate) maximum mechanism sizes are listed in Table~\ref{T:s
 In this study, even the USC mechanism with only 111 species caused the GPU to run out of local thread memory for all three GPU integrators.
 As one potential benefit of GPU based integration algorithms is to allow use of larger, say 100--200 species, skeletal mechanisms in general reacting flow by acceleration of chemical kinetic integration compared to CPU integrators, these restrictive mechanism size limits pose a large issue.
 It is noted that an chemical kinetic Jacobian based on species concentrations instead of species mass fractions is significantly more sparse~\cite{Lu:2009gh}, and thus may relax the mechanism size limits imposed by Jacobian storage.
+This is an avenue that will be explored in future work.
 
 \begin{table}[tbp]
 \centering
