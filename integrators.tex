@@ -386,8 +386,8 @@ In certain cases for the GRI mechanism, even larger speedups were observed, e.g.
 During work on this paper, it was discovered that significant issues exist for the implementation of implicit and semi-implicit chemical-kinetic integrators on the GPU.
 Namely, the size of the Jacobian itself places severe restrictions on either the maximum allowable mechanism size, or the total number of ODEs that can be solved concurrently.
 For instance, the \texttt{Radau-IIA} solver requires storage of the Jacobian, as well as a LU factorized and a complex LU factorized matrix of the same size.
-Similarly, the exponential integrators require storage of the Jacobian, the Hessian matrix and vector subspace resulting from the Arnoldi process and the corresponding exponential of the Hessian matrix.
-While the Hessian matrix, exponential Hessian matrix, and vector subspaces can be smaller than the full Jacobian (e.g., by limiting the maximum Kyrlov subspace size), for the sake of simplicity in this analysis we shall assume they are full sized.
+Similarly, the exponential integrators require storage of the Jacobian, the Hessenberg matrix and vector subspace resulting from the Arnoldi process and the corresponding exponential of the Hessenberg matrix.
+While the Hessenberg matrix, exponential Hessenberg matrix, and vector subspaces can be smaller than the full Jacobian (e.g., by limiting the maximum Kyrlov subspace size), for the sake of simplicity in this analysis we shall assume they are full sized.
 This implies that the storage requirements per ODE solved concurrently scales as $\mathcal{O}\left(3 \times N_s^2\right)$ for the \texttt{Radau-IIA} and at most $\mathcal{O}\left(4 \times N_s^2\right)$ for the exponential integrators, where $N_s$ is the number of species in the mechanism.
 
 One method of storing these matrices (and other integrator variables) is in per-thread local memory.
