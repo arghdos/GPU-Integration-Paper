@@ -158,7 +158,7 @@ The GPU versions of the \texttt{Radau-IIA}, \texttt{exp4}, and \texttt{exprb43} 
 Finally, absolute and relative tolerances of $10^{-15}$ and $10^{-8}$ were used throughout the work for all integrators, and a rational approximant type of $\left(10,10\right)$ was used for the exponential integrators, as suggested by Bisetti et al~\cite{Bisetti:2012jw}.
 
 \subsection{Tested Conditions}
-
+\label{S:pasr}
 \begin{table}[tbp]
 \centering
 \begin{tabular}{@{}l l l l@{}}
@@ -327,20 +327,38 @@ Integration error with respect to \texttt{CVODE} paired with an analytic Jacobia
 
 \section{Discussion}
 \subsection{Performance}
+The performance of the integrators was tested on the PaSR conditions generated as described in Section~\ref{S:pasr} for two overall integration timesteps corresponding to representative timesteps of Large Eddy and Reynolds Averaged Navier Stokes simulations; $\delta t = \SI{1e-6}{\s}$ and $\delta t = \SI{1e-4}{\s}$ respectively.
+Further, the use of a larger timestep induces additional stiffness for a given mechanism and enables evaluation of integrator performance at varying stiffness levels.
+All reported runtimes were averaged over five runs, each run starting from the same set of PaSR conditions.
+The uncertainty in runtimes was not plotted as they could not be represented in a way that did not detract from the comprehensibility of the figures, but were fairly minimal except for small numbers of ODEs where the runtimes were very small.
+All CPU integrators were compiled using \texttt{gcc 4.4.7}, and were run in parallel on a six-core Intel Xeon X5650 using \texttt{OpenMP}, while all GPU integrators were compiled with \texttt{nvcc 7.0.27} and run on a single NVIDIA Tesla C2075.
+The open source \texttt{pyJac} code~\cite{Niemeyer:2015im,Niemeyer:2015ws} was used for rate and analytical Jacobian evaluation for both the CPU and GPU.
+
 \begin{figure}
   \centering
   \begin{subfigure}{0.48\textwidth}
       \includegraphics[width=\linewidth]{H2_1e-06_cpuvsgpu.pdf}
       \caption{$\delta t = \SI{1e-6}{\sec}$}
+      
   \end{subfigure}
   \hfill
   \begin{subfigure}{0.48\textwidth}
       \includegraphics[width=\linewidth]{H2_1e-04_cpuvsgpu.pdf}
       \caption{$\delta t = \SI{1e-4}{\sec}$}
   \end{subfigure}
-  \caption{Hydrogen}
+  \caption{Average runtimes of the integrators for the \ce{H2} mechanism at two different global timesteps. CPU versions were run in parallel on 6-cores.}
   \label{F:H2_perf}
 \end{figure}
+
+Figure~\ref{F:H2_perf} shows the runtimes of the integrators for the \ce{H2} mechanism.
+First, it is of note that the CPU \texttt{Radau-IIa} integrator is roughly equivalent with that of \texttt{CVODE} for the smaller global timestep, and only slightly slower \texttt{CVODE} for the larger timestep.
+The GPU \texttt{Radau-IIa} integrator was at best $1.44\times$ slower than \texttt{CVODE}, and an average of $2.23\pm0.41\times$ slower for the smaller timestep (for more than 1000 ODEs, where the GPU becomes fully utilized).
+For the larger timestep the performance decreased and was at best $3.17\times$ slower, and $8.25\pm2.98\times$ slower on average.
+Both the CPU and GPU versions of the exponential integrators were significantly slower than the implicit integrators, although for the smaller timestep the GPU versions generally outperformed their CPU counterparts.
+
+Figure~\ref{F:GRI_perf} shows the runtime of the integrators for the GRI mechanism.
+
+
 \begin{figure}
   \centering
   \begin{subfigure}{0.48\textwidth}
@@ -355,8 +373,6 @@ Integration error with respect to \texttt{CVODE} paired with an analytic Jacobia
   \caption{GRI}
   \label{F:GRI_perf}
 \end{figure}
-The performance of the integrators was tested on the PaSR conditions generated as described in Section~\ref{S:pasr} for two overall integration timesteps corresponding to representative timesteps of Large Eddy and Reynolds Averaged Navier Stokes simulations; $\delta t = \SI{1e-6}{\s}$ and $\delta t = \SI{1e-4}{\s}$ respectively.
-
 
 \subsection{Limitations of the one ODE Per-Thread Approach}
 During work on this paper, it was discovered that significant issues exist for the implementation of implicit and semi-implicit chemical-kinetic integrators on the GPU.
