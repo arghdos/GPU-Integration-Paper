@@ -115,19 +115,19 @@ Several analytical Jacobian matrix codes have been developed~\cite{Safta:2011vn,
 
 Further acceleration of chemical kinetic integration schemes has focused on improvements to the integration algorithms themselves, via development of new algorithms and use of high-performance hardware accelerators such as as graphics processing unit (GPUs) and other similar single-instruction multiple-data (SIMD) devices..
 Central processing unit (CPU) clock speeds increased regularly over the past few decades---commonly known as Moore's Law---however, power consumption and heat dissipation issues slowed this trend recently.
-While multicore parallelism somewhat increased CPU performance, recently SIMD processors gained in popularity as a low cost, low power consumption, and massively parallel high-performance computing alternative.
+While multi-core parallelism somewhat increased CPU performance, recently SIMD processors gained in popularity as a low cost, low power consumption, and massively parallel high-performance computing alternative.
 GPUs were originally developed for graphics\slash video processing applications and consist of hundreds to thousands of separate cores, compared to the tens of cores found on typical CPUs.
-The SIMD parallelism model is very different from a traditional CPU based multithreading model, with small per-core memory caches and accelerations resulting from executing the same instruction on multiple data sets.
+The SIMD parallelism model is very different from a traditional CPU based multi-threading model, with small per-core memory caches and accelerations resulting from executing the same instruction on multiple data sets.
 For more details, the reader is referred to several works which have discussed these differences in depth~\cite{Cruz:2011gc,Brodtkorb:2013hn,Niemeyer:2014hn}.
 
 A number of studies in recent years explored the use high-performance SIMD devices for acceleration of turbulent reacting flow simulations.
 Spafford et al.~\cite{Spafford:2010aa} first investigated the use of GPUs to accelerate S3D \cite{CHEN:2009s3d}, a turbulent combustion direct numerical simulation code; they showed a sub-order of magnitude speedup for evaluating the species production rates on the GPU.
 Shi et al.~\cite{Shi:2011aa} used a GPU to evaluate species rates and factorize the Jacobian, showing order-of-magnitude or greater speedups for large kinetic models.
 Niemeyer et al.~\cite{Niemeyer:2011aa} implemented an explicit fourth-order Runge--Kutta integrator for the GPU, and found a speedup of nearly two orders of magnitude with a non-stiff hydrogen mechanism.
-Shi et al.~\cite{Shi:2012aa} implemented a stabilized explicit solver, and paired it with a CPU-based implicit solver that handled integration of the most-stiff chemistry cells in a three-dimensional homogenous charge compression ignition engine simulation, demonstrating a 2--3$\times$ overall speedup.
+Shi et al.~\cite{Shi:2012aa} implemented a stabilized explicit solver, and paired it with a CPU-based implicit solver that handled integration of the most-stiff chemistry cells in a three-dimensional homogeneous charge compression ignition engine simulation, demonstrating a 2--3$\times$ overall speedup.
 Le et al.~\cite{Le2013596} implemented a GPU version of two high-order shock-capturing reacting flow codes, and found a 30-50$\times$ speedup over the baseline 
 Stone et al.~\cite{Stone:2013aa} implemented the implicit VODE~\cite{brown1989vode} solver for the GPU and achieved an order of magnitude speed-up over the baseline CPU version.
-Additionally, it was found that the implicit VODE algorithm was highly susciptible to thread divergence, as expected from its relatively complicated (compared to an explicit integration scheme) program flow and if/then branching.
+Additionally, it was found that the implicit VODE algorithm was highly susceptible to thread divergence, as expected from its relatively complicated (compared to an explicit integration scheme) program flow and if/then branching.
 Further, for reasonable numbers of independent ODEs (e.g., $\mathcal{10^3}$) it was more efficient for each GPU thread solve one independent chemical kinetic ODE, rather than having a block of GPU threads cooperate to solve a single ODE \cite{Stone:2013aa}.
 Niemeyer et al.~\cite{Niemeyer:2014aa} demonstrated an order-of-magnitude speedup for an implementation of a stabilized explicit second-order Runge--Kutta--Chebyshev algorithm over a CPU implementation of VODE for moderately stiff chemical kinetics.
 Furthermore, the level of thread-divergence due to differing integrator time step sizes was investigated and found to have a large negative impact on overall performance when the initial conditions for the ODEs in a thread-block were very different.
@@ -149,7 +149,7 @@ The aforementioned \texttt{pyJac} software~\cite{Niemeyer:2015im} provided both 
 For validation and performance assessments of \texttt{pyJac} the reader is directed to our previous work \cite{Niemeyer:2015ws}.
 
 To provide a good assessment of the baseline performance of a CPU based high-order implicit integration technique the \texttt{CVODE} package \cite{Hindmarsh:2005hg} was utilized.
-In addition, the 3-stage/5th order implicit Runge--Kutta algorithm \cite{hairer1996solving}, termed \texttt{uu-IIA} algorithm in this work, was implemented for the CPU.
+In addition, the 3-stage/5th order implicit Runge--Kutta algorithm \cite{hairer1996solving}, termed \texttt{Radau-IIA} algorithm in this work, was implemented for the CPU.
 Version 11.1.3 of the Intel \texttt{MKL} library was used to accelerate BLAS/LAPACK operations.
 The commonly used fourth-order exponential Rosenbrock-like method \texttt{exp4} of Hochbruck et al.~\cite{Hochbruck:1998} as well as their newer fourth-order exponential Rosenbrock method \cite{Hockbruck:2009}, termed \texttt{exprb43} in this work, were first implemented for the CPU for direct comparison to the high-order implicit techniques.
 As suggested by Bisetti et al.~\cite{Bisetti:2012jw} the method of rational approximants \cite{gallopoulos:1992} paired with the Carath\'edothy--Fej\'er method \cite{trefethen:2006} was used to compute the the approximation of the matrix-exponetial's action on a vector.
@@ -372,7 +372,7 @@ In CUDA however, all threads are limited to a maximum of \SI{512}{\kilo\byte} lo
 This limits the maximum mechanism size to relatively small numbers, as seen in Table~\ref{T:size_limits}.
 
 Additionally, the Jacobian and associated matricies can be pre-allocated in global memory, and thus the total global memory is split between all threads in a given kernel launch.
-In this work, a Tesla C2050 \todo{check} GPU was used, and similar models seem to be fairly typical for GPU based chemical kinetic integration studies, e.g. as in~\cite{Shi:2011aa,Niemeyer:2011aa,Shi:2012aa,Le2013596,Stone:2013aa,Niemeyer:2014aa}.
+In this work, a Tesla C2075 \todo{check} GPU was used, and similar models seem to be fairly typical for GPU based chemical kinetic integration studies, e.g. as in~\cite{Shi:2011aa,Niemeyer:2011aa,Shi:2012aa,Le2013596,Stone:2013aa,Niemeyer:2014aa}.
 Assuming a reasonable launch configuration of \SI{64}{\threads} per block, with \SI{8}{\blocks} per streaming multiprocessor as on a C2050, we are limited to a maximum of $\sim\SI{4.19}{\mega\threads}$ (i.e. separate ODEs) per kernel launch.
 For a \SI{6}{\giga\byte} global memory size, this works out to just \SI{178}{\doubles} available per thread.
 Even assuming a more reasonable \SI{0.1}{\mega\threads}, or low \SI{0.01}{\mega\threads} per kernel launch, each thread is limited to just \SI{7500}{\doubles} and \SI{75000}{\doubles} correspondingly.
