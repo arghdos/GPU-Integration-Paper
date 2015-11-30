@@ -171,8 +171,6 @@ Fuel species & Number of species & Number of reactions & Reference \\
 \midrule
 \ce{H2}\slash \ce{CO} & 13 & 27 &~\cite{Burke:2011fh} \\
 \ce{CH4} & 53 & 325 &~\cite{smith_gri-mech_30} \\
-\ce{C2H4} & 111 & 784 &~\cite{Wang:2007} \\
-%\ce{C4H9OH} & 372 & 8723 &~\cite{Merchant:2013kz,Hansen:2013fe} \\
 \bottomrule
 \end{tabular}
 \caption{
@@ -183,17 +181,17 @@ Summary of chemical kinetic models used as benchmark test cases.
 
 \begin{table}[tbp]
 \centering
-\begin{tabular}{@{}l l l l@{}}
+\begin{tabular}{@{}l l l @{}}
 \toprule
-Parameter & \ce{H2}\slash air & \ce{CH4}\slash air & \ce{C2H4}\slash air \\
+Parameter & \ce{H2}\slash air & \ce{CH4}\slash air \\
 \midrule
-$\phi$ & \multicolumn{3}{c}{1} \\
-$T$ & \multicolumn{3}{c}{\SIlist{400;600;800}{\kelvin}} \\
-$p$ & \multicolumn{3}{c}{\SIlist{1;10;25}{\atm}} \\
-$N_p$ & \multicolumn{3}{c}{100} \\
-$\tau_{\text{res}}$ & \SI{10}{\milli\second} & \SI{5}{\milli\second} & \SI{100}{\micro\second} \\
-$\tau_{\text{mix}}$ & \SI{1}{\milli\second} & \SI{1}{\milli\second} & \SI{10}{\micro\second} \\
-$\tau_{\text{pair}}$ & \SI{1}{\milli\second} & \SI{1}{\milli\second} & \SI{10}{\micro\second} \\
+$\phi$ & \multicolumn{2}{c}{1} \\
+$T$ & \multicolumn{2}{c}{\SIlist{400;600;800}{\kelvin}} \\
+$p$ & \multicolumn{2}{c}{\SIlist{1;10;25}{\atm}} \\
+$N_p$ & \multicolumn{2}{c}{100} \\
+$\tau_{\text{res}}$ & \SI{10}{\milli\second} & \SI{5}{\milli\second} \\
+$\tau_{\text{mix}}$ & \SI{1}{\milli\second} & \SI{1}{\milli\second} \\
+$\tau_{\text{pair}}$ & \SI{1}{\milli\second} & \SI{1}{\milli\second} \\
 \bottomrule
 \end{tabular}
 \caption{
