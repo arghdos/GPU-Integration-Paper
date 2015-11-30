@@ -1,7 +1,7 @@
 \pdfoutput=1
 \pdfminorversion=4
 
-\documentclass[preprint,12pt]{elsarticle}
+\documentclass[preprint]{elsarticle}
 \usepackage[utf8]{inputenc}
 
 %packages
@@ -121,14 +121,14 @@ The SIMD parallelism model is very different from a traditional CPU based multi-
 For more details, the reader is referred to several works which have discussed these differences in depth~\cite{Cruz:2011gc,Brodtkorb:2013hn,Niemeyer:2014hn}.
 
 A number of studies in recent years explored the use high-performance SIMD devices for acceleration of turbulent reacting flow simulations.
-Spafford et al.~\cite{Spafford:2010aa} first investigated the use of GPUs to accelerate S3D \cite{CHEN:2009s3d}, a turbulent combustion direct numerical simulation code; they showed a sub-order of magnitude speedup for evaluating the species production rates on the GPU.
+Spafford et al.~\cite{Spafford:2010aa} first investigated the use of GPUs to accelerate S3D~\cite{CHEN:2009s3d}, a turbulent combustion direct numerical simulation code; they showed a sub-order of magnitude speedup for evaluating the species production rates on the GPU.
 Shi et al.~\cite{Shi:2011aa} used a GPU to evaluate species rates and factorize the Jacobian, showing order-of-magnitude or greater speedups for large kinetic models.
 Niemeyer et al.~\cite{Niemeyer:2011aa} implemented an explicit fourth-order Runge--Kutta integrator for the GPU, and found a speedup of nearly two orders of magnitude with a non-stiff hydrogen mechanism.
 Shi et al.~\cite{Shi:2012aa} implemented a stabilized explicit solver, and paired it with a CPU-based implicit solver that handled integration of the most-stiff chemistry cells in a three-dimensional homogeneous charge compression ignition engine simulation, demonstrating a 2--3$\times$ overall speedup.
 Le et al.~\cite{Le2013596} implemented a GPU version of two high-order shock-capturing reacting flow codes, and found a 30-50$\times$ speedup over the baseline 
 Stone et al.~\cite{Stone:2013aa} implemented the implicit VODE~\cite{brown1989vode} solver for the GPU and achieved an order of magnitude speed-up over the baseline CPU version.
 Additionally, it was found that the implicit VODE algorithm was highly susceptible to thread divergence, as expected from its relatively complicated (compared to an explicit integration scheme) program flow and if/then branching.
-Further, for reasonable numbers of independent ODEs (e.g., $\mathcal{10^3}$) it was more efficient for each GPU thread solve one independent chemical kinetic ODE, rather than having a block of GPU threads cooperate to solve a single ODE \cite{Stone:2013aa}.
+Further, for reasonable numbers of independent ODEs (e.g., $\mathcal{10^3}$) it was more efficient for each GPU thread solve one independent chemical kinetic ODE, rather than having a block of GPU threads cooperate to solve a single ODE~\cite{Stone:2013aa}.
 Niemeyer et al.~\cite{Niemeyer:2014aa} demonstrated an order-of-magnitude speedup for an implementation of a stabilized explicit second-order Runge--Kutta--Chebyshev algorithm over a CPU implementation of VODE for moderately stiff chemical kinetics.
 Furthermore, the level of thread-divergence due to differing integrator time step sizes was investigated and found to have a large negative impact on overall performance when the initial conditions for the ODEs in a thread-block were very different.
 Sewerin et al.~\cite{Sewerin20151375} implemented a three-stage\slash fifth-order implicit Runge--Kutta method~\cite{hairer1996solving} on a one-block per ODE basis, and found a maximum 5$\times$ speedup.
@@ -146,14 +146,14 @@ Further, the three-stage, fifth-order implicit Runge--Kutta algorithm~\cite{hair
 
 Several integration methods were investigated in this work.
 The aforementioned \texttt{pyJac} software~\cite{Niemeyer:2015im} provided both rate and analytical Jacobian subroutines for CPU- and GPU-based algorithms.
-For validation and performance assessments of \texttt{pyJac} the reader is directed to our previous work \cite{Niemeyer:2015ws}.
+For validation and performance assessments of \texttt{pyJac} the reader is directed to our previous work~\cite{Niemeyer:2015ws}.
 
-To provide a good assessment of the baseline performance of a CPU based high-order implicit integration technique the \texttt{CVODE} package \cite{Hindmarsh:2005hg} was utilized.
-In addition, the 3-stage/5th order implicit Runge--Kutta algorithm \cite{hairer1996solving}, termed \texttt{Radau-IIA} algorithm in this work, was implemented for the CPU.
+To provide a good assessment of the baseline performance of a CPU based high-order implicit integration technique the \texttt{CVODE} package~\cite{Hindmarsh:2005hg} was utilized.
+In addition, the 3-stage/5th order implicit Runge--Kutta algorithm~\cite{hairer1996solving}, termed \texttt{Radau-IIA} algorithm in this work, was implemented for the CPU.
 Version 11.1.3 of the Intel \texttt{MKL} library was used to accelerate BLAS/LAPACK operations.
-The commonly used fourth-order exponential Rosenbrock-like method \texttt{exp4} of Hochbruck et al.~\cite{Hochbruck:1998} as well as their newer fourth-order exponential Rosenbrock method \cite{Hockbruck:2009}, termed \texttt{exprb43} in this work, were first implemented for the CPU for direct comparison to the high-order implicit techniques.
-As suggested by Bisetti et al.~\cite{Bisetti:2012jw} the method of rational approximants \cite{gallopoulos:1992} paired with the Carath\'edothy--Fej\'er method \cite{trefethen:2006} was used to compute the the approximation of the matrix-exponetial's action on a vector.
-Unlike Bissetti et al., a custom routine based on the algorithm presented by Stewart \cite{stewart:1998} was developed in order to find the LU decomposition of the Hessenberg matrix resulting from the Arnoldi process.
+The commonly used fourth-order exponential Rosenbrock-like method \texttt{exp4} of Hochbruck et al.~\cite{Hochbruck:1998} as well as their newer fourth-order exponential Rosenbrock method~\cite{Hockbruck:2009}, termed \texttt{exprb43} in this work, were first implemented for the CPU for direct comparison to the high-order implicit techniques.
+As suggested by Bisetti et al.~\cite{Bisetti:2012jw} the method of rational approximants~\cite{gallopoulos:1992} paired with the Carath\'edothy--Fej\'er method~\cite{trefethen:2006} was used to compute the the approximation of the matrix-exponetial's action on a vector.
+Unlike Bissetti et al., a custom routine based on the algorithm presented by Stewart~\cite{stewart:1998} was developed in order to find the LU decomposition of the Hessenberg matrix resulting from the Arnoldi process.
 The GPU versions of the \texttt{Radau-IIA}, \texttt{exp4}, and \texttt{exprb43} were largely similar to the CPU versions, except they required implementation of several BLAS/LAPACK methods, mostly related to LU factorization (or Hessenberg LU factorization for the exponential integrators) for the GPU.
 Finally, absolute and relative tolerances of $10^{-15}$ and $10^{-8}$ were used throughout the work for all integrators, and a rational approximant type of $\left(10,10\right)$ was used for the exponential integrators, as suggested by Bisetti et al~\cite{Bisetti:2012jw}.
 
@@ -165,10 +165,10 @@ Finally, absolute and relative tolerances of $10^{-15}$ and $10^{-8}$ were used 
 \toprule
 Fuel species & Number of species & Number of reactions & Reference \\
 \midrule
-\ce{H2}\slash \ce{CO} & 13 & 27 & \cite{Burke:2011fh} \\
-\ce{CH4} & 53 & 325 & \cite{smith_gri-mech_30} \\
-\ce{C2H4} & 111 & 784 & \cite{Wang:2007} \\
-%\ce{C4H9OH} & 372 & 8723 & \cite{Merchant:2013kz,Hansen:2013fe} \\
+\ce{H2}\slash \ce{CO} & 13 & 27 &~\cite{Burke:2011fh} \\
+\ce{CH4} & 53 & 325 &~\cite{smith_gri-mech_30} \\
+\ce{C2H4} & 111 & 784 &~\cite{Wang:2007} \\
+%\ce{C4H9OH} & 372 & 8723 &~\cite{Merchant:2013kz,Hansen:2013fe} \\
 \bottomrule
 \end{tabular}
 \caption{
@@ -346,7 +346,8 @@ The open source \texttt{pyJac} code~\cite{Niemeyer:2015im,Niemeyer:2015ws} was u
       \includegraphics[width=\linewidth]{H2_1e-04_cpuvsgpu.pdf}
       \caption{$\delta t = \SI{1e-4}{\sec}$}
   \end{subfigure}
-  \caption{Average runtimes of the integrators for the \ce{H2} mechanism at two different global timesteps. CPU versions were run in parallel on 6-cores.}
+  \caption{Average runtimes of the integrators for the \ce{H2} mechanism at two different global timesteps. 
+  CPU versions were run in parallel on 6-cores.}
   \label{F:H2_perf}
 \end{figure}
 
@@ -355,6 +356,9 @@ First, it is of note that the CPU \texttt{Radau-IIa} integrator is roughly equiv
 The GPU \texttt{Radau-IIa} integrator was at best $1.44\times$ slower than \texttt{CVODE}, and an average of $2.24\pm0.43\times$ slower for the smaller timestep (for more than 1024 ODEs, where the GPU becomes fully utilized).
 For the larger timestep the performance decreased and was at best $3.17\times$ slower, and $8.25\pm2.98\times$ slower on average.
 Both the CPU and GPU versions of the exponential integrators were significantly slower than the implicit integrators, although for the smaller timestep the GPU versions generally outperformed their CPU counterparts.
+Although the \texttt{exprb43} and \texttt{exp4} integrators each only require three exponential matrix function approximations, \texttt{exprb43} is more expensive for a single step larger due to the extra right hand side evaluations / matrix multiplications, and the higher order phi function requirement.
+As such, the CPU \texttt{exprb43} integrator generally is outperformed by the relatively more simple \texttt{exp4} integrator for the smaller timestep.
+However, for the larger timestep with higher stiffness the expected order reduction~\cite{Bisetti:2012jw} of the \texttt{exp4} integrator makes it less efficient than \texttt{exprb43}.
 
 \begin{figure}
   \centering
@@ -367,12 +371,17 @@ Both the CPU and GPU versions of the exponential integrators were significantly 
       \includegraphics[width=\linewidth]{GRI_1e-04_cpuvsgpu.pdf}
       \caption{$\delta t = \SI{1e-4}{\sec}$}
   \end{subfigure}
-  \caption{GRI}
+  \caption{Average runtimes of the integrators for the \ce{GRI} mechanism at two different global timesteps. 
+  CPU versions were run in parallel on 6-cores.
+  Some of the longer running cases were omitted for clarity.}
   \label{F:GRI_perf}
 \end{figure}
+
 Figure~\ref{F:GRI_perf} shows the runtime of the integrators for the GRI mechanism.
 Interestingly the GPU \texttt{Radau-IIa} integrator often outperforms the CPU version and \texttt{CVODE} for the smaller timestep; it is at best $1.46\times$ faster, and is on average $1.13\pm0.63\times$ slower.
-For the larger timestep the performance of the GPU \texttt{Radau-IIa} integrator is again negatively impact as for the \ce{H2} mechanism, dropping to a best case of $8.63\times$ slower, and $14.18\pm6.64\times$ slower on average.
+For the larger timestep the performance of the GPU \texttt{Radau-IIa} integrator is again negatively impacted, dropping to a best case of $8.63\times$ slower, and $14.18\pm6.64\times$ slower on average.
+Niemeyer et al.~\cite{Niemeyer:2014aa} investigated thread divergence of stabilized explicit integrators for both the \ce{H2} and GRI mechanisms used in this study, 
+
 For larger global timesteps, the range of required internal integrator timesteps is expected to increase~\cite{Niemeyer:2014aa}, and thus thread divergence will increase along with chemical stiffness for an ODE per-thread based integrator.
 As the typical stiffness of the chemical ODE system increases when changing from the \ce{H2} mechanism to the GRI mechanism, this implies that thread divergence, rather than purely chemical stiffness, is the main performance limiter for the GPU \texttt{Radau-IIa} integrator.
 Therefore, our future work will investigate strategies to reduce thread divergence, e.g. by adoption of an ODE per-block approach, or by re-ordering of ODEs to increase similarity of chemical stiffness inside a thread block.
