@@ -389,7 +389,10 @@ However, as the stiffness is increased, e.g. as in the large timestep case, the 
 Thus the exponential integrators may be more efficient than the implicit integrators for moderately stiff systems (i.e. with small timesteps) of larger chemical mechanisms.
 
 \subsection{Effect of Shared Memory Caching}
-
+The effectiveness of the shared memory caching scheme was evaluated in several cases by comparing the mean runtime of the integrators using rate and analytical Jacobian subroutines generated with and without the caching algorithm enabled.
+A typical speedup of $\sim\SI{5}{\percent}$ was seen for the smaller global timestep cases, while a $\sim\SI{10}{\percent}$ speedup was observed for the larger timestep cases.
+This difference is due to larger number of rate and Jacobian evaluations required for the larger timestep cases.
+In certain cases for the GRI mechanism, even larger speedups were observed, e.g. a \SI{24.4}{\percent} speedup with \texttt{exp4} for \SI{131072} ODEs and the \SI{1e-6}{\s} timestep, and a \SI{13.2}{\percent} speedup with \text{Radau-IIa} for \SI{32768} ODEs and the \SI{1e-4}{\s} timestep.
 
 \subsection{Limitations of the one ODE Per-Thread Approach}
 During work on this paper, it was discovered that significant issues exist for the implementation of implicit and semi-implicit chemical-kinetic integrators on the GPU.
