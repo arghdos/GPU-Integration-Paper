@@ -201,50 +201,42 @@ PaSR parameters used for hydrogen\slash air, methane\slash air, and ethylene\sla
 \end{table}
 
 In order to validate and measure the performance of the integrators for realistic conditions, a database of thermochemical conditions covering a wide range of temperatures and species mass fractions was generated using previously developed~\cite{Niemeyer:2015ws} stochastic partially stirred reactor (PaSR) simulations.
-In addition, three chemical kinetic mechanisms, listed in Table~\ref{T:mechanisms} were selected to represent a wide range of model sizes and fuel species.
-The PaSR simulations were run at the conditions listed in Table~\ref{T:pasr_parameters} for ten residence times to reach a statistical steady state; Niemeyer et al.~\cite{Niemeyer:2015ws} describe the PaSR simulations in greater detail.
+In addition, two chemical kinetic mechanisms, listed in Table~\ref{T:mechanisms} were selected to represent a wide range of model sizes and fuel species.
+The PaSR simulations were run at the conditions listed in Table~\ref{T:pasr_parameters} for ten residence times to reach a statistical steady state; the PaSR simulation process is described in greater detail in Niemeyer et al.~\cite{Niemeyer:2015ws}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Shared memory caching}
 
-When formulated in a one ODE per thread basis GPU-based algorithms must split a relatively small cache, typically 64 KB, between all threads in a block (or potentially multiple blocks).
+When formulated in a one ODE per thread basis GPU-based algorithms must split a relatively small cache, typically \SI{64}{\kilo\byte}, between all threads in all blocks resident on a streaming multiprocessor.
 Further, most versions of CUDA compute standards further segregate this cache into a L1 cache, and memory shared between threads in a block and allow the user to control whether the L1 cache or the shared memory will be larger.
 In our study, we have found that it is always faster to use a larger L1 cache, as expected on a one ODE per thread basis where register spilling and global memory accesses are unavoidable.
-This still leaves a significant portion of the cache as (typically 16 KB) as shared memory.
+This still leaves a significant portion of the cache as (typically \SI{16}{\kilo\byte}) as shared memory.
 It is difficult to utilize this available fast memory in an efficient manner in the integration algorithm itself, as the number of memory locations available per thread (2--4 doubles each) is prohibitively small.
 However, during the evaluation of the chemical source terms and analytical Jacobian, species concentrations and reaction rates are often used during consecutive operations, presenting an opportunity to use the available shared memory.
-An algorithm to utilize this available shared memory is outlined by example for the reaction rate subroutine in Algorithm~\ref{A:shared_mem_caching}.
+An algorithm to utilize this available shared memory is outlined by example for the reaction rate subroutine in Alg.~\ref{A:shared_mem_caching}.
+A similar algorithm can be used for the species rate and Jacobian evaluation routines, using species rates and reaction rates\slash species concentrations as the cachable variables respectively.
 As this algorithm is used to generate the source code for the various subroutines, it introduces no computational or memory overhead related to determining the caching structure during runtime.
-Although relatively simple, significant performance benefits can be realized through its use, as will be seen in Section~\ref{whatever}.\todo{add ref}
+Although relatively simple, significant performance benefits can be realized through its use, as will be seen in Sec.~\ref{S:smem}.
 
 \begin{algorithm}
-\caption{Shared memory caching during evaluation of the reaction rates.}
+\caption{Shared memory caching during evaluation of reaction rates.}
 \begin{algorithmic}[0]
   \State {Initialize the cached species concentration set $C_{-1} = \varnothing$; the maximum set size is $C_{max}$}
   \For {$R_i$ in reactions}
     \State Let $S_i$ be the set of participating species in $R_i$
-    \For {$S_{i,j}$ in $S_{i}$}
-      \State Let $P_{i,j}$ be the number of consecutive reactions starting from $R_{i + 1}$
-      \Statex that $S_{i,j}$ participates in.
-    \EndFor
-    \For {$C_{i,j}$ in $C_i$}
-      \State Let $L_{i,j}$ be the index $k$ of the last reaction $R_k$ 
-      \Statex with $k < i$ that $C_{i,j}$ participated in.
-    \EndFor
-    \State Let $S_{i}^{\prime}$ be the the set $S_{i}$ sorted in descending order by $P_{i}$
+    \State Let $P_{i,j}$ be the number of consecutive reactions starting from $R_{i + 1}$ for each species $j$ in $S_i$
+    \State Let $L_{i,j}$ be the number of reactions since $C_{i,j}$ has participated directly in a reaction.
+    \State Sort $S_{i}$ in descending order by $P_{i,j}$ and store in $S_{i}^{\prime}$
     \For {$S_{i,j}$ in $S_{i}^{\prime}$}
       \If{$\|C_i\| < C_{max}$}
 	\State Add $S_{i,j}$ to $C_i$
-      \ElsIf{any $i - L_{i,j} >= 2$}
-	\State Set $C_{i,k}$ such that $i - L_{i, k}$ is maximum among $C_i$.
-	\If{$P_i$ > 1}
-	  \State Remove $C_{i,k}$ from $C_i$
-	  \State Add $S_{i,j}$ to $C_i$
-	\EndIf
+      \ElsIf{$max\left(L_{i}\right) >= 2$ and $P_{i,j}$ > 1}
+	  \State Set $k$ such that $L_{i,k} == max\left(L_{i}\right)$
+	  \State Replace $C_{i,k}$ with $S_{i,j}$, and remove $S_{i,j}$ from $S_{i}^{\prime}$
       \EndIf
     \EndFor
     \For {$S_{i,j}$ in $S_{i}^{\prime}$}
-      \If{$\|C_i\| < C_{max}$ and $S_{i,j}$ not in $C_i$}
+      \If{$\|S_{i}^{\prime}\| > 0$ and $\|C_i\| < C_{max}$}
 	\State Add $S_{i,j}$ to $C_i$
       \EndIf
     \EndFor
@@ -253,23 +245,6 @@ Although relatively simple, significant performance benefits can be realized thr
 \end{algorithmic}
 \label{A:shared_mem_caching}
 \end{algorithm}
-
-\begin{table}[tbp]
-\centering
-\begin{tabular}{l l}
-\toprule
-Subroutine & Shared Memory Variables\\
-\midrule
-Reaction Rates & Species Concentrations \\
-Species Rates & Species Rates \\
-Jacobian & Reaction Rates and Species Concentrations \\
-\bottomrule
-\end{tabular}
-\caption{
-Subroutines and variables stored in shared memory during evaluation of the chemical source terms and analytical Jacobian.
-}
-\label{T:shared_mem_caching}
-\end{table}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Validation}
@@ -395,14 +370,15 @@ Additionally two other trends of interest can be identified in Figure~\ref{F:GRI
 First, the larger global timestep is the only case studied where \texttt{CVODE} significantly outperforms the CPU \texttt{Radau-IIa} integrator.
 This is likely due to the maturity of \texttt{CVODE} and years of optimization and tweaking.
 Secondly, the performance of the CPU exponential integrators is similar to that of the implicit CPU integrators for the smaller timestep.
-As the exponential integrators must only factorize a much smaller Hessian matrix, rather than that of the entire Jacobian as is required for the implicit integrators, the performance of the two integrator classes is roughly similar; thus the performance boost of the exponential integrators is expected to grow with mechanism size.
+As the exponential integrators must only factorize a much smaller Hessenberg matrix, rather than that of the entire Jacobian as is required for the implicit integrators, the performance of the two integrator classes is roughly similar; thus the performance boost of the exponential integrators is expected to grow with mechanism size.
 However, as the stiffness is increased, e.g., as in the large timestep case, the stability characteristics of the implicit integrators again makes them more favorable.
 Thus the exponential integrators may be more efficient than the implicit integrators for moderately stiff systems (i.e., with small timesteps) of larger chemical mechanisms.
 
 \subsection{Effect of Shared Memory Caching}
+\label{S:smem}
 The effectiveness of the shared memory caching scheme was evaluated in several cases by comparing the mean runtime of the integrators using rate and analytical Jacobian subroutines generated with and without the caching algorithm enabled.
 A typical speedup of $\sim\SI{5}{\percent}$ was seen for the smaller global timestep cases, while a $\sim\SI{10}{\percent}$ speedup was observed for the larger timestep cases.
-This difference is due to larger number of rate and Jacobian evaluations required for the larger timestep cases.
+This difference is due to larger number of chemical source term and Jacobian evaluations required for the larger timestep cases.
 In certain cases for the GRI mechanism, even larger speedups were observed, e.g. a \SI{24.4}{\percent} speedup with \texttt{exp4} for \SI{131072} ODEs and the \SI{1e-6}{\s} timestep, and a \SI{13.2}{\percent} speedup with \text{Radau-IIa} for \SI{32768} ODEs and the \SI{1e-4}{\s} timestep.
 
 
