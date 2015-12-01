@@ -310,10 +310,10 @@ Integration error with respect to \texttt{CVODE} paired with an analytic Jacobia
 
 \subsection{Performance}
 
-The performance of the integrators was tested on the PaSR conditions generated as described in Section~\ref{S:pasr} for two overall integration timesteps corresponding to representative timesteps of large eddy and Reynolds-averaged Navier--Stokes simulations; $\delta t = \SI{1e-6}{\s}$ and $\delta t = \SI{1e-4}{\s}$ respectively.
+The performance of the integrators was tested on the PaSR conditions generated as described in Section~\ref{S:pasr} for two different integration timesteps corresponding to Large Eddy and Reynolds-averaged Navier--Stokes simulations; $\delta t = \SI{1e-6}{\s}$ and $\delta t = \SI{1e-4}{\s}$ respectively.
 Further, the use of a larger timestep induces additional stiffness for a given mechanism and enables evaluation of integrator performance at varying stiffness levels.
 All reported runtimes were averaged over five runs, each run starting from the same set of PaSR conditions.
-The uncertainty in runtimes was not plotted as they could not be represented in a way that did not detract from the comprehensibility of the figures, but were fairly minimal except for small numbers of ODEs where the runtimes were very small.
+The uncertainty in runtimes was not plotted as they could not be represented in a way that did not detract from the comprehensibility of the figures, but were fairly minimal except for small numbers of ODEs where the runtimes were very short.
 All CPU integrators were compiled using \texttt{gcc 4.4.7}, and were run in parallel on a six-core Intel Xeon X5650 using \texttt{OpenMP}, while all GPU integrators were compiled with \texttt{nvcc 7.0.27} and run on a single NVIDIA Tesla C2075.
 The open source \texttt{pyJac} code~\cite{Niemeyer:2015im,Niemeyer:2015ws} was used for rate and analytical Jacobian evaluation for both the CPU and GPU.
 
@@ -334,11 +334,11 @@ The open source \texttt{pyJac} code~\cite{Niemeyer:2015im,Niemeyer:2015ws} was u
 \end{figure}
 
 Figure~\ref{F:H2_perf} shows the runtimes of the integrators for the \ce{H2} mechanism.
-First, it is of note that the CPU \texttt{Radau-IIa} integrator is roughly equivalent with that of \texttt{CVODE} for the smaller global timestep, and only slightly slower \texttt{CVODE} for the larger timestep.
-The GPU \texttt{Radau-IIa} integrator was at best $1.44\times$ slower than \texttt{CVODE}, and an average of $2.24\pm0.43\times$ slower for the smaller timestep (for more than 1024 ODEs, where the GPU becomes fully utilized).
-For the larger timestep the performance decreased and was at best $3.17\times$ slower, and $8.25\pm2.98\times$ slower on average.
+The CPU \texttt{Radau-IIa} integrator had roughly equivalent performance compared to \texttt{CVODE} for the smaller global timestep, and was only slightly slower \texttt{CVODE} for the larger timestep.
+The GPU \texttt{Radau-IIa} integrator was at best $1.44\times$ slower than \texttt{CVODE}, and was on average $2.24\pm0.43\times$ slower for the smaller timestep (counting only runtimes for more than 1024 ODEs, where the GPU becomes fully utilized).
+Using the the larger timestep negatively impacted the performance of the GPU \texttt{Radau-IIa} integrator and it was at best $3.17\times$ slower, and $8.25\pm2.98\times$ slower on average.
 Both the CPU and GPU versions of the exponential integrators were significantly slower than the implicit integrators, although for the smaller timestep the GPU versions generally outperformed their CPU counterparts.
-Although the \texttt{exprb43} and \texttt{exp4} integrators each only require three exponential matrix function approximations, \texttt{exprb43} is more expensive for a single step larger due to the extra chemical source term evaluations\slash matrix multiplications, and the higher-order phi function requirement.
+Although the \texttt{exprb43} and \texttt{exp4} algorithms each only require three exponential matrix function approximations, \texttt{exprb43} is more expensive for a single step larger due to the extra chemical source term evaluations\slash matrix multiplications, and the higher-order phi function requirement.
 As such, the CPU \texttt{exprb43} integrator generally is outperformed by the relatively more simple \texttt{exp4} integrator for the smaller timestep.
 However, for the larger timestep with higher stiffness the expected order reduction~\cite{Bisetti:2012jw} of the \texttt{exp4} integrator makes it less efficient than \texttt{exprb43}.
 
@@ -368,23 +368,23 @@ Therefore, our future work will investigate strategies to reduce thread divergen
 
 Additionally two other trends of interest can be identified in Figure~\ref{F:GRI_perf}.
 First, the larger global timestep is the only case studied where \texttt{CVODE} significantly outperforms the CPU \texttt{Radau-IIa} integrator.
-This is likely due to the maturity of \texttt{CVODE} and years of optimization and tweaking.
+This is may be due to the adaptive order nature of the \texttt{CVODE} algorithm, or potentially due to its maturity and years of optimization.
 Secondly, the performance of the CPU exponential integrators is similar to that of the implicit CPU integrators for the smaller timestep.
-As the exponential integrators must only factorize a much smaller Hessenberg matrix, rather than that of the entire Jacobian as is required for the implicit integrators, the performance of the two integrator classes is roughly similar; thus the performance boost of the exponential integrators is expected to grow with mechanism size.
+As the exponential integrators must only factorize a much smaller Hessenberg matrix rather than the entire Jacobian---as in the implicit integrators---significant savings in factorization can potentially be achieved with larger mechanism sizes.
 However, as the stiffness is increased, e.g., as in the large timestep case, the stability characteristics of the implicit integrators again makes them more favorable.
-Thus the exponential integrators may be more efficient than the implicit integrators for moderately stiff systems (i.e., with small timesteps) of larger chemical mechanisms.
+Thus the exponential integrators may be more efficient than the implicit integrators for moderately stiff systems (e.g., with small timesteps, or low tolerances) of larger chemical mechanisms.
 
 \subsection{Effect of Shared Memory Caching}
 \label{S:smem}
 The effectiveness of the shared memory caching scheme was evaluated in several cases by comparing the mean runtime of the integrators using rate and analytical Jacobian subroutines generated with and without the caching algorithm enabled.
 A typical speedup of $\sim\SI{5}{\percent}$ was seen for the smaller global timestep cases, while a $\sim\SI{10}{\percent}$ speedup was observed for the larger timestep cases.
-This difference is due to larger number of chemical source term and Jacobian evaluations required for the larger timestep cases.
+This difference is due to increase in chemical source term and Jacobian evaluations required for the larger timestep cases.
 In certain cases for the GRI mechanism, even larger speedups were observed, e.g. a \SI{24.4}{\percent} speedup with \texttt{exp4} for \SI{131072} ODEs and the \SI{1e-6}{\s} timestep, and a \SI{13.2}{\percent} speedup with \text{Radau-IIa} for \SI{32768} ODEs and the \SI{1e-4}{\s} timestep.
 
 
 \subsection{Limitations of the one ODE per-thread approach}
-During work on this paper, it was discovered that significant issues exist for the implementation of implicit and semi-implicit chemical-kinetic integrators on the GPU.
-Namely, the size of the Jacobian itself places severe restrictions on either the maximum allowable mechanism size, or the total number of ODEs that can be solved concurrently.
+During work on this paper, it was discovered a significant undiscussed issue exists with the use of implicit and semi-implicit chemical-kinetic integrators on the GPU.
+Namely, the size of the Jacobian places severe restrictions on either the maximum allowable mechanism size, or the total number of ODEs that can be solved concurrently.
 For instance, the \texttt{Radau-IIA} solver requires storage of the Jacobian, as well as a LU factorized and a complex LU factorized matrix of the same size.
 Similarly, the exponential integrators require storage of the Jacobian, the Hessenberg matrix and vector subspace resulting from the Arnoldi process and the corresponding exponential of the Hessenberg matrix.
 While the Hessenberg matrix, exponential Hessenberg matrix, and vector subspaces can be smaller than the full Jacobian (e.g., by limiting the maximum Kyrlov subspace size), for the sake of simplicity in this analysis we shall assume they are full sized.
@@ -396,14 +396,14 @@ In CUDA however, all threads are limited to a maximum of \SI{512}{\kilo\byte} lo
 This limits the maximum mechanism size to relatively small numbers, as seen in Table~\ref{T:size_limits}.
 
 Additionally, the Jacobian and associated matricies can be pre-allocated in global memory, and thus the total global memory is split between all threads in a given kernel launch.
-In this work, a Tesla C2075 GPU was used, and recent GPU-based chemical kinetic integration studies used similar models~\cite{Shi:2011aa,Niemeyer:2011aa,Shi:2012aa,Le2013596,Stone:2013aa,Niemeyer:2014aa}
-Assuming a reasonable launch configuration of \SI{64} per block, with \SI{8} per streaming multiprocessor as on a C2050, we are limited to a maximum of $\sim$ \SI{419000000} threads (i.e. separate ODEs) per kernel launch.
-For a \SI{6}{\giga\byte} global memory size, this works out to just \SI{178} available per thread.
-Even assuming a more reasonable \SI{10000} threads, or low \SI{10000} threads per kernel launch, each thread is limited to just \SI{7500} and \SI{75000} doubles correspondingly.
+In this work, a Tesla C2075 GPU was used, and recent GPU-based chemical kinetic integration studies have used similar models~\cite{Shi:2011aa,Niemeyer:2011aa,Shi:2012aa,Le2013596,Stone:2013aa,Niemeyer:2014aa}
+Assuming a reasonable launch configuration of \SI{64} threads per block, with \SI{8} blocks per streaming multiprocessor, we are limited to a maximum of $\sim$ \SI{419000000} threads (i.e. separate ODEs) per kernel launch.
+For a \SI{6}{\giga\byte} global memory size, this works out to just \SI{178} doubles available per thread.
+Even assuming a more reasonable \SI{100000} threads, or low \SI{10000} threads per kernel launch, each thread is limited to just \SI{7500} and \SI{75000} doubles correspondingly.
 The resulting (approximate) maximum mechanism sizes are listed in Table~\ref{T:size_limits}.
 
-In this study, even the USC mechanism with only 111 species caused the GPU to run out of local thread memory for all three GPU integrators.
-As one potential benefit of GPU based integration algorithms is to allow use of larger, say 100--200 species, skeletal mechanisms in general reacting flow by acceleration of chemical kinetic integration compared to CPU integrators, these restrictive mechanism size limits pose a large issue.
+In this study, even the USC mechanism for \ce{C2H4}~\cite{Wang:2007} with only 111 species caused the GPU to run out of local thread memory for all three GPU integrators.
+As one goal of GPU based integration algorithms is to enable use of larger, say 100--200 species, skeletal mechanisms in general reacting flow simulations through acceleration of chemical kinetic integration, these restrictive mechanism size limits pose a large issue.
 A chemical kinetic Jacobian based on species concentrations instead of species mass fractions exhibits significantly greater sparsity~\cite{Lu:2009gh}, and thus may relax the mechanism size limits imposed by Jacobian storage.
 This is an avenue that will be explored in future work.
 
