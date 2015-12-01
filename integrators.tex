@@ -248,64 +248,6 @@ Although relatively simple, significant performance benefits can be realized thr
 \end{algorithm}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Validation}
-
-%todo, get GPU output from the logger
-In order to validate the developed integrators, each integrator was used to run constant pressure simulations identical initial conditions (listed in Table~\ref{T:validation_ics}) throughout a stoichiometric autoignition process.
-The resulting temperature and species mass fraction traces were logged, and compared using the following formula:
-
-\begin{equation}
-e_i = \frac{\int_{0}^{t_{\text{end}}} \lvert Y_{i,cv} - Y_i \rvert dt}{\int_{0}^{t_{\text{end}}} \lvert Y_{i,cv} \rvert dt} \times 100 \;,
-\end{equation}
-where $Y_i$ is the $i$th entry of the state vector
-\begin{equation}
-\mathbf{Y} = \{ T, y_1, y_2 \dots y_N \}
-\end{equation}
-and $Y_{i,cv}$ is the corresponding output from \texttt{CVODE}.
-
-The error was only computed for entries where the average value from \texttt{CVODE} was greater than the absolute tolerance, \num{e-15}.
-The maximum error of each integrator is reported in Table~\ref{T:validation}.
-
-\begin{table}[tbp]
-\centering
-\begin{tabular}{@{}l l l l@{}}
-\toprule
-Mechanism & $\phi$ & \head{$T_0$} & \head{$P$} \\
-\midrule
-\ce{H2}\slash air & 1 & $1200$ \kelvin & $1$ \atm \\
-\ce{CH4}\slash air & 1 & $1600$ \kelvin & $1$ \atm \\
-\ce{C2H4}\slash air & 1 & $1600$ \kelvin & $1$ \atm \\
-\bottomrule
-\end{tabular}
-\caption{
-Initial conditions for validation of integrators 
-}
-\label{T:validation_ics}
-\end{table}
-
-\begin{table}[tbp]
-\centering
-\begin{tabular}{@{}l S[table-format = 1.1e-1]@{\slash}S[table-format = 1.1e-1]
-	S[table-format = 1.1e-1]@{\slash}S[table-format = 1.1e-1]
-	S[table-format = 1.1e-1]@{\slash}S[table-format = 1.1e-1]
-	S[table-format = 1.1e-1]@{\slash}l
-	@{}}
-\toprule
-		  & \headmulti{Integration Error CPU\slash GPU \percent}{8} \\
-Mechanism & \headmulti{\texttt{Radau-IIA}}{2} & \headmulti{\texttt{exp4}}{2} & \headmulti{\texttt{exprb43}}{2} & \headmulti{\texttt{CVODE}\tablefootnote{With a finite difference Jacobian}}{2} \\
-\midrule
-\ce{H2}\slash air & $\SI{1.9e-4}{\percent}$ & $\SI{-1}{\percent}$ & $\SI{1.9e-4}{\percent}$ & $\SI{-1}{\percent}$ & $\SI{1.9e-4}{\percent}$ & $\SI{-1}{\percent}$ & $\SI{1.1e-5}{\percent}$ & \NA \\
-\ce{CH4}\slash air & $\SI{3.5e-2}{\percent}$ & $\SI{-1}{\percent}$ & $\SI{1.8e-2}{\percent}$ & $\SI{-1}{\percent}$ & $\SI{2.4e-2}{\percent}$ & $\SI{-1}{\percent}$ & $\SI{7.4e-6}{\percent}$ & \NA \\
-%\ce{C2H4}\slash air & \num{3.5e-2} & TODO \percent & \num{1.8e-2} & TODO \percent & \num{2.4e-4} & TODO & \num{7e-6} & \NA \percent \\
-\bottomrule
-\end{tabular}
-\caption{
-Integration error with respect to \texttt{CVODE} paired with an analytic Jacobian provided by \texttt{pyJac}. 
-}
-\label{T:validation}
-\end{table}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Results and discussion}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
