@@ -82,7 +82,12 @@
 \cortext[cor1]{Corresponding author}
 
 \begin{abstract}
-TODO
+A fifth-order implicit Runge--Kutta and two fourth-order exponential integration techniques equipped with Krylov subspace approximations were implemented for the GPU and paired with the analytical chemical Jacobian code \texttt{pyJac}.
+The performance of each was compared to a commonly used CPU implicit integrator \texttt{CVODE}.
+The implicit Runge--Kutta method run on a single GPU was found to be competitive with that of \texttt{CVODE} run on a six-core CPU, while the exponential integration techniques were less efficient.
+The main limiter of GPU integrator performance was identified as thread-divergence, and techniques to mitigate this issue have been discussed.
+A novel shared memory caching strategy for the GPU was developed and tested and found to provide a \SIrange{5}{10}{\percent} performance increase to all GPU integrators.
+Finally, a severely limiting issue with implicit integration on GPUs, that to our knowledge has not been discussed in literature, has been investigated and strategies for mitigation have been developed.
 \end{abstract}
 
 \begin{keyword}
@@ -90,6 +95,7 @@ TODO
 \end{keyword}
 
 \end{frontmatter}
+\pagebreak
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Introduction}
