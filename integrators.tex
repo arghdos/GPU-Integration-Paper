@@ -141,11 +141,12 @@ They also investigated levels of thread divergence due to differing integrator t
 Sewerin et al.~\cite{Sewerin20151375} implemented a three-stage\slash fifth-order implicit Runge--Kutta method~\cite{wanner1991solving} on a one-block per ODE basis, and found a $1.8\times$ slowdown at best compared with the same on a single eight-core CPU.
 
 While increasing numbers of studies have explored GPU acceleration of chemical kinetics, there remains a clear need to find or develop integration algorithms simultaneously suited for the SIMD parallelism of GPUs and similar accelerators and capable of handling stiffness.
-In this work we will investigate GPU implementations of several semi-implicit and implicit integration techniques, as compared with their CPU counterparts and a baseline CPU VODE implementation~\cite{Hindmarsh:2005hg}.
-Several previous works~\cite{Stone:2013aa,Bisetti:2012jw,Niemeyer:2014aa,Perini20141180,McNenly2015581} suggested so-called matrix-free methods---which do not require direct factorization of the Jacobian, but instead use an iterative process to approximate the action of the factorized Jacobian on a vector---as potential improvements to the expensive linear-system solver required in standard implicit methods.
-In particular, semi-implicit exponential integration methods may suit the SIMD parallelism model~\cite{Stone:2013aa,Bisetti:2012jw,Niemeyer:2014aa} due to their reasonably similar performance and expected lesser thread-divergence compared with fully implicit methods.\todo{``reasonably similar performance'' is unclear to me; also, did these papers discuss decreased thread divergence?}
-Furthermore, the three-stage, fifth-order implicit Runge--Kutta algorithm~\cite{wanner1991solving} investigated by Sewerin et al.~\cite{Sewerin20151375} will be studied to determine the impact of increasing chemical stiffness on the algorithm and the performance benefits of using an analytical Jacobian matrix.
-\todo[inline]{Is semi-implicit the correct terminology for exponential? They aren't implicit, but I'm not sure if that's the correct alternative.}
+In this work we will investigate GPU implementations of several semi-implicit and implicit integration techniques, as compared to their CPU counterparts and a baseline CPU VODE implementation~\cite{Hindmarsh:2005hg}.
+Several previous works~\cite{Perini20141180,McNenly2015581} suggested so-called matrix-free methods---which do not require direct factorization of the Jacobian, but instead use an iterative process to approximate the action of the factorized Jacobian on a vector---as potential improvements to the expensive linear-system solver required in standard implicit methods.
+Further, as demonstrated by Hochbruck et al.~\cite{Hochbruck:1997}, the matrix-exponential $\exp(\tau A)v$ obtained using Krylov subspace approximation converges faster than corresponding Krylov methods for the solution of linear equations $(I - \tau A)x = v$.
+Others previously explored these so-called explicit exponential methods for applications in stiff chemical systems~\cite{Bisetti:2012jw,falati2011integration} and found them stable for time-step sizes greatly exceeding the stability bound.
+In addition, their explicit nature makes them potentially much better suited for SIMD acceleration due an expected reduction of thread divergence compared with implicit methods.
+Furthermore, the three-stage fifth-order implicit Runge--Kutta algorithm~\cite{wanner1991solving} investigated by Sewerin et al.~\cite{Sewerin20151375} will be studied to determine the impact of increasing chemical stiffness on the algorithm and the performance benefits of using an analytical Jacobian matrix.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Methodology}
@@ -222,18 +223,23 @@ PaSR parameters used for hydrogen\slash air, methane\slash air, and ethylene\sla
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Shared memory caching}
 
-\todo[inline]{This section may need a bit more of an introduction, because shared memory seems to come out of nowhere.}
-When formulated in a single-ODE-per-thread basis, GPU-based algorithms must split a relatively small cache memory (typically \SI{64}{\kilo\byte}) between all threads in the blocks resident on a streaming multiprocessor.
-Most versions of the CUDA compute standards further segregate this cache into a L1 cache, and memory shared between threads in a block and allow the user to control whether the L1 cache or the shared memory will be larger.\todo{something wrong with this sentence}
-In our study, we found using a larger L1 cache always performs better, which may be expected for the per-thread approach where register spilling and global memory accesses are unavoidable.
-This leaves a significant portion of the cache ($\sim$\SI{16}{\kilo\byte}) as shared memory, but the small number of available memory locations per thread---two to four doubles---poses challenges to using this fast memory efficiently in the integration algorithm itself.
-However, the evaluations of the chemical source terms and analytical Jacobian often use species concentrations and reaction rates during consecutive operations, presenting an opportunity to exploit the available shared memory.
-Algorithm~\ref{A:shared_mem_caching} describes an algorithm to use this available shared memory for the reaction rate subroutine. 
-Similar algorithms were developed for the species rate and Jacobian evaluation routines, using species rates and reaction rates\slash species concentrations as the cacheable variables, respectively.
-As this algorithm generates the source code for the various subroutines, it introduces no computational or memory overhead related to determining the caching structure during runtime.
+One aspect of the GPU platform particularly important to high performance algorithms are the unique memory access patterns; each streaming multiprocessor has only a small amount of fast cache memory (typically \SI{64}{\kilo\byte}) and \SI{32}{\bit} registers (typically \SIrange{32}{64}{\kilo\byte}) available to it.
+All other memory is stored globally on the device, and the latencies are very high in comparison.
+To get maximum performance out of the GPU, it is critical to properly utilize the fast memory cache.
+When formulated on a per-block basis GPU-based integration algorithms have typically used this memory to store the current state vector, and other commonly used values (e.g. the chemical Jacobian).
+However, on a per-thread basis the best use of this memory, is less clear; this section will explore one such approach for efficient use of this fast memory on a per-thread basis.
+
+The largest issue with fast memory utilization on a per-thread basis is that it must be split between all threads in the blocks resident on a streaming multiprocessor.
+This fast memory is further split into a L1 cache, shared memory available for inter-thread communication within a block.
+Most versions of the CUDA compute standards allow the user to specify whether the L1 cache or the shared memory pool is larger.
+In our study, a larger L1 cache proved to be the superior choice, to be expected for a per-thread approach where fast memory is at a premium, and memory accesses often result in much slower global memory read/writes.
+However, this leaves a significant portion of the cache ($\sim$\SI{16}{\kilo\byte}) as shared memory, with only around \SIrange{2}{4} double precision variables available per thread.
+The very small amount of available memory makes use in the integration algorithm itself challenging, however opportunities exist during evaluation of the chemical source terms and analytical Jacobian.
+Algorithm~\ref{A:shared_mem_caching} describes an algorithm to use this available shared memory to store commonly used species concentrations during evaluation of the reaction rates. 
+Similar algorithms were developed for the species rate and Jacobian evaluation routines, using species rates and reaction rates\slash species concentrations as the cached variables, respectively.
+As this algorithm is run during generation of the source code for the various subroutines, it introduces no computational or memory overhead related to determining the caching structure during runtime.
 Although this represents a relatively simple improvement, its use can achieve reasonable performance benefits, as will be seen in Sec.~\ref{S:smem}.
 
-% I assume "hardware" was a typo extra there
 \begin{algorithm}[htb]
 \caption{Shared memory caching during evaluation of reaction rates.}
 \begin{algorithmic}[0]
@@ -264,14 +270,16 @@ Although this represents a relatively simple improvement, its use can achieve re
     \State Let $S_i$ be the set of participating species in $r_i$
     \State Let $P_{i,j}$ be the number of consecutive reactions starting from $r_{i + 1}$ 
     \Statex in which each species $s_{i,j}$ of $S_i$ participates
-    \State Let $L_{i,j}$ be the number of reactions since $s_{i,j}$ participated directly in a reaction
-    \State Sort $s_{i,j}$ in descending order by $P_{i,j}$ and store in $S_{i}^{\prime}$
+    \State For each species $c_{i,j}$ in $C_i$ let $L_{i,j}$ be the number of reactions since $c_{i,j}$ 
+    \Statex has directly participated in a reaction
+    \State Priority sort the species $s_{i,j}$ in $S_{i}$ in descending order by priority $P_{i,j}$
+    \Statex and store in $S_{i}^{\prime}$
     \For {$s_{i,j}$ in $S_{i}^{\prime}$}
       \If{$\|C_i\| < C_{max}$}
 	\State Add $s_{i,j}$ to $C_i$
       \ElsIf{$\max \left(L_{i}\right) \geq 2$ and $P_{i,j}$ > 1}
-	  \State Set $k$ such that $L_{i,k} = \max\left(L_{i}\right)$
-	  \State Replace $C_{i,k}$ with $s_{i,j}$, and remove $s_{i,j}$ from $S_{i}^{\prime}$
+	  \State Let $k$ be the index of the maximum $L_{i,j}$ for all $c_{i,j}$ in $C_i$
+	  \State Remove $s_{i,j}$ from $S_{i}^{\prime}$ and replace $c_{i,k}$ in $C_i$ with $s_{i,j}$
       \EndIf
     \EndFor
     \For {$s_{i,j}$ in $S_{i}^{\prime}$}
@@ -283,7 +291,6 @@ Although this represents a relatively simple improvement, its use can achieve re
   \EndFor
 \end{algorithmic}
 \label{A:shared_mem_caching}
-\todo[inline]{I'm a little confused by some of the notation; not sure what $C_{i,j}$ is, and then you drop the second subscript in a few lines. Same with $C_i$, where before you used $C_{i,j}$. I made some changes, namely using lower case for items and upper case for sets. But, I'm still confused about the first use of $C_i$.}
 \end{algorithm}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -301,6 +308,15 @@ The open-source \texttt{pyJac} software~\cite{Niemeyer:2015im,Niemeyer:2015ws} p
 
 \subsection{Performance}
 
+Figure~\ref{F:H2_perf} shows the runtimes of the CPU and GPU integrators for the \ce{H2}\slash\ce{CO} model.
+The CPU \texttt{Radau-IIa} integrator performed nearly equivalently compared with \texttt{CVODE} for the smaller global time-step size, and ran only slightly slower than \texttt{CVODE} for the larger time-step size.\todo{better to quantify these statements}
+The GPU \texttt{Radau-IIa} integrator ran at best $8.41\times$ faster than \texttt{CVODE}, and on average performed $5.39\pm1.35\times$ faster for the smaller time step size (counting only runtimes for greater than 1024 ODEs, where the GPU became fully utilized).
+Using the the larger time-step size negatively impacted the performance of the GPU \texttt{Radau-IIa} integrator---at best, it ran $2.69\times$ faster, and on average $1.78\pm0.81\times$ slower.
+Both the CPU and GPU versions of the exponential integrators performed similarly to the CPU implicit integrators, and at the smaller time-step size the GPU versions generally outperformed their CPU counterparts.\todo{``by a factor of''?}
+Although the \texttt{exprb43} and \texttt{exp4} algorithms each only require three exponential matrix function approximations, a single time step of \texttt{exprb43} is more expensive due to the extra chemical source term evaluations and matrix multiplications, and the higher-order phi function requirement.
+As such, the CPU \texttt{exprb43} integrator generally outperformed the relatively simpler \texttt{exp4} integrator for the smaller time-step size.\todo{by?}
+However, for the larger time-step size---with higher stiffness---the expected order reduction~\cite{Bisetti:2012jw} of the \texttt{exp4} integrator makes it less efficient than \texttt{exprb43}.\todo{this might require some elaboration, if possible}
+
 \begin{figure}[htb]
   \centering
   \begin{subfigure}{0.49\textwidth}
@@ -316,15 +332,6 @@ The open-source \texttt{pyJac} software~\cite{Niemeyer:2015im,Niemeyer:2015ws} p
   CPU versions ran in parallel on six cores.}
   \label{F:H2_perf}
 \end{figure}
-
-Figure~\ref{F:H2_perf} shows the runtimes of the CPU and GPU integrators for the \ce{H2}\slash\ce{CO} model.
-The CPU \texttt{Radau-IIa} integrator performed nearly equivalently compared with \texttt{CVODE} for the smaller global time-step size, and ran only slightly slower than \texttt{CVODE} for the larger time-step size.\todo{better to quantify these statements}
-The GPU \texttt{Radau-IIa} integrator ran at best $8.41\times$ faster than \texttt{CVODE}, and on average performed $5.39\pm1.35\times$ faster for the smaller time step size (counting only runtimes for greater than 1024 ODEs, where the GPU became fully utilized).
-Using the the larger time-step size negatively impacted the performance of the GPU \texttt{Radau-IIa} integrator---at best, it ran $2.69\times$ faster, and on average $1.78\pm0.81\times$ slower.
-Both the CPU and GPU versions of the exponential integrators performed similarly to the CPU implicit integrators, and at the smaller time-step size the GPU versions generally outperformed their CPU counterparts.\todo{``by a factor of''?}
-Although the \texttt{exprb43} and \texttt{exp4} algorithms each only require three exponential matrix function approximations, a single time step of \texttt{exprb43} is more expensive due to the extra chemical source term evaluations and matrix multiplications, and the higher-order phi function requirement.
-As such, the CPU \texttt{exprb43} integrator generally outperformed the relatively simpler \texttt{exp4} integrator for the smaller time-step size.\todo{by?}
-However, for the larger time-step size---with higher stiffness---the expected order reduction~\cite{Bisetti:2012jw} of the \texttt{exp4} integrator makes it less efficient than \texttt{exprb43}.\todo{this might require some elaboration, if possible}
 
 \begin{figure}[htb]
   \centering
@@ -382,7 +389,6 @@ Furthermore, the relative performance difference of the GPU \texttt{Radau-IIa} s
 Furthermore, increased thread divergence likely caused the relative performance difference of the GPU \texttt{Radau-IIa} solver between the \ce{H2}\slash\ce{CO} and GRI models at the smaller time-step size, due to differing chemical timescales.
 This observation motivates future work aimed at developing strategies to reduce thread divergence.
 Potential solutions include adoption of an ODE per-block approach~\cite{Stone:2013aa}, re-ordering of ODEs to increase similarity of chemical stiffness inside a warp, or time-step synchronization between threads in a warp.
-\todo[inline]{If time, run Radau studies with 100 consecutive $10^{-6}$ time steps for the $10^{-4}$ global time step case to see effect on performance and emphasize this point}
 
 Figure~\ref{F:GRI_perf} also shows that the CPU exponential integrators perform similarly to the CPU implicit integrators for the smaller time-step size.
 As the exponential integrators must only factorize a much smaller Hessenberg matrix rather than the entire Jacobian---as in the implicit integrators---significant savings in factorization can potentially be achieved with larger mechanism sizes.\todo{can you put a number to how much smaller the Hessenberg is compared to the Jacobian?}
