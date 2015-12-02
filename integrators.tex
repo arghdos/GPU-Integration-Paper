@@ -275,17 +275,6 @@ Thus, it is critical to properly utilize the fast memory cache to achieve maximu
 When formulated on a per-block basis GPU-based integration algorithms typically used this memory to store the current state vector, and other commonly used values (e.g., the chemical Jacobian).
 However, on a per-thread basis the best use of this memory is less clear; this section will proposes one such approach for efficient use of this fast memory on a per-thread basis.
 
-The largest issue with fast memory utilization on a per-thread basis is that it must be split between all threads in the blocks resident on a streaming multiprocessor.
-This fast memory is further split into a L1 cache, shared memory available for inter-thread communication within a block.
-Most versions of the CUDA compute standards allow the user to specify whether the L1 cache or the shared memory pool is larger.
-In our study, a larger L1 cache proved to be the superior choice, to be expected for a per-thread approach where fast memory is at a premium, and memory accesses often result in much slower global memory read/writes.
-However, this leaves a significant portion of the cache ($\sim$\SI{16}{\kilo\byte}) as shared memory, with only around \SIrange{2}{4} double precision variables available per thread.
-The very small amount of available memory makes use in the integration algorithm itself challenging, however opportunities exist during evaluation of the chemical source terms and analytical Jacobian.
-Algorithm~\ref{A:shared_mem_caching} describes an algorithm to use this available shared memory to store commonly used species concentrations during evaluation of the reaction rates. 
-Similar algorithms were developed for the species rate and Jacobian evaluation routines, using species rates and reaction rates\slash species concentrations as the cached variables, respectively.
-As this algorithm is run during generation of the source code for the various subroutines, it introduces no computational or memory overhead related to determining the caching structure during runtime.
-Although this represents a relatively simple improvement, its use can achieve reasonable performance benefits, as will be seen in Sec.~\ref{S:smem}.
-
 \begin{algorithm}[htb]
 \caption{Shared memory caching during evaluation of reaction rates.}
 \begin{algorithmic}[0]
@@ -318,6 +307,17 @@ Although this represents a relatively simple improvement, its use can achieve re
 \end{algorithmic}
 \label{A:shared_mem_caching}
 \end{algorithm}
+
+The largest issue with fast memory utilization on a per-thread basis is that it must be split between all threads in the blocks resident on a streaming multiprocessor.
+This fast memory is further split into a L1 cache, shared memory available for inter-thread communication within a block.
+Most versions of the CUDA compute standards allow the user to specify whether the L1 cache or the shared memory pool is larger.
+In our study, a larger L1 cache proved to be the superior choice, to be expected for a per-thread approach where fast memory is at a premium, and memory accesses often result in much slower global memory read/writes.
+However, this leaves a significant portion of the cache ($\sim$\SI{16}{\kilo\byte}) as shared memory, with only around \SIrange{2}{4} double precision variables available per thread.
+The very small amount of available memory makes use in the integration algorithm itself challenging, however opportunities exist during evaluation of the chemical source terms and analytical Jacobian.
+Algorithm~\ref{A:shared_mem_caching} describes an algorithm to use this available shared memory to store commonly used species concentrations during evaluation of the reaction rates. 
+Similar algorithms were developed for the species rate and Jacobian evaluation routines, using species rates and reaction rates\slash species concentrations as the cached variables, respectively.
+As this algorithm is run during generation of the source code for the various subroutines, it introduces no computational or memory overhead related to determining the caching structure during runtime.
+Although this represents a relatively simple improvement, its use can achieve reasonable performance benefits, as will be seen in Sec.~\ref{S:smem}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Results and discussion}
