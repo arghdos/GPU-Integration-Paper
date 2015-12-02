@@ -351,7 +351,7 @@ This difference is due to increase in chemical source term and Jacobian evaluati
 In certain cases for the GRI mechanism, even larger speedups were observed, e.g. a \SI{24.4}{\percent} speedup with \texttt{exp4} for \SI{131072} ODEs and the \SI{1e-6}{\s} timestep, and a \SI{13.2}{\percent} speedup with \text{Radau-IIa} for \SI{32768} ODEs and the \SI{1e-4}{\s} timestep.
 
 
-\subsection{Limitations of Implicit GPU Integration Techniques}
+\subsection{Limitations of Per-Thread Local Memory for Implicit GPU Integration}
 During work on this paper, a significant but underdiscussed issue with the use of implicit and semi-implicit integrators on the GPU came to light.
 Namely, the size of the Jacobian places severe restrictions on either the maximum allowable mechanism size, or the total number of independent chemical-kinetic ODEs that can be solved concurrently.
 For instance, the \texttt{Radau-IIA} solver requires storage of the Jacobian, as well as a LU factorized and a complex LU factorized matrix of the same size.
@@ -365,16 +365,16 @@ In CUDA however, all threads are limited to a maximum of \SI{512}{\kilo\byte} lo
 This limits the maximum mechanism size to relatively small numbers, as seen in Table~\ref{T:size_limits}, for GPU solvers implemented on a per-thread basis.
 In this study, even the USC mechanism \ce{C2H4}~\cite{Wang:2007} with only 111 species caused the GPU to run out of local thread memory for all three GPU integrators.
 
-Additionally, the Jacobian and associated matricies can be pre-allocated in global memory, and thus the total global memory is split between all ODEs to be solved in a given kernel launch.
+Instead, the Jacobian and associated matricies can be pre-allocated in global memory, and thus the total global memory is split between all ODEs to be solved in a given kernel launch.
 In this work, a Tesla C2075 GPU was used, and recent GPU-based chemical kinetic integration studies have used similar models~\cite{Shi:2011aa,Niemeyer:2011aa,Shi:2012aa,Le2013596,Stone:2013aa,Niemeyer:2014aa}
-For a \SI{6}{\giga\byte} global memory size, and a \SI{1000000} independent ODEs, this works out to just \SI{750} doubles available per concurrent ODE.
+For a \SI{6}{\giga\byte} global memory size and \SI{1000000} independent ODEs, this works out to just \SI{750} doubles available per concurrent ODE.
 Even assuming a more reasonable \SI{100000} ODEs, or low \SI{10000} ODEs per kernel launch, each concurrent ODE is limited to just \SI{7500} and \SI{75000} doubles correspondingly.
 The resulting (approximate) maximum mechanism sizes are listed in Table~\ref{T:size_limits}.
 It is noted that this analysis applies equally to GPU solvers implemented both on a per-thread and per-block basis.
 As discussed in Sewerin et al.~\cite{Sewerin20151375}, one approach to alleviate this issue is to limit the number of ODEs solved per kernel launch. 
-For larger mechanisms, e.g. \SIrange{250}{500} species, this will begin to negatively impact performance by forcing kernel launches small enough such that the resources of GPU are underutilized.
+For larger mechanisms, e.g. \SIrange{250}{500} species, this issue may begin to negatively impact performance by forcing kernel launches small enough such that the resources of GPU are underutilized.
 
-As one goal of GPU based integration algorithms is to enable use of larger, say \SIrange{100}{200} species, skeletal mechanisms in general reacting flow simulations through acceleration of chemical kinetic integration, these restrictive mechanism size limits pose a large issue.
+As one goal of GPU based integration algorithms is to enable use of larger, say \SIrange{100}{200} species, skeletal mechanisms in general reacting flow simulations through acceleration of chemical kinetic integration, the restrictive mechanism size~\slash ODEs per kernel launch limits pose an issue.
 Thus we recommend use of global memory rather than per-thread local memory to store these matricies.
 In addition, a chemical kinetic Jacobian based on species concentrations instead of species mass fractions exhibits significantly greater sparsity~\cite{Lu:2009gh}, and thus may relax the mechanism size limits imposed by Jacobian storage in addition to accelering Jacobian evaluation and factorization.
 This is an avenue that will be explored in future work.
