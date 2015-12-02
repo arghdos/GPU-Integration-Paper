@@ -477,7 +477,7 @@ This work demonstrated the performance of GPU-based integration methods, includi
 For time-step sizes relevant to large eddy simulations, the GPU-based implicit Runge--Kutta method achieved a maximum speedup of over eight compared with the CPU-based implicit \texttt{CVODE} integrator on a six-core CPU for a hydrogen model, and performed comparably to \texttt{CVODE} for the GRI-Mech.~3 model; the exponential integrators performed worse in all cases.
 For longer time-step sizes, the performance of all GPU solvers considered decreased significantly due to increased levels of thread-divergence.
 Furthermore, a shared memory caching algorithm was developed for the evaluation of chemical source terms and the analytical chemical Jacobian and resulted in modest performance benefits of \SIrange{5}{24}{\percent}.
-Finally, an issue was identified with storage of the Jacobian and similar matrices in per-thread local memory, and the balance between independent ODEs per kernel launch and maximum mechanism size was discussed.\todo{still true?}
+Finally, an issue was identified with storage of the Jacobian and similar matrices in per-thread local memory.
 
 When compared with the results of a similar integration technique by Sewerin et al.~\cite{Sewerin20151375}, it is clear that the use of an analytical chemical Jacobian matrix greatly improves implicit integration speeds on the GPU.
 Further improvements to the analytical Jacobian code, e.g., by use of a chemical kinetic system based on species concentrations rather than mass fractions, are likely to further increase performance of the developed algorithms.
