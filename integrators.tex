@@ -89,7 +89,7 @@ The performance of each was compared with the commonly used CPU-based implicit i
 The implicit Runge--Kutta method performed up to eight times faster on a single GPU than \texttt{CVODE} on a single six-core CPU for an \ce{H2}\slash \ce{CO} model, and ran competitively with \texttt{CVODE} for the GRI-Mech.\ 3 model.
 The exponential integration techniques performed less efficiently for all cases.
 The main limiter of GPU integrator performance was identified as thread divergence, and techniques to mitigate this issue were discussed.
-A novel shared memory caching strategy for the GPU was developed and shown to provide a \SIrange{5}{10}{\percent} performance increase to all GPU-based integrators.
+A novel shared memory caching strategy for the GPU was developed and shown to provide a \SIrange{5}{24}{\percent} performance increase to all GPU-based integrators.
 Additionally, an issue affecting storage of the chemical kinetic Jacobian in per-thread local memory was identified.
 Work-around methods were discussed and the resulting balance between chemical kinetic mechanism size and independent ODEs solved per kernel launch was explored.
 Finally, future research directions were identified based on the current state-of-the-art of stiff chemical kinetic integration on the GPU.
@@ -415,7 +415,7 @@ Thus, we recommend using this or a similar caching scheme in order to exploit sh
 
 Through the course of this work, we encountered a significant but under-discussed issue with the use of implicit and semi-implicit integrators on the GPU.
 Namely, the size of the Jacobian places severe restrictions on either the maximum allowable mechanism size or the total number of independent chemical-kinetic ODEs that can be solved concurrently.
-For instance, the \texttt{Radau-IIA} solver requires storage of $N_s \times N_S$ matrices for the Jacobian, LU factorization, and complex LU factorization, where $N_s$ is the number of species in the mechanism.
+For instance, the \texttt{Radau-IIA} solver requires storage of $N_s \times N_s$ matrices for the Jacobian, LU factorization, and complex LU factorization, where $N_s$ is the number of species in the mechanism.
 Similarly, the exponential integrators require storage of matrices for the Jacobian, the Hessenberg and vector subspace resulting from the Arnoldi process, and the corresponding Hessenberg exponential.
 While the Hessenberg, exponential Hessenberg , and vector subspaces may be smaller than the full Jacobian (e.g., by limiting the maximum Kyrlov subspace size), for the sake of simplicity in this analysis we assume full sizes.
 This implies that storage requirements per ODE solved concurrently scale as $\mathcal{O}\left(3 \times N_s^2\right)$ for the \texttt{Radau-IIA} solver and as $\mathcal{O}\left(4 \times N_s^2\right)$ for the exponential solvers.
