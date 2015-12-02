@@ -413,8 +413,7 @@ The effectiveness of the shared memory caching scheme was evaluated in several c
 We observed a typical speedup of $\SI{\sim5}{\percent}$ for the smaller global time-step size, and a $\SI{\sim10}{\percent}$ speedup for the larger time-step size.
 This difference resulted from an increase in chemical source term and Jacobian evaluations required for the larger time-step size cases.
 Even larger speedup factors were observed in certain cases with the GRI model: a \SI{24.4}{\percent} speedup with \texttt{exp4} for \num{131072} ODEs and the \SI{e-6}{\second} time-step size, and a \SI{13.2}{\percent} speedup with \text{Radau-IIa} for \SI{32768} ODEs and the \SI{e-4}{\second} time-step size.
-Thus, we recommend using this or a similar caching scheme in order to exploit shared memory in GPU integrators.
-\todo{or something like this to conclude the section?}
+Thus, we recommend using this or a similar caching scheme in order to exploit shared memory in GPU integrators implemented on a per-thread basis.
 
 \subsection{Limitations of per-thread local memory for implicit GPU integration}
 
