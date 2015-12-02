@@ -61,6 +61,8 @@
 \newcommand{\head}[1]{\centercell{\bfseries#1}}
 \newcommand{\headmulti}[2]{\centermulti{\bfseries#1}{#2}}
 
+\newcommand{\argmax}{\operatornamewithlimits{argmax}}
+
 \journal{36th International Symposium on Combustion}
 
 \begin{document}
@@ -261,7 +263,8 @@ Although this represents a relatively simple improvement, its use can achieve re
       \If{$|C| < C_{\max}$}
 		\State Add $s_{i,j}$ to $C$
       \ElsIf{$\max_j \left( L_j \right) \geq 2$ and $P_{i,j}$ > 1}
-	  \State Let $k$ be the index of $\max_j \left(L_j \right)$
+	  %\State Let $k$ be the index of $\max_j \left(L_j \right)$
+	  \State Let $k = \argmax_j \left(L_j \right)$
 	  \State Remove $s_{i,j}$ from $S_{i}^{\prime}$ and replace $c_k$ in $C$ with $s_{i,j}$
       \EndIf
     \EndFor
