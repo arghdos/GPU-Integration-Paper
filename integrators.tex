@@ -247,29 +247,7 @@ Although this represents a relatively simple improvement, its use can achieve re
 \begin{algorithm}[htb]
 \caption{Shared memory caching during evaluation of reaction rates.}
 \begin{algorithmic}[0]
-%  \State {Initialize the cached species concentration set $C_{0} = \varnothing$; the maximum set size is $C_{max}$}
-%  \For {$R_i$ in reactions}
-%    \State Let $S_i$ be the set of participating species in $R_i$
-%    \State Let $P_{i,j}$ be the number of consecutive reactions starting from $R_{i + 1}$ 
-%    \Statex that each species $S_j$ in $R_i$ participates in
-%    \State Let $L_{i,j}$ be the number of reactions since $C_{i,j}$ has participated directly in a reaction
-%    \State Sort $S_{i}$ in descending order by $P_{i,j}$ and store in $S_{i}^{\prime}$
-%    \For {$S_{i,j}$ in $S_{i}^{\prime}$}
-%      \If{$\|C_i\| < C_{max}$}
-%	\State Add $S_{i,j}$ to $C_i$
-%      \ElsIf{$\max \left(L_{i}\right) \geq 2$ and $P_{i,j}$ > 1}
-%	  \State Set $k$ such that $L_{i,k} = \max\left(L_{i}\right)$
-%	  \State Replace $C_{i,k}$ with $S_{i,j}$, and remove $S_{i,j}$ from $S_{i}^{\prime}$
-%      \EndIf
-%    \EndFor
-%    \For {$S_{i,j}$ in $S_{i}^{\prime}$}
-%      \If{$\|S_{i}^{\prime}\| > 0$ and $\|C_i\| < C_{max}$}
-%	\State Add $S_{i,j}$ to $C_i$
-%      \EndIf
-%    \EndFor
-%    \State Compute reaction rate $i$ using values in $C_i$ where appropriate.
-%  \EndFor
-  \State {Initialize the cached species concentration set $C_{0} = \varnothing$; the maximum set size is $C_{max}$}
+  \State {Initialize the cached species concentration set $C_{0} = \varnothing$; maximum set size is $C_{\max}$}
   \For {$r_i$ in reactions $R$}
     \State Let $S_i$ be the set of participating species in $r_i$
     \State Let $P_{i,j}$ be the number of consecutive reactions starting from $r_{i + 1}$ 
@@ -279,7 +257,7 @@ Although this represents a relatively simple improvement, its use can achieve re
     \State Priority sort the species $s_{i,j}$ in $S_{i}$ in descending order by priority $P_{i,j}$
     \Statex and store in $S_{i}^{\prime}$
     \For {$s_{i,j}$ in $S_{i}^{\prime}$}
-      \If{$\|C_i\| < C_{max}$}
+      \If{$\|C_i\| < C_{\max}$}
 	\State Add $s_{i,j}$ to $C_i$
       \ElsIf{$\max \left(L_{i}\right) \geq 2$ and $P_{i,j}$ > 1}
 	  \State Let $k$ be the index of the maximum $L_{i,j}$ for all $c_{i,j}$ in $C_i$
