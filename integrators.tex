@@ -359,11 +359,11 @@ Correspondingly for the stiffer, larger time-step case the CPU \texttt{exprb43} 
 \end{figure}
 
 Figure~\ref{F:GRI_perf} shows the runtime of the integrators for the GRI-Mech.~3.0 model.
-The GPU \texttt{Radau-IIa} integrator often outperformed the CPU version and \texttt{CVODE} for the smaller time-step size; at best, it ran $1.46\times$ faster, and on average $1.13\pm0.63\times$ slower, than \texttt{CVODE}.
-The larger time-step size again negatively impacted the performance of the GPU-based \texttt{Radau-IIa} integrator, dropping the performance to $8.63\times$ slower in the best case, and $14.18\pm6.64\times$ slower on average.\todo{compared to CPU version, or CVODE?}
+The GPU \texttt{Radau-IIa} integrator often outperformed the CPU version and \texttt{CVODE} for the smaller time-step size; at best, it ran \SI{31.5}{\percent} faster than \texttt{CVODE}, and \SI{21\pm64}{\percent} slower than on average.
+The larger time-step size again negatively impacted the performance of the GPU-based \texttt{Radau-IIa} integrator, dropping the performance to $\SI{8.63}{\times}$ slower than \texttt{CVODE} in the best case, and $\SI{17.98\pm13.04}{\times}$ slower on average.
 
 Two primary factors affect the performance of the GPU integration algorithms: chemical stiffness and thread divergence.
-The CPU-based \texttt{Radau-IIa} integrator demonstrated almost identical performance to \texttt{CVODE} except for the GRI-Mech.~3.0 model with the larger time step---the stiffest case.
+The CPU-based \texttt{Radau-IIa} integrator demonstrated almost identical performance to \texttt{CVODE} except for the GRI-Mech.~3.0 model with the larger time step---the stiffest case---where it ran $\SI{3.1\pm0.47}{\times}$ slower on average.
 This difference may be due to the adaptive-order nature of the \texttt{CVODE} algorithm, or potentially due to its maturity and years of optimization.
 However, this effect is fairly minor and should not cause the order of magnitude decrease in relative performance between the GPU-based \texttt{Radau-IIa} integrator and \texttt{CVODE} observed when switching to the larger time step.
 To investigate this further, we adopted a similar quantification of thread divergence to that of Niemeyer et al.~\cite{Niemeyer:2014aa}:
@@ -398,10 +398,12 @@ Furthermore, increased thread divergence likely caused the relative performance 
 This observation motivates future work aimed at developing strategies to reduce thread divergence.
 Potential solutions include adoption of an ODE per-block approach~\cite{Stone:2013aa}, re-ordering of ODEs to increase similarity of chemical stiffness inside a warp, or time-step synchronization between threads in a warp.
 
-Figure~\ref{F:GRI_perf} also shows that the CPU exponential integrators perform similarly to the CPU implicit integrators for the smaller time-step size.
-As the exponential integrators must only factorize a much smaller Hessenberg matrix rather than the entire Jacobian---as in the implicit integrators---significant savings in factorization can potentially be achieved with larger mechanism sizes.\todo{can you put a number to how much smaller the Hessenberg is compared to the Jacobian?}
+Figure~\ref{F:GRI_perf} also shows that the CPU exponential integrators are only $\SIrange{2}{3}{\times}$ slower than to \texttt{CVODE} for the smaller time-step size.
+As the exponential integrators must only factorize a much smaller Hessenberg matrix, typically a $\sim 5\times 5$ matrix or so for small integrator time-steps in stiff cases, rather than the entire Jacobian---as in the implicit integrators---significant savings in factorization can potentially be achieved with larger mechanism sizes.
+For larger integrator time-steps without large chemical stiffness (e.g. near equilibrium) the size of the Hessenberg matrix to be factorized grows to a more typical $\sim 20\times 20$.
 However, as stiffness increases, e.g., as for the larger time-step size, the stability characteristics of the implicit integrators make them more favorable.
-We hypothesize that the exponential integrators may be more efficient than the implicit integrators for moderately stiff systems (e.g., with small time-step sizes, or low tolerances) with larger chemical mechanisms.\todo{should mention RKC?}
+We hypothesize that the exponential integrators may be more efficient than the implicit integrators for moderately stiff systems (e.g., with small time-step sizes, or low tolerances) with larger chemical mechanisms.
+It is also noted that previous work~\cite{Niemeyer:2014aa} has shown that stabilized explicit integrators can provide significant speedups for moderately stiff systems.
 Although not shown in Fig.~\ref{F:divergence}, the exponential integrators experienced significant thread divergence in all cases, and thus would also likely benefit from the thread divergence reduction techniques discussed above.
 
 \subsection{Effect of shared memory caching}
