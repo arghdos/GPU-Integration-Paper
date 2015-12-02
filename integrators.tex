@@ -152,34 +152,41 @@ Furthermore, the three-stage, fifth-order implicit Runge--Kutta algorithm~\cite{
 \label{sec:Method}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-In this section, the details of the algorithms implemented for the GPU will be discussed along with the third party software utilized.
+In this section, we discuss details of the algorithms implemented for the GPU along with third-party software used.
 The generation of testing conditions will be discussed briefly, and a shared memory caching algorithm will be outlined.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Integration techniques}
 
-Several integration methods were investigated in this work.
+We investigated GPU implementations of three integration methods in this work, comparing them against equivalent CPU versions and a CPU-only implicit algorithm.
+While we describe important details or changes here, full descriptions of all algorithms may be found in the cited sources.
 The aforementioned \texttt{pyJac} software~\cite{Niemeyer:2015im} provided both chemical source term and analytical Jacobian subroutines for CPU- and GPU-based algorithms.
-For validation and performance assessments of \texttt{pyJac} the reader is directed to our previous work~\cite{Niemeyer:2015ws}.
+For validation and performance assessments of \texttt{pyJac}, we direct readers to our previous work~\cite{Niemeyer:2015ws}.
 
-To provide a good assessment of the baseline performance of a CPU based high-order implicit integration technique the \texttt{CVODE} solver~\cite{Hindmarsh:2005hg} was utilized.
-In addition, the three-stage/fifth-order implicit Runge--Kutta algorithm~\cite{hairer1996solving}, termed \texttt{Radau-IIA} algorithm in this work, was implemented for the CPU.
-The commonly used fourth-order exponential Rosenbrock-like method \texttt{exp4} of Hochbruck et al.~\cite{Hochbruck:1998} as well as their newer fourth-order exponential Rosenbrock method~\cite{Hockbruck:2009}, termed \texttt{exprb43} in this work, were first implemented for the CPU for direct comparison to the high-order implicit techniques.
-As suggested by Bisetti et al.~\cite{Bisetti:2012jw} the method of rational approximants~\cite{gallopoulos:1992} paired with the Carath\'edothy--Fej\'er method~\cite{trefethen:2006} was used to compute the the approximation of the matrix-exponetial's action on a vector, for which the \texttt{FFTW3} library~\cite{frigo2005design} was used.
-Unlike Bisetti et al., a custom routine based on the algorithm presented by Stewart~\cite{stewart:1998} was developed in order to find the LU decomposition of the Hessenberg matrix resulting from the Arnoldi process.
-Version 11.1.3 of the Intel \texttt{MKL} library was used to accelerate BLAS/LAPACK operations on the CPU.
-The GPU versions of the \texttt{Radau-IIA}, \texttt{exp4}, and \texttt{exprb43} were similar to the CPU versions, but required implementation of several BLAS/LAPACK methods, mostly related to LU factorization (or Hessenberg LU factorization for the exponential integrators) for the GPU.
-Finally, absolute and relative tolerances of \SI{1e-15} and \SI{1e-8} were used throughout the work for all integrators, and a rational approximant type of $\left(10,10\right)$ was used for the exponential integrators, as suggested by Bisetti et al.~\cite{Bisetti:2012jw}.
+First, we used the \texttt{CVODE} solver~\cite{Hindmarsh:2005hg} to provide the baseline performance of a typical CPU-based high-order implicit integration technique.
+In addition, we implemented CPU versions of the methods under investigation for direct comparison to the high-order implicit technique.
+These include the three-stage/fifth-order implicit Runge--Kutta algorithm~\cite{hairer1996solving}, called \texttt{Radau-IIA} here; the fourth-order exponential Rosenbrock-like method \texttt{exp4} of Hochbruck et al.~\cite{Hochbruck:1998}; and the newer fourth-order exponential Rosenbrock method~\cite{Hockbruck:2009}, called \texttt{exprb43} here.
+For the exponential methods, we used the method of rational approximants~\cite{gallopoulos:1992} paired with the Carath\'edothy--Fej\'er method~\cite{trefethen:2006} to approximate the action of the matrix exponential on a vector, as suggested by Bisetti~\cite{Bisetti:2012jw}.
+This technique relied on the external \texttt{FFTW3} library~\cite{frigo2005design}.
+However, unlike the approach of Bisetti, we developed a custom routine based on the algorithm presented by Stewart~\cite{stewart:1998} to perform the LU decomposition of the Hessenberg matrix resulting from the Arnoldi iteration.
+To ensure high performance of CPU-based methods, the Intel \texttt{MKL} library version 11.1.3 handled linear algebra (i.e., BLAS/LAPACK) operations.
+Next, we implemented GPU versions of the \texttt{Radau-IIA}, \texttt{exp4}, and \texttt{exprb43} methods; these follow the same descriptions as the CPU versions, but required specialized implementations of several BLAS and LAPACK methods, mostly related to LU factorization (or Hessenberg LU factorization for the exponential integrators).
+All GPU routines were developed using the NVIDIA CUDA framework~\cite{Buck:2008aa,NVIDIA:2015aa}.
+Finally, the adaptive timestepping procedures of all integrators used absolute and relative tolerances of \SI{1e-15} and \SI{1e-8}, respectively, throughout the work, and the exponential integrators used a rational approximant type of $\left(10,10\right)$ as suggested by Bisetti~\cite{Bisetti:2012jw}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Testing conditions}
 
+In order to validate and measure the performance of the integrators for realistic conditions, a database of thermochemical conditions covering a wide range of temperatures and species mass fractions was generated using a previously developed stochastic partially stirred reactor (PaSR) code~\cite{Niemeyer:2015ws}.
+Table~\ref{T:mechanisms} describes the two chemical kinetic mechanisms selected to span the range of model sizes typically used in high-fidelity simulations.
+The PaSR simulations were performed at the conditions listed in Table~\ref{T:pasr_parameters} for ten residence times to reach a statistical steady state; Niemeyer et al.~\cite{Niemeyer:2015ws} describe the PaSR simulation process in greater detail, which follows approaches used by others~\cite{Chen:1997ta,Pope:1997wu,Ren:2004fz,Ren:2014cd}.
+
 \label{S:pasr}
-\begin{table}[h]
+\begin{table}[htb]
 \centering
 \begin{tabular}{@{}l l l l@{}}
 \toprule
-Fuel species & Number of species & Number of reactions & Reference \\
+Fuel species & \# of species & \# of reactions & Reference \\
 \midrule
 \ce{H2}\slash \ce{CO} & 13 & 27 &~\cite{Burke:2011fh} \\
 \ce{CH4} & 53 & 325 &~\cite{smith_gri-mech_30} \\
@@ -191,7 +198,7 @@ Summary of chemical kinetic models used as benchmark test cases.
 \label{T:mechanisms}
 \end{table}
 
-\begin{table}[h]
+\begin{table}[htb]
 \centering
 \begin{tabular}{@{}l l l @{}}
 \toprule
@@ -207,28 +214,24 @@ $\tau_{\text{pair}}$ & \SI{1}{\milli\second} & \SI{1}{\milli\second} \\
 \bottomrule
 \end{tabular}
 \caption{
-PaSR parameters used for hydrogen\slash air, methane\slash air, and ethylene\slash air premixed combustion cases, where $\phi$ indicates equivalence ratio.
+PaSR parameters used for hydrogen\slash air, methane\slash air, and ethylene\slash air premixed combustion cases, where $\phi$ indicates equivalence ratio, $T$ is temperature, $p$ is pressure, $N_p$ is the number of particles, $\tau_{\text{res}}$ is the residence time, $\tau_{\text{mix}}$ is the mixing time, and $\tau_{\text{pair}}$ is the pairing time.
 }
 \label{T:pasr_parameters}
 \end{table}
 
-In order to validate and measure the performance of the integrators for realistic conditions, a database of thermochemical conditions covering a wide range of temperatures and species mass fractions was generated using a previously developed~\cite{Niemeyer:2015ws} stochastic partially stirred reactor (PaSR) code.
-Two chemical kinetic mechanisms, listed in Table~\ref{T:mechanisms} were selected to cover a range of fuel classes and chemical stiffness.
-The PaSR simulations were run at the conditions listed in Table~\ref{T:pasr_parameters} for ten residence times to reach a statistical steady state; the PaSR simulation process is described in greater detail in Niemeyer et al.~\cite{Niemeyer:2015ws}.
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Shared memory caching}
 
-When formulated in a one ODE per-thread basis GPU-based algorithms must split a relatively small cache, typically \SI{64}{\kilo\byte}, between all threads in all blocks resident on a streaming multiprocessor.
-Most versions of the CUDA compute standards further segregate this cache into a L1 cache, and memory shared between threads in a block and allow the user to control whether the L1 cache or the shared memory will be larger.
-In our study, we have found that it is always faster to use a larger L1 cache, as expected on a one ODE per-thread basis where register spilling and global memory accesses are unavoidable.
-This still leaves a significant portion of the cache as (typically \SI{16}{\kilo\byte}) as shared memory.
-It is difficult to utilize this available fast memory in an efficient manner in the integration algorithm itself, as the number of memory locations available per thread is prohibitively small: two to four doubles each.
-However, during the evaluation of the chemical source terms and analytical Jacobian, species concentrations and reaction rates are often used during consecutive operations, presenting an opportunity to use the available shared memory.
-An algorithm to utilize this available shared memory is outlined by example for the reaction rate subroutine in Algorithm~\ref{A:shared_mem_caching}.
-Similar algorithms can be used for the species rate and Jacobian evaluation routines, using species rates and reaction rates\slash species concentrations as the cacheable variables respectively.
-As this algorithm is used to generate the source code for the various subroutines, it introduces no computational or memory overhead related to determining the caching structure during runtime.
-Although relatively simple, reasonable performance benefits can be realized through its use, as will be seen in Sec.~\ref{S:smem}.
+\todo[inline]{This section may need a bit more of an introduction, because shared memory seems to come out of nowhere.}
+When formulated in a single-ODE-per-thread basis, GPU-based algorithms must split a relatively small cache memory (typically \SI{64}{\kilo\byte}) between all threads in the blocks resident on a streaming multiprocessor.
+Most versions of the CUDA compute standards further segregate this cache into a L1 cache, and memory shared between threads in a block and allow the user to control whether the L1 cache or the shared memory will be larger.\todo{something wrong with this sentence}
+In our study, we found using a larger L1 cache always performs better, which may be expected for the per-thread approach where register spilling and global memory accesses are unavoidable.
+This leaves a significant portion of the cache ($\sim$\SI{16}{\kilo\byte}) as shared memory, but the small number of available memory locations per thread---two to four doubles---poses challenges to using this fast memory efficiently in the integration algorithm itself.
+However, the evaluations of the chemical source terms and analytical Jacobian often use species concentrations and reaction rates during consecutive operations, presenting an opportunity to exploit the available shared memory.
+Algorithm~\ref{A:shared_mem_caching} describes an algorithm to use this available shared memory for the reaction rate subroutine. 
+Similar algorithms were developed for the species rate and Jacobian evaluation routines, using species rates and reaction rates\slash species concentrations as the cacheable variables, respectively.
+As this algorithm generates the source code for the various subroutines, it introduces no computational or memory overhead related to determining the caching structure during runtime.
+Although this represents a relatively simple improvement, its use can achieve reasonable performance benefits, as will be seen in Sec.~\ref{S:smem}.
 
 % I assume "hardware" was a typo extra there
 \begin{algorithm}[htb]

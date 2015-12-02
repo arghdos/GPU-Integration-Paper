@@ -1,5 +1,27 @@
 
 
+@misc{NVIDIA:2015aa,
+	Author = {{NVIDIA}},
+	Date-Added = {2015-12-02 09:43:27 +0000},
+	Date-Modified = {2015-12-02 09:44:17 +0000},
+	Howpublished = {version 7.5, \url{https://docs.nvidia.com/cuda/pdf/CUDA_C_Programming_Guide.pdf}},
+	Title = {{CUDA C} Programming Guide},
+    Month = sep,
+	Year = {2015}}
+
+@article{Buck:2008aa,
+	Author = {John Nickolls and Ian Buck and Michael Garland and Kevin Skadron},
+	Date-Added = {2015-12-02 09:40:55 +0000},
+	Date-Modified = {2015-12-02 09:43:06 +0000},
+	Doi = {10.1145/1365490.1365500},
+	Journal = {ACM Queue},
+	Number = {2},
+	Pages = {40--53},
+	Title = {Scalable Parallel Programming with {CUDA}},
+	Volume = {6},
+    Month = mar,
+	Year = {2008}}
+
 @article{Cruz:2011gc,
 	Abstract = {Computer Physics Communications, 182 (2011) 2084{\textendash}2098. 10.1016/j.cpc.2011.05.002},
 	Author = {Cruz, Felipe A and Layton, Simon K and Barba, L A},
@@ -1129,71 +1151,6 @@ Eigenvectors of J are time-depedent but provide good trial basis vectors A and B
 	Year = {1996}}
 
 @article{Bisetti:2012jw,
-	Annote = {time integration of chemical source terms as part of operator-splitting strategy: [4]
-
-challenge of detailed kinetics:
-  1) size: {\#} species/rxns affects memory and algorithmic costs
-  2) stiffness: performance and robustness of time integration algorithm
-
-real combustion fuels (e.g. gasoline, diesel, jet fuel) : long chain hydrocarbons
- - higher {\#} C atoms -{\&}gt; more species {\&}amp; rxns needed to describe
- - therefore, transportation fuels have hundreds-thousands
-
-chemical kinetics for ignition {\&}amp; convective/diffusive low Mach {\#} combustion are stiff [9] (well recognized)
-  - short time: QSS radical species, fast reversible PE rxns, {\&}amp; isomerization processes [10]
-  - stiffness + as size + [11]
-- using explicit methods prohibitive [12,13]
-
-popular approach: BDF, use modified Newton's method, repeated solutions of linear systems (Jacobian matrix)
-  - cost of finite difference Jacobian: K^2 (analytic: K.. use analytic Jacobian!)
-  - cost of Jacobian factorization: K^3
-
- here: exponential integration methods (review [17])
-  -use exponential-type fcns of Jacobian matrix to advance system of ODEs
-  -for large stiff systems of ODEs, efficient alternative to std integrators [18]
-  -however, for large dim system, cost assoc w exp fcn of Jacobian limits practicality
-
-Krylov subspace method: calculate approximate and computational economical matrix fcns by projecting original matrix onto subspace of lower dim
-
-exp methods w Krylov subspace projection used in quantum MD, incomp flows, model chem kin, optics, {\&}amp; MHD simulations
-
-reasons well-suited:
-* Krylov subspace methods: low-dim approx to Jacobian- local model reduction
-* matrix-vector multiplications are basis, and large Jacobians are sparse
-* exp int methods don't require direct solution of linear/nonlinear systems--no Jacobian factorizations, lower memory requirements
-
-Jacobian using concentrations highly sparse: methyl decanoate (2878 spec) 0.54% sparsity
- - full for mass fractions
-
-analytic Jacobian: symbolic differentiation
-
-exponential integration: 
--exp4: 4th order, semi-implicit, 
-    - modifies Rosenbrock-type method with an exp-based fcn of Jacobian matrix (Hockbruck et al [27])
- - algorithm cost: 7 matric-function vector products, 3 source vector evals, and 2 matrix-vector products
-  * dominated by matrix fcn-vector products{\ldots} approximate these by Krylov subspace methods [19]
-
-Krylov subspace approx [19]:
-- don't need matrix, just action of matrix on vector
-   - storage requirements reduced
--uses Arnoldi process to generate orthoganl basis of Krylov subspace
-  * for sparse matrix, efficient matrix-vector products
-  - expand matrix fcn-vector products as infinite series
-
-[44] evaluating matrix functions more efficient
-
-main components of approach:
-1) exp4 method
-2) Krylov approximant
-3) direct matrix function eval
-
-improvements:
-- adaptive time-stepping
-- variable order in response to local error estimates and user-defined tolerances
-
-look at embedded methods of Hochbruck et al [27]
-
-deeper understanding needed of effect of Krylov subspace projections on Jacobian matrix spectrum},
 	Author = {Bisetti, Fabrizio},
 	Date-Modified = {2015-04-07 01:31:27 +0000},
 	Journal = {Combust. Theor. Model.},
