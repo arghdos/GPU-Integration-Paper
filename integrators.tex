@@ -415,9 +415,21 @@ Approximate mechanism size limits for the various GPU integrators based on per-t
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Conclusions}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+The large size and chemical stiffness of transport and power generation relevant chemical kinetic mechanisms has traditionally required used of high order implicit integrators for efficient solutions.
+Past work has shown orders of magnitude speedups for solution of non-stiff to moderately stiff chemical kinetic systems using explicit solvers on GPUs.
+In constrast, work on stiff chemical kinetic integration with implicit GPU solvers has been limited to specialized cases, or has failed to surpass current CPU based techniques.
+
 This work demonstrated the implementation of an implicit fifth-order Runge--Kutta method and two fourth-order exponential integration methods for the GPU using chemical source term and analytical Jacobian subroutines provided by the \texttt{pyJac} software~\cite{Niemeyer:2015i}.
-Their performance was compared to the commonly used implicit integrator \texttt{CVODE}.
-The Runge--Kutta method, \texttt{Radau-IIa}, achieved a maximum speedup of over $\SI{8}{\times}$ compared to \texttt{CVODE} on a six-core CPU for a hydrogen mechanism, and was comparable to \texttt{CVODE} for the GRI mechanism; the exponential integrators were less efficient in all cases.
+For timesteps relevant to Large Eddy simulations, the implict Runge--Kutta method achieved a maximum speedup of over $\SI{8}{\times}$ compared to \texttt{CVODE} on a six-core CPU for a hydrogen mechanism, and was comparable to \texttt{CVODE} for the GRI mechanism; the exponential integrators were less efficient in all cases.
+For longer timesteps the performance of all of the GPU solvers decreased signficantly due to increased levels of thread-divergence.
+Further, a shared memory caching algorithm was developed for the evaluation of chemical source terms and the analytical chemical Jacobian that resulted in modest performance benefits.
+Finally an issue was identified with storage of the Jacobian in per-thread local memory, and the balance between independent ODEs per kernel launch and maximum mechanism size was discussed.
+
+When compared to the results of a similar integration technique in Sewerin et al.~\cite{Sewerin20151375} it is clear that the use of an analytical chemical Jacobian greatly improves implicit integration speeds on the GPU.
+Further improvements to the analytical Jacobian code, e.g. by use of a chemical kinetic system based on species concentrations rather than mass fractions, is likely to further increase performance of the developed algorithms.
+However, it is clear from this work that thread divergence is the largest detriment to performance of GPU based integration techniques on a per-thread basis.
+Therefore our future work will develop methods to mitigate and eliminate these effects.
+Finally, new integration techniques such as hybrid implicit~\slash explicit solvers, and selection of appropriate solvers based on estimated chemical stiffness will be investigated.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
