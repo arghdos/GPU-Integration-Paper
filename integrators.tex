@@ -193,6 +193,7 @@ The PaSR simulations were performed at the conditions listed in Table~\ref{T:pas
 \label{S:pasr}
 \begin{table}[htb]
 \centering
+\fontsize{8pt}{10pt}\selectfont
 \begin{tabular}{@{}l l l l@{}}
 \toprule
 Fuel species & \# of species & \# of reactions & Reference \\
@@ -209,6 +210,7 @@ Summary of chemical kinetic models used as benchmark test cases.
 
 \begin{table}[htb]
 \centering
+\fontsize{8pt}{10pt}\selectfont
 \begin{tabular}{@{}l l l @{}}
 \toprule
 Parameter & \ce{H2}\slash air & \ce{CH4}\slash air \\
@@ -250,6 +252,7 @@ As this algorithm is run during generation of the source code for the various su
 Although this represents a relatively simple improvement, its use can achieve reasonable performance benefits, as will be seen in Sec.~\ref{S:smem}.
 
 \begin{algorithm}[htb]
+\fontsize{8pt}{10pt}\selectfont
 \caption{Shared memory caching during evaluation of reaction rates.}
 \begin{algorithmic}[0]
   \State {Initialize the cached species concentration set $C = \varnothing$}
@@ -312,6 +315,7 @@ However the nominal fourth-order convergence of the \texttt{exp4} algorithm is a
 Correspondingly for the stiffer, larger time-step case the CPU \texttt{exprb43} outperforms \texttt{exp4} by \SI{49\pm1}{\percent} on average.
 
 \begin{figure}[htb]
+  \fontsize{8pt}{10pt}\selectfont
   \centering
   \begin{subfigure}{0.49\textwidth}
       \includegraphics[width=\linewidth]{H2_1e-06_cpuvsgpu.pdf}
@@ -328,6 +332,7 @@ Correspondingly for the stiffer, larger time-step case the CPU \texttt{exprb43} 
 \end{figure}
 
 \begin{figure}[htb]
+  \fontsize{8pt}{10pt}\selectfont
   \centering
   \begin{subfigure}{0.49\textwidth}
       \includegraphics[width=\linewidth]{GRI_1e-06_cpuvsgpu.pdf}
@@ -362,6 +367,7 @@ Thus, $D$ represents the variation in number of internal time steps across all t
 If a warp experiences no thread divergence due to differing internal integration time steps, then $D = 1$; however, if a warp experiences an unbalanced number of internal integration time steps, then $D$ will tend to zero.
 
 \begin{figure}[htb]
+  \fontsize{8pt}{10pt}\selectfont
   \centering
   \begin{subfigure}{0.49\textwidth}
       \includegraphics[width=\linewidth]{H2_radau2a_div.pdf}
