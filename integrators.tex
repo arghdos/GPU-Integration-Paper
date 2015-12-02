@@ -225,26 +225,26 @@ Finally, the adaptive time stepping procedures of all integrators used absolute 
 \subsection{Testing conditions}
 
 In order to validate and measure the performance of the integrators for realistic conditions, a database of thermochemical conditions covering a wide range of temperatures and species mass fractions was generated using a previously developed stochastic partially stirred reactor (PaSR) code~\cite{Niemeyer:2015ws}.
-Table~\ref{T:mechanisms} describes the two chemical kinetic mechanisms selected to span the range of model sizes typically used in high-fidelity simulations.
+We selected two chemical kinetic models to span the range of model sizes typically used in high-fidelity simulations: the \ce{H2}\slash\ce{CO} model of Burke et al.~\cite{Burke:2011fh} with 13 species and 27 reactions, and the GRI-Mech 3.0 model with 53 species and 325 reactions~\cite{smith_gri-mech_30}.
 The PaSR simulations were performed at the conditions listed in Table~\ref{T:pasr_parameters} for ten residence times to reach a statistical steady state; Niemeyer et al.~\cite{Niemeyer:2015ws} describe the PaSR simulation process in greater detail, which follows approaches used by others~\cite{Chen:1997ta,Pope:1997wu,Ren:2004fz,Ren:2014cd}.
-
-\label{S:pasr}
-\begin{table}[htb]
-\centering
-\fontsize{8pt}{10pt}\selectfont
-\begin{tabular}{@{}l l l l@{}}
-\toprule
-Fuel species & \# of species & \# of reactions & Reference \\
-\midrule
-\ce{H2}\slash \ce{CO} & 13 & 27 &~\cite{Burke:2011fh} \\
-\ce{CH4} & 53 & 325 &~\cite{smith_gri-mech_30} \\
-\bottomrule
-\end{tabular}
-\caption{
-Summary of chemical kinetic models used as benchmark test cases.
-}
-\label{T:mechanisms}
-\end{table}
+%
+%\label{S:pasr}
+%\begin{table}[htb]
+%\centering
+%\fontsize{8pt}{10pt}\selectfont
+%\begin{tabular}{@{}l l l l@{}}
+%\toprule
+%Fuel species & \# of species & \# of reactions & Reference \\
+%\midrule
+%\ce{H2}\slash \ce{CO} & 13 & 27 &~\cite{Burke:2011fh} \\
+%\ce{CH4} & 53 & 325 &~\cite{smith_gri-mech_30} \\
+%\bottomrule
+%\end{tabular}
+%\caption{
+%Summary of chemical kinetic models used as benchmark test cases.
+%}
+%\label{T:mechanisms}
+%\end{table}
 
 \begin{table}[htb]
 \centering
