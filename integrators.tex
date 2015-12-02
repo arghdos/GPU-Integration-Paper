@@ -61,6 +61,8 @@
 \newcommand{\head}[1]{\centercell{\bfseries#1}}
 \newcommand{\headmulti}[2]{\centermulti{\bfseries#1}{#2}}
 
+\newcommand{\argmax}{\operatornamewithlimits{argmax}}
+
 \journal{36th International Symposium on Combustion}
 
 \begin{document}
@@ -89,7 +91,7 @@ The performance of each was compared with the commonly used CPU-based implicit i
 The implicit Runge--Kutta method performed up to eight times faster on a single GPU than \texttt{CVODE} on a single six-core CPU for an \ce{H2}\slash \ce{CO} model, and ran competitively with \texttt{CVODE} for the GRI-Mech.\ 3 model.
 The exponential integration techniques performed less efficiently for all cases.
 The main limiter of GPU integrator performance was identified as thread divergence, and techniques to mitigate this issue were discussed.
-A novel shared memory caching strategy for the GPU was developed and shown to provide a \SIrange{5}{10}{\percent} performance increase to all GPU-based integrators.
+A novel shared memory caching strategy for the GPU was developed and shown to provide a \SIrange{5}{24}{\percent} performance increase to all GPU-based integrators.
 Additionally, an issue affecting storage of the chemical kinetic Jacobian in per-thread local memory was identified.
 Work-around methods were discussed and the resulting balance between chemical kinetic mechanism size and independent ODEs solved per kernel launch was explored.
 Finally, future research directions were identified based on the current state-of-the-art of stiff chemical kinetic integration on the GPU.
@@ -247,51 +249,31 @@ Although this represents a relatively simple improvement, its use can achieve re
 \begin{algorithm}[htb]
 \caption{Shared memory caching during evaluation of reaction rates.}
 \begin{algorithmic}[0]
-%  \State {Initialize the cached species concentration set $C_{0} = \varnothing$; the maximum set size is $C_{max}$}
-%  \For {$R_i$ in reactions}
-%    \State Let $S_i$ be the set of participating species in $R_i$
-%    \State Let $P_{i,j}$ be the number of consecutive reactions starting from $R_{i + 1}$ 
-%    \Statex that each species $S_j$ in $R_i$ participates in
-%    \State Let $L_{i,j}$ be the number of reactions since $C_{i,j}$ has participated directly in a reaction
-%    \State Sort $S_{i}$ in descending order by $P_{i,j}$ and store in $S_{i}^{\prime}$
-%    \For {$S_{i,j}$ in $S_{i}^{\prime}$}
-%      \If{$\|C_i\| < C_{max}$}
-%	\State Add $S_{i,j}$ to $C_i$
-%      \ElsIf{$\max \left(L_{i}\right) \geq 2$ and $P_{i,j}$ > 1}
-%	  \State Set $k$ such that $L_{i,k} = \max\left(L_{i}\right)$
-%	  \State Replace $C_{i,k}$ with $S_{i,j}$, and remove $S_{i,j}$ from $S_{i}^{\prime}$
-%      \EndIf
-%    \EndFor
-%    \For {$S_{i,j}$ in $S_{i}^{\prime}$}
-%      \If{$\|S_{i}^{\prime}\| > 0$ and $\|C_i\| < C_{max}$}
-%	\State Add $S_{i,j}$ to $C_i$
-%      \EndIf
-%    \EndFor
-%    \State Compute reaction rate $i$ using values in $C_i$ where appropriate.
-%  \EndFor
-  \State {Initialize the cached species concentration set $C_{0} = \varnothing$; the maximum set size is $C_{max}$}
-  \For {$r_i$ in reactions $R$}
+  \State {Initialize the cached species concentration set $C = \varnothing$}
+  \State {Let maximum set size be $C_{\max}$}
+  \For {reaction $r_i$ of reactions $R$}
     \State Let $S_i$ be the set of participating species in $r_i$
     \State Let $P_{i,j}$ be the number of consecutive reactions starting from $r_{i + 1}$ 
-    \Statex in which each species $s_{i,j}$ of $S_i$ participates
-    \State For each species $c_{i,j}$ in $C_i$ let $L_{i,j}$ be the number of reactions since $c_{i,j}$ 
-    \Statex has directly participated in a reaction
+    \Statex in which each species $s_{i,j} \in S_i$ participates
+    \State For each species $c_j \in C$ let $L_j$ be the number of reactions since $c_j$ 
+    \Statex directly participated in a reaction
     \State Priority sort the species $s_{i,j}$ in $S_{i}$ in descending order by priority $P_{i,j}$
     \Statex and store in $S_{i}^{\prime}$
     \For {$s_{i,j}$ in $S_{i}^{\prime}$}
-      \If{$\|C_i\| < C_{max}$}
-	\State Add $s_{i,j}$ to $C_i$
-      \ElsIf{$\max \left(L_{i}\right) \geq 2$ and $P_{i,j}$ > 1}
-	  \State Let $k$ be the index of the maximum $L_{i,j}$ for all $c_{i,j}$ in $C_i$
-	  \State Remove $s_{i,j}$ from $S_{i}^{\prime}$ and replace $c_{i,k}$ in $C_i$ with $s_{i,j}$
+      \If{$|C| < C_{\max}$}
+		\State Add $s_{i,j}$ to $C$
+      \ElsIf{$\max_j \left( L_j \right) \geq 2$ and $P_{i,j}$ > 1}
+	  %\State Let $k$ be the index of $\max_j \left(L_j \right)$
+	  \State Let $k = \argmax_j \left(L_j \right)$
+	  \State Remove $s_{i,j}$ from $S_{i}^{\prime}$ and replace $c_k$ in $C$ with $s_{i,j}$
       \EndIf
     \EndFor
     \For {$s_{i,j}$ in $S_{i}^{\prime}$}
-      \If{$\|S_{i}^{\prime}\| > 0$ and $\|C_i\| < C_{max}$}
-	\State Add $s_{i,j}$ to $C_i$
+      \If{$| S_{i}^{\prime} | > 0$ and $ |C| < C_{\max}$}
+		\State Add $s_{i,j}$ to $C$
       \EndIf
     \EndFor
-    \State Compute reaction rate of $i$ using values in $C_i$ where appropriate.
+    \State Compute $i$th reaction rate using values in $C$ where appropriate.
   \EndFor
 \end{algorithmic}
 \label{A:shared_mem_caching}
@@ -419,7 +401,7 @@ Thus, we recommend using this or a similar caching scheme in order to exploit sh
 
 Through the course of this work, we encountered a significant but under-discussed issue with the use of implicit and semi-implicit integrators on the GPU.
 Namely, the size of the Jacobian places severe restrictions on either the maximum allowable mechanism size or the total number of independent chemical-kinetic ODEs that can be solved concurrently.
-For instance, the \texttt{Radau-IIA} solver requires storage of $N_s \times N_S$ matrices for the Jacobian, LU factorization, and complex LU factorization, where $N_s$ is the number of species in the mechanism.
+For instance, the \texttt{Radau-IIA} solver requires storage of $N_s \times N_s$ matrices for the Jacobian, LU factorization, and complex LU factorization, where $N_s$ is the number of species in the mechanism.
 Similarly, the exponential integrators require storage of matrices for the Jacobian, the Hessenberg and vector subspace resulting from the Arnoldi process, and the corresponding Hessenberg exponential.
 While the Hessenberg, exponential Hessenberg , and vector subspaces may be smaller than the full Jacobian (e.g., by limiting the maximum Kyrlov subspace size), for the sake of simplicity in this analysis we assume full sizes.
 This implies that storage requirements per ODE solved concurrently scale as $\mathcal{O}\left(3 \times N_s^2\right)$ for the \texttt{Radau-IIA} solver and as $\mathcal{O}\left(4 \times N_s^2\right)$ for the exponential solvers.
