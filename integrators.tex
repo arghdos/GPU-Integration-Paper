@@ -77,12 +77,14 @@
 \cortext[cor1]{Corresponding author}
 
 \begin{abstract}
-A fifth-order implicit Runge--Kutta method and two fourth-order exponential integration methods equipped with Krylov subspace approximations were implemented for the GPU and paired with the analytical chemical Jacobian code \texttt{pyJac}.
+A fifth-order implicit Runge--Kutta method and two fourth-order exponential integration methods equipped with Krylov subspace approximations were implemented for the GPU and paired with the analytical chemical kinetic Jacobian code \texttt{pyJac}.
 The performance of each was compared to the commonly used CPU implicit integrator \texttt{CVODE}.
 The implicit Runge--Kutta method run on a single GPU was found to be competitive with that of \texttt{CVODE} run on a six-core CPU, while the exponential integration techniques were less efficient.
 The main limiter of GPU integrator performance was identified as thread-divergence, and techniques to mitigate this issue have been discussed.
 A novel shared memory caching strategy for the GPU was developed and tested and found to provide a \SIrange{5}{10}{\percent} performance increase to all GPU integrators.
-Finally, a severely limiting issue with implicit integration on GPUs, that to our knowledge has not been discussed in literature, has been investigated and strategies for mitigation have been developed.
+Additionally, an issue affecting storage of the chemical kinetic Jacobian in per-thread local memory was identified.
+Methods to work around this issue were discussed along with the resulting balance between chemical kinetic mechanism size and independent ODEs solved per kernel launch.
+Finally, based on the current state of the art of stiff chemical kinetic integration for the GPU, future research directions were identified.
 \end{abstract}
 
 \begin{keyword}
