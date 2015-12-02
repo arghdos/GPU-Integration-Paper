@@ -332,7 +332,7 @@ All CPU integrators were compiled using \texttt{gcc 4.4.7} (with the compiler op
 The same CPU served as host for the GPU integrators, which were compiled using \texttt{nvcc 7.0.27} (with compiler options ``\texttt{-arch=sm\_20 -O3 -maxrregcount 63 -{}-ftz=false -{}-prec-div=true -{}-prec-sqrt=true -{}-fmad=false}'') and run on a single NVIDIA Tesla C2075 with \SI{6}{\giga\byte} of global memory.
 Reported runtimes for the GPU-based algorithms include time need to transfer data between the host CPU and GPU before and after each global time step; in addition, the function \texttt{cudaSetDevice()} was used to initialize the GPU before timing to hide any device initialization delay.
 The open-source \texttt{pyJac} software~\cite{Niemeyer:2015im,Niemeyer:2015ws} produced CPU and GPU custom source-code functions for species\slash reaction rate, chemical source term, and analytical Jacobian matrix evaluation.
-In order to present unbiased speedup\slash slowdown numbers, in this section the average speedup will be computed for cases where the computational resources become fully utilized, that is when the runtime begins to increase linearly with the number of ODEs; \num{1024} ODEs was used for the \ce{H2} mechanism while \num{512} was used for GRI.
+In order to present unbiased speedup\slash slowdown numbers, in this section the average speedup will be computed for cases where the computational resources became fully utilized---i.e., when the runtime began to increase linearly with the number of ODEs; this occurred at \num{1024} ODEs for the \ce{H2}\slash\ce{CO} model and \num{512} for GRI-Mech 3.0.
 
 \subsection{Performance}
 \addvspace{10pt}
