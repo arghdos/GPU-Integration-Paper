@@ -265,14 +265,16 @@ Although this represents a relatively simple improvement, its use can achieve re
     \State Let $S_i$ be the set of participating species in $r_i$
     \State Let $P_{i,j}$ be the number of consecutive reactions starting from $r_{i + 1}$ 
     \Statex in which each species $s_{i,j}$ of $S_i$ participates
-    \State Let $L_{i,j}$ be the number of reactions since $s_{i,j}$ participated directly in a reaction
-    \State Sort $s_{i,j}$ in descending order by $P_{i,j}$ and store in $S_{i}^{\prime}$
+    \State For each species $c_{i,j}$ in $C_i$ let $L_{i,j}$ be the number of reactions since $c_{i,j}$ 
+    \Statex has directly participated in a reaction
+    \State Priority sort the species $s_{i,j}$ in $S_{i}$ in descending order by priority $P_{i,j}$
+    \Statex and store in $S_{i}^{\prime}$
     \For {$s_{i,j}$ in $S_{i}^{\prime}$}
       \If{$\|C_i\| < C_{max}$}
 	\State Add $s_{i,j}$ to $C_i$
       \ElsIf{$\max \left(L_{i}\right) \geq 2$ and $P_{i,j}$ > 1}
-	  \State Set $k$ such that $L_{i,k} = \max\left(L_{i}\right)$
-	  \State Replace $C_{i,k}$ with $s_{i,j}$, and remove $s_{i,j}$ from $S_{i}^{\prime}$
+	  \State Let $k$ be the index of the maximum $L_{i,j}$ for all $c_{i,j}$ in $C_i$
+	  \State Remove $s_{i,j}$ from $S_{i}^{\prime}$ and replace $c_{i,k}$ in $C_i$ with $s_{i,j}$
       \EndIf
     \EndFor
     \For {$s_{i,j}$ in $S_{i}^{\prime}$}
@@ -284,7 +286,6 @@ Although this represents a relatively simple improvement, its use can achieve re
   \EndFor
 \end{algorithmic}
 \label{A:shared_mem_caching}
-\todo[inline]{I'm a little confused by some of the notation; not sure what $C_{i,j}$ is, and then you drop the second subscript in a few lines. Same with $C_i$, where before you used $C_{i,j}$. I made some changes, namely using lower case for items and upper case for sets. But, I'm still confused about the first use of $C_i$.}
 \end{algorithm}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
