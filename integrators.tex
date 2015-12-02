@@ -70,7 +70,7 @@
 %\baselineskip 10pt
 \begin{frontmatter}
 
-\title{An investigation of GPU-accelerated chemical kinetic integration methods}
+\title{An investigation of GPU-accelerated chemical kinetics integration methods}
 
 \author[uconn]{Nicholas~J.\ Curtis}
 \author[osu]{Kyle~E.\ Niemeyer}
@@ -94,7 +94,7 @@ The main limiter of GPU integrator performance was identified as thread divergen
 A novel shared memory caching strategy for the GPU was developed and shown to provide a \SIrange{5}{24}{\percent} performance increase to all GPU-based integrators.
 Additionally, an issue affecting storage of the chemical kinetic Jacobian in per-thread local memory was identified.
 Work-around methods were discussed and the resulting balance between chemical kinetic mechanism size and independent ODEs solved per kernel launch was explored.
-Finally, future research directions were identified based on the current state-of-the-art of stiff chemical kinetic integration on the GPU.
+Finally, future research directions were identified based on the current state-of-the-art of stiff chemical kinetics integration on the GPU.
 \end{abstract}
 
 \begin{keyword}
