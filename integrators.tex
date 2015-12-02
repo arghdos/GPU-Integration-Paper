@@ -303,19 +303,45 @@ However, for the larger timestep with higher stiffness the expected order reduct
 \end{figure}
 
 Figure~\ref{F:GRI_perf} shows the runtime of the integrators for the GRI mechanism.
-Interestingly the GPU \texttt{Radau-IIa} integrator often outperforms the CPU version and \texttt{CVODE} for the smaller timestep; it is at best $1.46\times$ faster, and is on average $1.13\pm0.63\times$ slower.
+Interestingly the GPU \texttt{Radau-IIa} integrator often outperforms the CPU version and \texttt{CVODE} for the smaller timestep; it is at best $1.46\times$ faster, and is on average $1.13\pm0.63\times$ slower then \texttt{CVODE}.
 For the larger timestep the performance of the GPU \texttt{Radau-IIa} integrator is again negatively impacted, dropping to a best case of $8.63\times$ slower, and $14.18\pm6.64\times$ slower on average.
-For larger global timesteps, the range of required internal integrator timesteps is expected to increase~\cite{Niemeyer:2014aa}, and thus thread divergence will increase along with chemical stiffness for an ODE per-thread based integrator.
-As the typical stiffness of the chemical ODE system increases when changing from the \ce{H2} mechanism to the GRI mechanism, this implies that thread divergence, rather than purely chemical stiffness, is the main performance limiter for the GPU \texttt{Radau-IIa} integrator.
-Therefore, our future work will investigate strategies to reduce thread divergence, e.g., by adoption of an ODE per-block approach, or by re-ordering of ODEs to increase similarity of chemical stiffness inside a thread block.
 
-Additionally two other trends of interest can be identified in Figure~\ref{F:GRI_perf}.
-First, the larger global timestep is the only case studied where \texttt{CVODE} significantly outperforms the CPU \texttt{Radau-IIa} integrator.
-This is may be due to the adaptive order nature of the \texttt{CVODE} algorithm, or potentially due to its maturity and years of optimization.
-Secondly, the performance of the CPU exponential integrators is similar to that of the implicit CPU integrators for the smaller timestep.
+Two different major factors affect the performance of the GPU integration algorithms, chemical stiffness and thread divergence.
+The performance of the CPU \texttt{Radau-IIa} integrator is almost identical to that of \texttt{CVODE} except for the stiffest case, the GRI mechanism with the larger timestep.
+This difference may be due to the adaptive order nature of the \texttt{CVODE} algorithm, or potentially due to its maturity and years of optimization.
+However, this effect is only minor and should not cause the relative order of magnitude decrease in performance between the GPU \texttt{Radau-IIa} integrator and \texttt{CVODE} observed when switching to the larger timestep.
+To investigate this further, a similar quantification of thread divergence as used in Niemeyer et al.~\cite{Niemeyer:2014aa} was adopted:
+\begin{equation}
+  D = \frac{\sum_{i=1}^{32}{d_i}}{32\text{ max}\left(d_i\text{ }\forall i \in \lbrace 1 \ldots 32 \rbrace \right)}
+\end{equation}
+where $d_i$ is the number of internal integrator timesteps taken to reach the global timestep by thread $i$ in a warp.
+If a warp experiences no thread divergence due to differing internal integration timesteps this measure will be one, however if the number of internal integration timesteps is highly unbalanced in a warp this measure will tend to zero.
+
+\begin{figure}[h]
+  \centering
+  \begin{subfigure}{0.49\textwidth}
+      \includegraphics[width=\linewidth]{H2_radau2a_div.pdf}
+      \caption{\ce{H2} mechanism}
+  \end{subfigure}
+  %\hfill
+  \begin{subfigure}{0.49\textwidth}
+      \includegraphics[width=\linewidth]{CH4_radau2a_div.pdf}
+      \caption{GRI mechanism}
+  \end{subfigure}
+  \caption{Thread divergence measure of the \texttt{Radau-IIa} solver for both mechanisms and timesteps.}
+  \label{F:divergence}
+\end{figure}
+Figure~\ref{F:divergence} shows the distribution of the divergence measure of the \texttt{Radau-IIa} solver for both timesteps and mechanisms when run on \SI{65536} ODEs (\SI{2048} warps).
+For both mechanisms, the number of warps where poor thread divergence occurs increases drasticially with an increasing timestep.
+This implies that thread divergence, rather than purely chemical stiffness, is the main performance limiter for the GPU \texttt{Radau-IIa} integrator.
+\todo{If time, run Radau studies with $10^{-6}$ timestep for the $10^{-4}$ global timestep case to see effect on performance and emphasize this point}
+Therefore, our future work will be aimed at development of strategies to reduce thread divergence, e.g., by adoption of an ODE per-block approach, or by re-ordering of ODEs to increase similarity of chemical stiffness inside a thread block.
+
+Figure~\ref{F:GRI_perf} also shows that the performance of the CPU exponential integrators is similar to that of the implicit CPU integrators for the smaller timestep.
 As the exponential integrators must only factorize a much smaller Hessenberg matrix rather than the entire Jacobian---as in the implicit integrators---significant savings in factorization can potentially be achieved with larger mechanism sizes.
 However, as the stiffness is increased, e.g., as in the large timestep case, the stability characteristics of the implicit integrators again makes them more favorable.
 Thus the exponential integrators may be more efficient than the implicit integrators for moderately stiff systems (e.g., with small timesteps, or low tolerances) of larger chemical mechanisms.
+Although not shown in Fig.~\ref{F:divergence}, the exponential integrators experienced significant thread divergence in all cases, and they would also likely benefit from the thread divergence reduction techniques discussed above.
 
 \subsection{Effect of Shared Memory Caching}
 \label{S:smem}
