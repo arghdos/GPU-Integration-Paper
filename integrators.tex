@@ -77,8 +77,8 @@
 \cortext[cor1]{Corresponding author}
 
 \begin{abstract}
-A fifth-order implicit Runge--Kutta and two fourth-order exponential integration techniques equipped with Krylov subspace approximations were implemented for the GPU and paired with the analytical chemical Jacobian code \texttt{pyJac}.
-The performance of each was compared to a commonly used CPU implicit integrator \texttt{CVODE}.
+A fifth-order implicit Runge--Kutta method and two fourth-order exponential integration methods equipped with Krylov subspace approximations were implemented for the GPU and paired with the analytical chemical Jacobian code \texttt{pyJac}.
+The performance of each was compared to the commonly used CPU implicit integrator \texttt{CVODE}.
 The implicit Runge--Kutta method run on a single GPU was found to be competitive with that of \texttt{CVODE} run on a six-core CPU, while the exponential integration techniques were less efficient.
 The main limiter of GPU integrator performance was identified as thread-divergence, and techniques to mitigate this issue have been discussed.
 A novel shared memory caching strategy for the GPU was developed and tested and found to provide a \SIrange{5}{10}{\percent} performance increase to all GPU integrators.
@@ -351,29 +351,32 @@ This difference is due to increase in chemical source term and Jacobian evaluati
 In certain cases for the GRI mechanism, even larger speedups were observed, e.g. a \SI{24.4}{\percent} speedup with \texttt{exp4} for \SI{131072} ODEs and the \SI{1e-6}{\s} timestep, and a \SI{13.2}{\percent} speedup with \text{Radau-IIa} for \SI{32768} ODEs and the \SI{1e-4}{\s} timestep.
 
 
-\subsection{Limitations of the one ODE per-thread approach}
-During work on this paper, it was discovered a significant undiscussed issue exists with the use of implicit and semi-implicit chemical-kinetic integrators on the GPU.
-Namely, the size of the Jacobian places severe restrictions on either the maximum allowable mechanism size, or the total number of ODEs that can be solved concurrently.
+\subsection{Limitations of Implicit GPU Integration Techniques}
+During work on this paper, a significant but underdiscussed issue with the use of implicit and semi-implicit integrators on the GPU came to light.
+Namely, the size of the Jacobian places severe restrictions on either the maximum allowable mechanism size, or the total number of independent chemical-kinetic ODEs that can be solved concurrently.
 For instance, the \texttt{Radau-IIA} solver requires storage of the Jacobian, as well as a LU factorized and a complex LU factorized matrix of the same size.
 Similarly, the exponential integrators require storage of the Jacobian, the Hessenberg matrix and vector subspace resulting from the Arnoldi process and the corresponding exponential of the Hessenberg matrix.
 While the Hessenberg matrix, exponential Hessenberg matrix, and vector subspaces can be smaller than the full Jacobian (e.g., by limiting the maximum Kyrlov subspace size), for the sake of simplicity in this analysis we shall assume they are full sized.
-This implies that the storage requirements per ODE solved concurrently scales as $\mathcal{O}\left(3 \times N_s^2\right)$ for the \texttt{Radau-IIA} and at most $\mathcal{O}\left(4 \times N_s^2\right)$ for the exponential integrators, where $N_s$ is the number of species in the mechanism.
+This implies that the storage requirements per ODE solved concurrently scales as $\mathcal{O}\left(3 \times N_s^2\right)$ for the \texttt{Radau-IIA} solver and as $\mathcal{O}\left(4 \times N_s^2\right)$ for the exponential solvers, where $N_s$ is the number of species in the mechanism.
 
-One method of storing these matrices (and other integrator variables) is in per-thread local memory.
+One method of storing these matrices (and other integrator variables) is in per-thread local memory (which resides in global device memory).
 This is advantageous from a programming standpoint, as it ensures coalesced memory access and simplifies indexing.
 In CUDA however, all threads are limited to a maximum of \SI{512}{\kilo\byte} local memory, or \SI{64000} double precision floating point numbers.
-This limits the maximum mechanism size to relatively small numbers, as seen in Table~\ref{T:size_limits}.
+This limits the maximum mechanism size to relatively small numbers, as seen in Table~\ref{T:size_limits}, for GPU solvers implemented on a per-thread basis.
+In this study, even the USC mechanism \ce{C2H4}~\cite{Wang:2007} with only 111 species caused the GPU to run out of local thread memory for all three GPU integrators.
 
-Additionally, the Jacobian and associated matricies can be pre-allocated in global memory, and thus the total global memory is split between all threads in a given kernel launch.
+Additionally, the Jacobian and associated matricies can be pre-allocated in global memory, and thus the total global memory is split between all ODEs to be solved in a given kernel launch.
 In this work, a Tesla C2075 GPU was used, and recent GPU-based chemical kinetic integration studies have used similar models~\cite{Shi:2011aa,Niemeyer:2011aa,Shi:2012aa,Le2013596,Stone:2013aa,Niemeyer:2014aa}
-Assuming a reasonable launch configuration of \SI{64} threads per block, with \SI{8} blocks per streaming multiprocessor, we are limited to a maximum of $\sim$ \SI{419000000} threads (i.e. separate ODEs) per kernel launch.
-For a \SI{6}{\giga\byte} global memory size, this works out to just \SI{178} doubles available per thread.
-Even assuming a more reasonable \SI{100000} threads, or low \SI{10000} threads per kernel launch, each thread is limited to just \SI{7500} and \SI{75000} doubles correspondingly.
+For a \SI{6}{\giga\byte} global memory size, and a \SI{1000000} independent ODEs, this works out to just \SI{750} doubles available per concurrent ODE.
+Even assuming a more reasonable \SI{100000} ODEs, or low \SI{10000} ODEs per kernel launch, each concurrent ODE is limited to just \SI{7500} and \SI{75000} doubles correspondingly.
 The resulting (approximate) maximum mechanism sizes are listed in Table~\ref{T:size_limits}.
+It is noted that this analysis applies equally to GPU solvers implemented both on a per-thread and per-block basis.
+As discussed in Sewerin et al.~\cite{Sewerin20151375}, one approach to alleviate this issue is to limit the number of ODEs solved per kernel launch. 
+For larger mechanisms, e.g. \SIrange{250}{500} species, this will begin to negatively impact performance by forcing kernel launches small enough such that the resources of GPU are underutilized.
 
-In this study, even the USC mechanism for \ce{C2H4}~\cite{Wang:2007} with only 111 species caused the GPU to run out of local thread memory for all three GPU integrators.
-As one goal of GPU based integration algorithms is to enable use of larger, say 100--200 species, skeletal mechanisms in general reacting flow simulations through acceleration of chemical kinetic integration, these restrictive mechanism size limits pose a large issue.
-A chemical kinetic Jacobian based on species concentrations instead of species mass fractions exhibits significantly greater sparsity~\cite{Lu:2009gh}, and thus may relax the mechanism size limits imposed by Jacobian storage.
+As one goal of GPU based integration algorithms is to enable use of larger, say \SIrange{100}{200} species, skeletal mechanisms in general reacting flow simulations through acceleration of chemical kinetic integration, these restrictive mechanism size limits pose a large issue.
+Thus we recommend use of global memory rather than per-thread local memory to store these matricies.
+In addition, a chemical kinetic Jacobian based on species concentrations instead of species mass fractions exhibits significantly greater sparsity~\cite{Lu:2009gh}, and thus may relax the mechanism size limits imposed by Jacobian storage in addition to accelering Jacobian evaluation and factorization.
 This is an avenue that will be explored in future work.
 
 \begin{table}[h]
@@ -385,14 +388,14 @@ Memory Type & \texttt{Radau-IIA} & \texttt{exp4} & \texttt{exprb43} \\
 \midrule
 Local	    & 146 & 126 & 126 \\
 
-Global (max)	    & 7 & 6 & 6 \\
+Global (large)	    & 15 & 13 & 13 \\
 Global (reasonable) & 50 & 43 & 43 \\
 Global (low) & 158 & 136 & 136 \\
 \bottomrule
 \end{tabular}
 \caption{
 Approximate mechanism size limits for the various GPU integrators based on per-thread local memory limits, and global memory limits.
-``Max'', ``reasonable'', and ``low'' refer to kernel launches with a total of \SI{419000000}, \SI{100000} and \SI{10000} threads respectively
+``Large'', ``reasonable'', and ``low'' refer to kernel launches with a total of \SI{1000000}, \SI{100000} and \SI{10000} independent ODEs respectively
 }
 \label{T:size_limits}
 \end{table}
