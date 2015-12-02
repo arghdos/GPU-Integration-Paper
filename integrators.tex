@@ -64,8 +64,8 @@
 \journal{36th International Symposium on Combustion}
 
 \begin{document}
-\small
-\baselineskip 10pt
+%\small
+%\baselineskip 10pt
 \begin{frontmatter}
 
 \title{An investigation of GPU-accelerated chemical kinetic integration methods}
@@ -105,7 +105,7 @@ Finally, future research directions were identified based on the current state-o
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Introduction}
 \label{sec:Intro}
-\addvspace{10pt}
+%\addvspace{10pt}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 The need for accurate chemical kinetic models in predictive reacting-flow simulations has driven the development of detailed oxidation models for hydrocarbon fuels relevant to transportation and energy generation applications.
@@ -154,7 +154,7 @@ Furthermore, the three-stage fifth-order implicit Runge--Kutta algorithm~\cite{w
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Methodology}
 \label{sec:Method}
-\addvspace{10pt}
+%\addvspace{10pt}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 In this section, we discuss details of the algorithms implemented for the GPU along with third-party software used.
@@ -299,7 +299,7 @@ Although this represents a relatively simple improvement, its use can achieve re
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Results and discussion}
-\addvspace{10pt}
+%\addvspace{10pt}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 To study the performance of the integrators, we tested each using the PaSR conditions described in Section~\ref{S:pasr} for two different global integration time-step sizes representative of those used in large eddy and Reynolds-averaged Navier--Stokes simulations: $\delta t = \SI{1e-6}{\s}$ and $\delta t = \SI{1e-4}{\s}$, respectively.
@@ -462,7 +462,7 @@ However, for larger models, e.g., \SIrange{250}{500} species, this issue negativ
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Conclusions}
-\addvspace{10pt}
+%\addvspace{10pt}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 The large size and chemical stiffness of transport and power generation relevant chemical kinetic mechanisms has traditionally required used of high order implicit integrators for efficient solutions.
@@ -484,7 +484,7 @@ Finally, new integration techniques such as hybrid implicit~\slash explicit solv
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section*{Acknowledgments}
-\addvspace{10pt}
+%\addvspace{10pt}
 
 This material is based upon work supported by the National Science Foundation under Grant Nos.~1534688 and 1535065.
 
