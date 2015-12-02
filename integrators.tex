@@ -52,7 +52,7 @@
 \DeclareSIUnit\atm{atm}
 
 % Add [disable] option to quickly remove any
-\usepackage[textsize=small,textwidth=2.25cm]{todonotes}
+%\usepackage[textsize=small,textwidth=2.25cm]{todonotes}
 
 %custom commands
 \newcommand{\NA}{---}
@@ -105,7 +105,7 @@ Finally, future research directions were identified based on the current state-o
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Introduction}
 \label{sec:Intro}
-%\addvspace{10pt}
+\addvspace{10pt}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 The need for accurate chemical kinetic models in predictive reacting-flow simulations has driven the development of detailed oxidation models for hydrocarbon fuels relevant to transportation and energy generation applications.
@@ -154,7 +154,7 @@ Furthermore, the three-stage fifth-order implicit Runge--Kutta algorithm~\cite{w
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Methodology}
 \label{sec:Method}
-%\addvspace{10pt}
+\addvspace{10pt}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 In this section, we discuss details of the algorithms implemented for the GPU along with third-party software used.
@@ -162,6 +162,7 @@ The generation of testing conditions will be discussed briefly, and a shared mem
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Integration techniques}
+\addvspace{10pt}
 
 We investigated GPU implementations of three integration methods in this work, comparing them against equivalent CPU versions and a CPU-only implicit algorithm.
 While we describe important details or changes here, full descriptions of all algorithms may be found in the cited sources.
@@ -181,6 +182,7 @@ Finally, the adaptive time stepping procedures of all integrators used absolute 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Testing conditions}
+\addvspace{10pt}
 
 In order to validate and measure the performance of the integrators for realistic conditions, a database of thermochemical conditions covering a wide range of temperatures and species mass fractions was generated using a previously developed stochastic partially stirred reactor (PaSR) code~\cite{Niemeyer:2015ws}.
 Table~\ref{T:mechanisms} describes the two chemical kinetic mechanisms selected to span the range of model sizes typically used in high-fidelity simulations.
@@ -226,6 +228,7 @@ PaSR parameters used for hydrogen\slash air, methane\slash air, and ethylene\sla
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Shared memory caching}
+\addvspace{10pt}
 
 One aspect of the GPU platform particularly important to high performance algorithms are the unique memory access patterns; each streaming multiprocessor has only a small amount of fast cache memory (typically \SI{64}{\kilo\byte}) and \SI{32}{\bit} registers (typically \SIrange{32}{64}{\kilo\byte}) available to it.
 All other memory is stored globally on the device, and the latencies are very high in comparison.
@@ -299,7 +302,7 @@ Although this represents a relatively simple improvement, its use can achieve re
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Results and discussion}
-%\addvspace{10pt}
+\addvspace{10pt}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 To study the performance of the integrators, we tested each using the PaSR conditions described in Section~\ref{S:pasr} for two different global integration time-step sizes representative of those used in large eddy and Reynolds-averaged Navier--Stokes simulations: $\delta t = \SI{1e-6}{\s}$ and $\delta t = \SI{1e-4}{\s}$, respectively.
@@ -312,6 +315,7 @@ Reported runtimes for the GPU-based algorithms include time need to transfer dat
 The open-source \texttt{pyJac} software~\cite{Niemeyer:2015im,Niemeyer:2015ws} produced CPU and GPU custom source-code functions for species\slash reaction rate, chemical source term, and analytical Jacobian matrix evaluation.
 
 \subsection{Performance}
+\addvspace{10pt}
 
 Figure~\ref{F:H2_perf} shows the runtimes of the CPU and GPU integrators for the \ce{H2}\slash\ce{CO} model.
 The CPU \texttt{Radau-IIa} integrator performed nearly equivalently compared with \texttt{CVODE} for the smaller global time-step size, and ran only slightly slower than \texttt{CVODE} for the larger time-step size.\todo{better to quantify these statements}
@@ -403,6 +407,7 @@ Although not shown in Fig.~\ref{F:divergence}, the exponential integrators exper
 
 \subsection{Effect of shared memory caching}
 \label{S:smem}
+\addvspace{10pt}
 
 The effectiveness of the shared memory caching scheme was evaluated in several cases by comparing the mean runtime of the integrators using rate and analytical Jacobian subroutines generated with and without the caching algorithm enabled.
 We observed a typical speedup of $\SI{\sim5}{\percent}$ for the smaller global time-step size, and a $\SI{\sim10}{\percent}$ speedup for the larger time-step size.
@@ -412,6 +417,7 @@ Thus, we recommend using this or a similar caching scheme in order to exploit sh
 \todo{or something like this to conclude the section?}
 
 \subsection{Limitations of per-thread local memory for implicit GPU integration}
+\addvspace{10pt}
 
 Through the course of this work, we encountered a significant but under-discussed issue with the use of implicit and semi-implicit integrators on the GPU.
 Namely, the size of the Jacobian places severe restrictions on either the maximum allowable mechanism size or the total number of independent chemical-kinetic ODEs that can be solved concurrently.
@@ -462,7 +468,7 @@ However, for larger models, e.g., \SIrange{250}{500} species, this issue negativ
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Conclusions}
-%\addvspace{10pt}
+\addvspace{10pt}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 The large size and chemical stiffness of chemical kinetics models relevant to fuels for transportation and power generation traditionally requires the use of high-order implicit integrators for efficient solutions.
@@ -484,7 +490,7 @@ Finally, new integration techniques such as hybrid implicit\slash explicit solve
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section*{Acknowledgments}
-%\addvspace{10pt}
+\addvspace{10pt}
 
 This material is based upon work supported by the National Science Foundation under Grant Nos.~1534688 and 1535065.
 
