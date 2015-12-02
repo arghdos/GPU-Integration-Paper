@@ -155,9 +155,7 @@ The need for accurate chemical kinetic models in predictive reacting-flow simula
 At the same time, growing understanding of the hydrocarbon oxidation process resulted in orders of magnitude increases in model size and complexity.
 For instance, a recently developed model for 2-methylalkanes, relevant for jet and diesel fuel surrogates, consists of over 7000 species and 30000 reactions~\cite{Sarathy:2011kx} while a recent detailed gasoline surrogate mechanism contains over 1500 species and 6000 reactions~\cite{Mehl:2011jn}.
 Furthermore, kinetic models for large hydrocarbon fuels tend to exhibit chemical stiffness requiring implicit integration algorithms, the solution cost of which scale at best quadratically---and at worst cubically---with the number of species in a mechanism~\cite{Lu:2009gh}.
-
-Consequently, a number of techniques have been developed to accelerate chemical kinetics integration.
-As Lu and Law reviewed more extensively~\cite{Lu:2009gh}, these methods can be roughly categorized into three classes: skeletal reduction and removal of unimportant species and reactions~\cite{Lu:2005,Pepiot-Desjardins:2008,Niemeyer:2010bt,Niemeyer:2014,Curtis:2015aa}, time-scale analysis~\cite{qssa,pe_approx1,pe_approx2} and dimensional reduction~\cite{Lam:1988wc,Maas:1992aa,Lu:2001ve}, and tabulation\slash interpolation of expensive terms~\cite{Pope:1997wu,Christo1996}.
+Consequently, a number of techniques have been developed to accelerate chemical kinetics integration, extensively reviewed by Lu and Law~\cite{Lu:2009gh}.
 In addition to these cost-reduction methods, significant work has been directed towards improvements of the integration algorithms themselves.
 
 Reactive-flow modeling codes commonly rely on high-order implicit integration techniques to solve the stiff governing equations posed by chemical kinetics models.
