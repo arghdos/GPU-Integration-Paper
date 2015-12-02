@@ -66,11 +66,51 @@
 \journal{36th International Symposium on Combustion}
 
 \begin{document}
+\begin{titlepage}
+\parbox{\linewidth}{
+\begin{flushleft}
+\textbf{Title:}\linebreak
+An investigation of GPU-accelerated stiff chemical kinetics integration methods
+\linebreak
+\linebreak
+\textbf{Authors and Affiliations:} \linebreak\linebreak
+  N.  Curtis	(860) 803-4660 \linebreak
+  C.J Sung	(860) 486-3679 \linebreak
+  Department of Mechanical Engineering \linebreak
+  The University of Connecticut \linebreak
+  191 Auditorium Road, Unit 3139 \linebreak
+  Storrs, CT 06269-3139 \linebreak
+  \linebreak
+  K.E. Niemeyer	(541) 737-5614 \linebreak
+  School of Mechanical, Industrial, and Manufacturing Engineering\linebreak
+  Oregon State University\linebreak
+\linebreak
+\textbf{Corresponding Author:}\linebreak
+  C.J Sung\linebreak
+  (860) 486-3679 \linebreak
+  Department of Mechanical Engineering\linebreak
+  The University of Connecticut \linebreak
+  191 Auditorium Road, Unit 3139 \linebreak
+  Storrs, CT 06269-3139 \linebreak
+  cjsung@engr.uconn.edu\linebreak
+\linebreak
+\textbf{Colloquium:}\linebreak
+REACTION KINETICS\linebreak
+\linebreak
+\textbf{Word Count:}\linebreak
+TBD\linebreak
+\linebreak
+\textbf{Color Charges:}\linebreak
+We will cover the cost of color reproduction charges for Figs. 1, 2, and 3. \linebreak
+\end{flushleft}
+}
+\end{titlepage}
+
 \small
 \baselineskip 10pt
 \begin{frontmatter}
 
-\title{An investigation of GPU-accelerated chemical kinetic integration methods}
+\title{An investigation of GPU-accelerated stiff chemical kinetics integration methods}
 
 \author[uconn]{Nicholas~J.\ Curtis}
 \author[osu]{Kyle~E.\ Niemeyer}
@@ -94,7 +134,7 @@ The main limiter of GPU integrator performance was identified as thread divergen
 A novel shared memory caching strategy for the GPU was developed and shown to provide a \SIrange{5}{24}{\percent} performance increase to all GPU-based integrators.
 Additionally, an issue affecting storage of the chemical kinetic Jacobian in per-thread local memory was identified.
 Work-around methods were discussed and the resulting balance between chemical kinetic mechanism size and independent ODEs solved per kernel launch was explored.
-Finally, future research directions were identified based on the current state-of-the-art of stiff chemical kinetic integration on the GPU.
+Finally, future research directions were identified based on the current state-of-the-art of stiff chemical kinetics integration on the GPU.
 \end{abstract}
 
 \begin{keyword}
@@ -148,10 +188,10 @@ Sewerin et al.~\cite{Sewerin20151375} implemented a three-stage\slash fifth-orde
 While increasing numbers of studies have explored GPU acceleration of chemical kinetics, there remains a clear need to find or develop integration algorithms simultaneously suited for the SIMD parallelism of GPUs and similar accelerators and capable of handling stiffness.
 In this work we will investigate GPU implementations of several semi-implicit and implicit integration techniques, as compared to their CPU counterparts and a baseline CPU VODE implementation~\cite{Hindmarsh:2005hg}.
 Several previous works~\cite{Perini20141180,McNenly2015581} suggested so-called matrix-free methods---which do not require direct factorization of the Jacobian, but instead use an iterative process to approximate the action of the factorized Jacobian on a vector---as potential improvements to the expensive linear-system solver required in standard implicit methods.
-Further, as demonstrated by Hochbruck et al.~\cite{Hochbruck:1997}, the matrix-exponential $\exp(\tau A)v$ obtained using Krylov subspace approximation converges faster than corresponding Krylov methods for the solution of linear equations $(I - \tau A)x = v$.
+Furthermore, Hochbruck et al.~\cite{Hochbruck:1997} demonstrated that the action of the matrix exponential on a vector obtained using Krylov subspace approximation converges faster than corresponding Krylov methods for the solution of linear equations.
 Others previously explored these so-called explicit exponential methods for applications in stiff chemical systems~\cite{Bisetti:2012jw,falati2011integration} and found them stable for time-step sizes greatly exceeding the stability bound.
 In addition, their explicit nature makes them potentially much better suited for SIMD acceleration due an expected reduction of thread divergence compared with implicit methods.
-Furthermore, the three-stage fifth-order implicit Runge--Kutta algorithm~\cite{wanner1991solving} investigated by Sewerin et al.~\cite{Sewerin20151375} will be studied to determine the impact of increasing chemical stiffness on the algorithm and the performance benefits of using an analytical Jacobian matrix.
+Finally, the three-stage fifth-order implicit Runge--Kutta algorithm~\cite{wanner1991solving} investigated by Sewerin et al.~\cite{Sewerin20151375} will be studied to determine the impact of increasing chemical stiffness on the algorithm and the performance benefits of using an analytical Jacobian matrix.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Methodology}
@@ -234,11 +274,11 @@ PaSR parameters used for hydrogen\slash air, methane\slash air, and ethylene\sla
 \subsection{Shared memory caching}
 \addvspace{10pt}
 
-One aspect of the GPU platform particularly important to high performance algorithms are the unique memory access patterns; each streaming multiprocessor has only a small amount of fast cache memory (typically \SI{64}{\kilo\byte}) and \SI{32}{\bit} registers (typically \SIrange{32}{64}{\kilo\byte}) available to it.
-All other memory is stored globally on the device, and the latencies are very high in comparison.
-To get maximum performance out of the GPU, it is critical to properly utilize the fast memory cache.
-When formulated on a per-block basis GPU-based integration algorithms have typically used this memory to store the current state vector, and other commonly used values (e.g. the chemical Jacobian).
-However, on a per-thread basis the best use of this memory, is less clear; this section will explore one such approach for efficient use of this fast memory on a per-thread basis.
+One aspect of the GPU platform particularly important to high-performance algorithms are the unique memory access patterns; each streaming multiprocessor can access only a small amount of fast cache memory (typically \SI{64}{\kilo\byte}) and \SI{32}{\bit} registers (typically \SIrange{32}{64}{\kilo\byte}).
+All other memory is stored globally on the device, with comparatively high latencies.
+Thus, it is critical to properly utilize the fast memory cache to achieve maximum performance on GPUs.
+When formulated on a per-block basis GPU-based integration algorithms typically used this memory to store the current state vector, and other commonly used values (e.g., the chemical Jacobian).
+However, on a per-thread basis the best use of this memory is less clear; this section will proposes one such approach for efficient use of this fast memory on a per-thread basis.
 
 The largest issue with fast memory utilization on a per-thread basis is that it must be split between all threads in the blocks resident on a streaming multiprocessor.
 This fast memory is further split into a L1 cache, shared memory available for inter-thread communication within a block.
@@ -311,8 +351,8 @@ Using the the larger time-step size negatively impacted the performance of the G
 At the smaller time-step size the GPU \texttt{exprb43} outperformed its CPU counterpart on average by \SI{15\pm27}{\percent} and was \SI{43}{\percent} faster at best, while the GPU \texttt{exp4} version was \SI{7\pm33}{\percent} slower the the CPU version on average, and was at best \SI{23}{\percent} faster.
 Although the \texttt{exprb43} and \texttt{exp4} algorithms each only require three exponential matrix function approximations, a single time step of \texttt{exprb43} is more expensive due to the extra chemical source term evaluations, matrix multiplications, and higher-order phi function requirement.
 As such, the CPU \texttt{exprb43} integrator generally outperformed the relatively simpler \texttt{exp4} integrator by \SI{41\pm6}{\percent} on average for the smaller time-step size.
-However the nominal fourth-order convergence of the \texttt{exp4} algorithm is a classical non-stiff order, and order reduction is expected for stiff problems~\cite{ANU:7701740,Bisetti:2012jw}.
-Correspondingly for the stiffer, larger time-step case the CPU \texttt{exprb43} outperforms \texttt{exp4} by \SI{49\pm1}{\percent} on average.
+However, the nominal fourth-order convergence of the \texttt{exp4} algorithm is a classical non-stiff order, and thus order reduction is expected for stiff problems~\cite{ANU:7701740,Bisetti:2012jw}.
+Correspondingly, for the more stiff, larger time-step case the CPU \texttt{exprb43} outperformed \texttt{exp4} by \SI{49\pm1}{\percent} on average.
 
 \begin{figure}[htb]
   \fontsize{8pt}{10pt}\selectfont
@@ -345,7 +385,7 @@ Correspondingly for the stiffer, larger time-step case the CPU \texttt{exprb43} 
   \end{subfigure}
   \caption{Average runtimes of the integrators for the GRI-Mech.~3.0 model at two different global time steps. 
   CPU versions ran in parallel on six cores.
-  Some of the longer running exponential integration cases were omitted.}
+  Some of the longer-running exponential integration cases were omitted.}
   \label{F:GRI_perf}
 \end{figure}
 
@@ -390,12 +430,12 @@ Furthermore, increased thread divergence likely caused the relative performance 
 This observation motivates future work aimed at developing strategies to reduce thread divergence.
 Potential solutions include adoption of an ODE per-block approach~\cite{Stone:2013aa}, re-ordering of ODEs to increase similarity of chemical stiffness inside a warp, or time-step synchronization between threads in a warp.
 
-Figure~\ref{F:GRI_perf} also shows that the CPU exponential integrators are only $\SIrange{2}{3}{\times}$ slower than to \texttt{CVODE} for the smaller time-step size.
-As the exponential integrators must only factorize a much smaller Hessenberg matrix, typically a $\sim 5\times 5$ matrix or so for small integrator time-steps in stiff cases, rather than the entire Jacobian---as in the implicit integrators---significant savings in factorization can potentially be achieved with larger mechanism sizes.
-For larger integrator time-steps without large chemical stiffness (e.g. near equilibrium) the size of the Hessenberg matrix to be factorized grows to a more typical $\sim 20\times 20$.
+Figure~\ref{F:GRI_perf} also shows that the CPU exponential integrators are only \numrange{2}{3}$\times$ slower than \texttt{CVODE} for the smaller time-step size.
+As the exponential integrators must only factorize a much smaller Hessenberg matrix (e.g., $5\times 5$ for small integrator time-step sizes in stiff cases) rather than the entire Jacobian---as in the implicit integrators---significant savings in factorization can potentially be achieved with larger mechanism sizes.
+For larger integrator time-step sizes without severe chemical stiffness (e.g., near equilibrium) the size of the Hessenberg matrix to be factorized typically grows to $20\times 20$.
 However, as stiffness increases, e.g., as for the larger time-step size, the stability characteristics of the implicit integrators make them more favorable.
 We hypothesize that the exponential integrators may be more efficient than the implicit integrators for moderately stiff systems (e.g., with small time-step sizes, or low tolerances) with larger chemical mechanisms.
-It is also noted that previous work~\cite{Niemeyer:2014aa} has shown that stabilized explicit integrators can provide significant speedups for moderately stiff systems.
+Prior work~\cite{Niemeyer:2014aa} showed that stabilized explicit integrators can provide significant speedups for moderately stiff systems.
 Although not shown in Fig.~\ref{F:divergence}, the exponential integrators experienced significant thread divergence in all cases, and thus would also likely benefit from the thread divergence reduction techniques discussed above.
 
 \subsection{Effect of shared memory caching}
