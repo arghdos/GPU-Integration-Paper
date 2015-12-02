@@ -164,7 +164,7 @@ Finally, absolute and relative tolerances of \SI{1e-15} and \SI{1e-8} were used 
 \subsection{Tested conditions}
 
 \label{S:pasr}
-\begin{table}[tbp]
+\begin{table}[h]
 \centering
 \begin{tabular}{@{}l l l l@{}}
 \toprule
@@ -180,7 +180,7 @@ Summary of chemical kinetic models used as benchmark test cases.
 \label{T:mechanisms}
 \end{table}
 
-\begin{table}[tbp]
+\begin{table}[h]
 \centering
 \begin{tabular}{@{}l l l @{}}
 \toprule
@@ -219,7 +219,7 @@ A similar algorithm can be used for the species rate and Jacobian evaluation rou
 As this algorithm is used to generate the source code for the various subroutines, it introduces no computational or memory overhead related to determining the caching structure during runtime.
 Although relatively simple, significant performance benefits can be realized through its use, as will be seen in Sec.~\ref{S:smem}.
 
-\begin{algorithm}
+\begin{algorithm}[h]
 \caption{Shared memory caching during evaluation of reaction rates.}
 \begin{algorithmic}[0]
   \State {Initialize the cached species concentration set $C_{-1} = \varnothing$; the maximum set size is $C_{max}$}
@@ -260,7 +260,7 @@ The uncertainty in runtimes was not plotted as they could not be represented in 
 All CPU integrators were compiled using \texttt{gcc 4.4.7}, and were run in parallel on a six-core Intel Xeon X5650 using \texttt{OpenMP}, while all GPU integrators were compiled with \texttt{nvcc 7.0.27} and run on a single NVIDIA Tesla C2075.
 The open source \texttt{pyJac} code~\cite{Niemeyer:2015im,Niemeyer:2015ws} was used for rate and analytical Jacobian evaluation for both the CPU and GPU.
 
-\begin{figure}
+\begin{figure}[h]
   \centering
   \begin{subfigure}{0.49\textwidth}
       \includegraphics[width=\linewidth]{H2_1e-06_cpuvsgpu.pdf}
@@ -285,7 +285,7 @@ Although the \texttt{exprb43} and \texttt{exp4} algorithms each only require thr
 As such, the CPU \texttt{exprb43} integrator generally is outperformed by the relatively more simple \texttt{exp4} integrator for the smaller timestep.
 However, for the larger timestep with higher stiffness the expected order reduction~\cite{Bisetti:2012jw} of the \texttt{exp4} integrator makes it less efficient than \texttt{exprb43}.
 
-\begin{figure}
+\begin{figure}[h]
   \centering
   \begin{subfigure}{0.49\textwidth}
       \includegraphics[width=\linewidth]{GRI_1e-06_cpuvsgpu.pdf}
@@ -376,7 +376,7 @@ As one goal of GPU based integration algorithms is to enable use of larger, say 
 A chemical kinetic Jacobian based on species concentrations instead of species mass fractions exhibits significantly greater sparsity~\cite{Lu:2009gh}, and thus may relax the mechanism size limits imposed by Jacobian storage.
 This is an avenue that will be explored in future work.
 
-\begin{table}[tbp]
+\begin{table}[h]
 \centering
 \begin{tabular}{@{}l l l l@{}}
  \toprule
