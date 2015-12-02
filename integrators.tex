@@ -366,11 +366,10 @@ This is advantageous from a programming standpoint, as it ensures coalesced memo
 In CUDA however, all threads are limited to a maximum of \SI{512}{\kilo\byte} local memory, or \SI{64000} double precision floating point numbers.
 This limits the maximum mechanism size to relatively small numbers, as seen in Table~\ref{T:size_limits}, for GPU solvers implemented on a per-thread basis.
 In this study, even the USC mechanism \ce{C2H4}~\cite{Wang:2007} with only 111 species caused the GPU to run out of local thread memory for all three GPU integrators.
-
 Instead, the Jacobian and associated matricies can be pre-allocated in global memory, and thus the total global memory is split between all ODEs to be solved in a given kernel launch.
 In this work, a Tesla C2075 GPU was used, and recent GPU-based chemical kinetic integration studies have used similar models~\cite{Shi:2011aa,Niemeyer:2011aa,Shi:2012aa,Le2013596,Stone:2013aa,Niemeyer:2014aa}
-For a \SI{6}{\giga\byte} global memory size and \SI{1000000} independent ODEs, this works out to just \SI{750} doubles available per concurrent ODE.
-Even assuming a more reasonable \SI{100000} ODEs, or low \SI{10000} ODEs per kernel launch, each concurrent ODE is limited to just \SI{7500} and \SI{75000} doubles correspondingly.
+For a \SI{6}{\giga\byte} global memory size and \SI{1e6} independent ODEs, this works out to just \SI{750} doubles available per concurrent ODE.
+Even assuming a more reasonable \SI{1e5} ODEs, or low \SI{1e4} ODEs per kernel launch, each concurrent ODE is limited to just \SI{7500} and \SI{75000} doubles correspondingly.
 The resulting (approximate) maximum mechanism sizes are listed in Table~\ref{T:size_limits}.
 It is noted that this analysis applies equally to GPU solvers implemented both on a per-thread and per-block basis.
 As discussed in Sewerin et al.~\cite{Sewerin20151375}, one approach to alleviate this issue is to limit the number of ODEs solved per kernel launch. 
@@ -397,7 +396,7 @@ Global (low) & 158 & 136 & 136 \\
 \end{tabular}
 \caption{
 Approximate mechanism size limits for the various GPU integrators based on per-thread local memory limits, and global memory limits.
-``Large'', ``reasonable'', and ``low'' refer to kernel launches with a total of \SI{1000000}, \SI{100000} and \SI{10000} independent ODEs respectively
+``Large'', ``reasonable'', and ``low'' refer to kernel launches with a total of \SI{1e6}, \SI{1e5} and \SI{1e4} independent ODEs respectively
 }
 \label{T:size_limits}
 \end{table}
