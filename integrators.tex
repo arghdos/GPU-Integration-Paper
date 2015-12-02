@@ -379,7 +379,6 @@ This implies that thread divergence, rather than purely chemical stiffness, is t
 Further, the relative performance difference of the GPU \texttt{Radau-IIa} solver between the \ce{H2} mechanism and the GRI mechanism at the smaller timestep is likely partially due to the increased thread divergence between the mechanisms.
 Therefore, our future work will be aimed at development of strategies to reduce thread divergence.
 Potential solutions include adoption of an ODE per-block approach, re-ordering of ODEs to increase similarity of chemical stiffness inside a warp or timestep synchronization between threads in a warp.
-\todo[inline]{If time, run Radau studies with 100 consecutive $10^{-6}$ timesteps for the $10^{-4}$ global timestep case to see effect on performance and emphasize this point}
 
 Figure~\ref{F:GRI_perf} also shows that the performance of the CPU exponential integrators is similar to that of the implicit CPU integrators for the smaller timestep.
 As the exponential integrators must only factorize a much smaller Hessenberg matrix rather than the entire Jacobian---as in the implicit integrators---significant savings in factorization can potentially be achieved with larger mechanism sizes.
