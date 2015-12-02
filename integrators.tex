@@ -420,12 +420,12 @@ Furthermore, increased thread divergence likely caused the relative performance 
 This observation motivates future work aimed at developing strategies to reduce thread divergence.
 Potential solutions include adoption of an ODE per-block approach~\cite{Stone:2013aa}, re-ordering of ODEs to increase similarity of chemical stiffness inside a warp, or time-step synchronization between threads in a warp.
 
-Figure~\ref{F:GRI_perf} also shows that the CPU exponential integrators are only $\SIrange{2}{3}{\times}$ slower than to \texttt{CVODE} for the smaller time-step size.
-As the exponential integrators must only factorize a much smaller Hessenberg matrix, typically a $\sim 5\times 5$ matrix or so for small integrator time-steps in stiff cases, rather than the entire Jacobian---as in the implicit integrators---significant savings in factorization can potentially be achieved with larger mechanism sizes.
-For larger integrator time-steps without large chemical stiffness (e.g. near equilibrium) the size of the Hessenberg matrix to be factorized grows to a more typical $\sim 20\times 20$.
+Figure~\ref{F:GRI_perf} also shows that the CPU exponential integrators are only \numrange{2}{3}$\times$ slower than \texttt{CVODE} for the smaller time-step size.
+As the exponential integrators must only factorize a much smaller Hessenberg matrix (e.g., $5\times 5$ for small integrator time-step sizes in stiff cases) rather than the entire Jacobian---as in the implicit integrators---significant savings in factorization can potentially be achieved with larger mechanism sizes.
+For larger integrator time-step sizes without severe chemical stiffness (e.g., near equilibrium) the size of the Hessenberg matrix to be factorized typically grows to $20\times 20$.
 However, as stiffness increases, e.g., as for the larger time-step size, the stability characteristics of the implicit integrators make them more favorable.
 We hypothesize that the exponential integrators may be more efficient than the implicit integrators for moderately stiff systems (e.g., with small time-step sizes, or low tolerances) with larger chemical mechanisms.
-It is also noted that previous work~\cite{Niemeyer:2014aa} has shown that stabilized explicit integrators can provide significant speedups for moderately stiff systems.
+Prior work~\cite{Niemeyer:2014aa} showed that stabilized explicit integrators can provide significant speedups for moderately stiff systems.
 Although not shown in Fig.~\ref{F:divergence}, the exponential integrators experienced significant thread divergence in all cases, and thus would also likely benefit from the thread divergence reduction techniques discussed above.
 
 \subsection{Effect of shared memory caching}
