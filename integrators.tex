@@ -163,7 +163,7 @@ For instance, a recently developed model for 2-methylalkanes, relevant for jet a
 Furthermore, kinetic models for large hydrocarbon fuels tend to exhibit high chemical stiffness requiring implicit integration algorithms for efficient solution.
 The cost of these algorithms scales at best quadratically---and at worst cubically---with the number of species in a mechanism~\cite{Lu:2009gh}.
 Lu and Law~\cite{Lu:2009gh} extensively reviewed a number of techniques to accelerate chemical kinetics integration.
-In addition to methods discussed in their work, significant effort has been directed towards improvements of the integration techniques themselves.
+In addition to the methods discussed in their work, significant effort has been directed towards improvements of the integration techniques themselves.
 
 Reactive-flow modeling codes commonly rely on high-order implicit integration techniques to solve the stiff governing equations posed by chemical kinetics models.
 These methods require repeated evaluation and factorization of the chemical kinetic Jacobian matrix in order to solve the associated non-linear algebraic equations through iterations of linear system solutions---the cost of which scales quadratically and cubically, respectively, with the number of species in a mechanism.
