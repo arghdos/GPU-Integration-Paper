@@ -282,7 +282,7 @@ One aspect of the GPU platform particularly important to high-performance algori
 All other memory is stored globally on the device, with comparatively high latencies.
 Thus, it is critical to properly utilize the fast memory cache to achieve maximum performance on GPUs.
 When formulated on a per-block basis, GPU-based integration algorithms typically use this memory to store the current state vector and other commonly used values (e.g., the chemical Jacobian).
-However, on a per-thread basis the best use of this memory is less clear; this section will proposes one such approach for efficient use of this fast memory on a per-thread basis.
+However, on a per-thread basis the best use of this memory is less clear; this section will proposes one such approach for efficient use of this fast memory.
 
 The largest issue with fast memory utilization on a per-thread basis is that it must be split between all threads in the blocks resident on a streaming multiprocessor.
 This fast memory is further split into a L1 cache, shared memory available for inter-thread communication within a block.
