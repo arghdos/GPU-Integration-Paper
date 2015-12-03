@@ -465,7 +465,7 @@ These limitations would severely constrain the allowable model sizes; for exampl
 %The resulting (approximate) maximum mechanism sizes are listed in Table~\ref{T:size_limits}.
 %It is noted that this analysis applies equally to GPU solvers implemented both on a per-thread and per-block basis.
 Sewerin et al.~\cite{Sewerin20151375} discussed one approach to alleviate this issue: limiting the number of ODEs solved per kernel launch. 
-However, for larger models, e.g., \SIrange{250}{500} species, this issue negatively impact performance by forcing kernel launches small enough to underutilize the GPU resources.
+However, for larger models, e.g., \SIrange{250}{500} species, this issue may negatively impact performance by forcing kernel launches small enough to underutilize the GPU resources.
 
 %As one goal of GPU based integration algorithms is to enable use of larger, say \SIrange{100}{200} species, skeletal mechanisms in general reacting flow simulations through acceleration of chemical kinetic integration, the restrictive mechanism size\slash ODEs per kernel launch limits pose an issue.
 %Thus we recommend use of global memory rather than per-thread local memory to store these matrices.
