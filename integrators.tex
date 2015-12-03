@@ -355,7 +355,7 @@ The GPU \texttt{exp4} solver was \SI{23}{\percent} faster the the CPU version at
 Although the \texttt{exprb43} and \texttt{exp4} algorithms only require three exponential matrix function approximations, a single time step of \texttt{exprb43} is more expensive due to the extra chemical source term evaluations, matrix multiplications, and higher-order exponential matrix function requirement.
 As such, the CPU \texttt{exprb43} integrator is outperformed by the relatively more simple CPU \texttt{exp4} integrator at the smaller time-step size; by \SI{22}{\percent} in the best case (\num{900900} ODEs) and \SI{44}{\percent} in the worst case (\num{65536} ODEs).
 However, the nominal fourth-order convergence of the \texttt{exp4} algorithm is a classical non-stiff order, and thus order reduction is expected for stiff problems~\cite{ANU:7701740,Bisetti:2012jw}.
-Correspondingly, for the more stiff, larger time-step size case the CPU \texttt{exprb43} outperformed \texttt{exp4} by up to \SI{33}{\percent} (\num{65536} ODEs) and \SI{32}{\percent} in the worst case (\num{524288} ODEs).
+Correspondingly, for the more stiff, larger time-step size case, the CPU \texttt{exprb43} outperformed \texttt{exp4} by up to \SI{33}{\percent} (\num{65536} ODEs) and \SI{32}{\percent} in the worst case (\num{524288} ODEs).
 
 \begin{figure}[htb]
   %\fontsize{8pt}{10pt}\selectfont
