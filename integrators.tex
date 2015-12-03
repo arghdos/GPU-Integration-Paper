@@ -347,7 +347,7 @@ The GPU \texttt{Radau-IIa} integrator ran at best $\SI{8.41}{\times}$ faster tha
 Using the the larger time-step size negatively impacted the performance of the GPU \texttt{Radau-IIa} integrator---at best, it ran \SI{16}{\percent} slower, and \SI{78\pm81}{\percent} slower on average.
 At the smaller time-step size the GPU \texttt{exprb43} outperformed its CPU counterpart on average by \SI{15\pm27}{\percent} and was \SI{43}{\percent} faster at best, while the GPU \texttt{exp4} version was \SI{7\pm33}{\percent} slower the the CPU version on average, and was at best \SI{23}{\percent} faster.
 Although the \texttt{exprb43} and \texttt{exp4} algorithms each only require three exponential matrix function approximations, a single time step of \texttt{exprb43} is more expensive due to the extra chemical source term evaluations, matrix multiplications, and higher-order phi function requirement.
-As such, the CPU \texttt{exprb43} integrator generally outperformed the relatively simpler \texttt{exp4} integrator by \SI{41\pm6}{\percent} on average for the smaller time-step size.
+As such, the CPU \texttt{exp4} integrator generally outperformed the relatively simpler \texttt{exp4} integrator by \SI{41\pm6}{\percent} on average for the smaller time-step size.
 However, the nominal fourth-order convergence of the \texttt{exp4} algorithm is a classical non-stiff order, and thus order reduction is expected for stiff problems~\cite{ANU:7701740,Bisetti:2012jw}.
 Correspondingly, for the more stiff, larger time-step case the CPU \texttt{exprb43} outperformed \texttt{exp4} by \SI{49\pm1}{\percent} on average.
 
