@@ -347,7 +347,7 @@ The GPU \texttt{Radau-IIa} integrator ran at best $\SI{8.41}{\times}$ faster tha
 Using the the larger time-step size negatively impacted the performance of the GPU \texttt{Radau-IIa} integrator---at best, it ran \SI{16}{\percent} slower, and \SI{78\pm81}{\percent} slower on average.
 At the smaller time-step size the GPU \texttt{exprb43} outperformed its CPU counterpart on average by \SI{15\pm27}{\percent} and was \SI{43}{\percent} faster at best, while the GPU \texttt{exp4} version was \SI{7\pm33}{\percent} slower the the CPU version on average, and was at best \SI{23}{\percent} faster.
 Although the \texttt{exprb43} and \texttt{exp4} algorithms each only require three exponential matrix function approximations, a single time step of \texttt{exprb43} is more expensive due to the extra chemical source term evaluations, matrix multiplications, and higher-order phi function requirement.
-As such, the CPU \texttt{exprb43} integrator generally outperformed the relatively simpler \texttt{exp4} integrator by \SI{41\pm6}{\percent} on average for the smaller time-step size.
+As such, the CPU \texttt{exp4} integrator generally outperformed the relatively simpler \texttt{exp4} integrator by \SI{41\pm6}{\percent} on average for the smaller time-step size.
 However, the nominal fourth-order convergence of the \texttt{exp4} algorithm is a classical non-stiff order, and thus order reduction is expected for stiff problems~\cite{ANU:7701740,Bisetti:2012jw}.
 Correspondingly, for the more stiff, larger time-step case the CPU \texttt{exprb43} outperformed \texttt{exp4} by \SI{49\pm1}{\percent} on average.
 
@@ -420,7 +420,7 @@ If a warp experiences no thread divergence due to differing internal integration
 \end{figure}
 
 Figure~\ref{F:divergence} shows the distribution of the divergence measure $D$ for the \texttt{Radau-IIa} solver with both time-step sizes and kinetic models when run on \num{65536} ODEs, spread across \num{2048} warps.
-For both models, increasing time-step size resulted in a sharp increase in the number of warps with large thread divergence (i.e., $D > 0.5$).
+For both models, increasing time-step size resulted in a sharp increase in the number of warps with large thread divergence (i.e., $D < 0.5$).
 This implicates thread divergence, rather than pure chemical stiffness, as the main performance limiter for the GPU-based \texttt{Radau-IIa} integrator.
 Furthermore, increased thread divergence likely caused the relative performance difference of the GPU \texttt{Radau-IIa} solver between the \ce{H2}\slash\ce{CO} and GRI models at the smaller time-step size, due to differing chemical timescales.
 This observation motivates future work aimed at developing strategies to reduce thread divergence.
