@@ -406,8 +406,8 @@ To investigate this further, we adopted a similar quantification of thread diver
 	\label{eqn:divergence}
 \end{equation}
 where $d_i$ is the number of internal integrator time steps taken to reach the global time step by thread $i$ in a warp (which consists of 32 threads).
-Thus, $D$ represents the variation in number of internal time steps across all threads in a warp caused by differing internal integration time steps.
-If a warp has identical internal integration time steps and experiences no thread divergence, then $D = 1$; however, if a warp experiences an unbalanced number of internal integration time steps, then $D$ will tend to zero.
+$D$ represents the similarity of internal time step counts across threads in a warp---the most significant source of thread divergence.
+If all threads in a warp use identical internal integration time steps and thus the warp experiences no thread divergence from this source, then $D = 1$; however, if a warp experiences an unbalanced number of internal integration time steps, then $D$ will tend to zero.
 
 \begin{figure}[htb]
   %\fontsize{8pt}{10pt}\selectfont
