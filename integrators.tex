@@ -16,6 +16,8 @@
 \usepackage{caption}
 \usepackage{subcaption}
 
+\captionsetup[algorithm]{labelformat=empty}
+
 \usepackage{booktabs}
 
 \usepackage[version=3]{mhchem} % Formula subscripts using \ce{}, e.g., \ce{H2SO4}
@@ -211,12 +213,12 @@ While we describe important details or changes here, full descriptions of all al
 The \texttt{pyJac} software~\cite{Niemeyer:2015im,Niemeyer:2015ws} provided both chemical source term and analytical Jacobian subroutines for CPU- and GPU-based algorithms.
 For validation and performance assessments of \texttt{pyJac}, we direct readers to our previous work~\cite{Niemeyer:2015ws}.
 
-First, we used the \texttt{CVODE} solver~\cite{Hindmarsh:2005hg} to provide the baseline performance of a typical CPU-based high-order implicit integration technique.
+First, we used the \texttt{CVODE} solver~\cite{Hindmarsh:2005hg} to provide the baseline performance of a typical CPU-based (maximum of fifth-order) implicit integration technique.
 In addition, we implemented CPU versions of the methods under investigation for direct comparison to the high-order implicit technique.
 These include the three-stage/fifth-order implicit Runge--Kutta algorithm~\cite{wanner1991solving}, called \texttt{Radau-IIA} here; the fourth-order exponential Rosenbrock-like method \texttt{exp4} of Hochbruck et al.~\cite{Hochbruck:1998}; and the newer fourth-order exponential Rosenbrock method~\cite{Hockbruck:2009}, called \texttt{exprb43} here.
 For the exponential methods, we used the method of rational approximants~\cite{gallopoulos:1992} paired with the Carath\'edothy--Fej\'er method~\cite{trefethen:2006} to approximate the action of the matrix exponential on a vector, as suggested by Bisetti~\cite{Bisetti:2012jw}.
 This technique relied on the external \texttt{FFTW3} library~\cite{frigo2005design}.
-However, unlike the approach of Bisetti, we developed a custom routine based on the algorithm presented by Stewart~\cite{stewart:1998} to perform the LU decomposition of the Hessenberg matrix resulting from the Arnoldi iteration.
+However, unlike the approach of Bisetti~\cite{Bisetti:2012jw}, we developed a custom routine based on the algorithm presented by Stewart~\cite{stewart:1998} to perform the LU decomposition of the Hessenberg matrix resulting from the Arnoldi iteration.
 To ensure high performance of CPU-based methods, the Intel \texttt{MKL} library version 11.1.3 handled linear algebra (i.e., BLAS/LAPACK) operations.
 Next, we implemented GPU versions of the \texttt{Radau-IIA}, \texttt{exp4}, and \texttt{exprb43} methods; these follow the same descriptions as the CPU versions, but required specialized implementations of several BLAS and LAPACK methods, mostly related to LU factorization (or Hessenberg LU factorization for the exponential integrators).
 All GPU routines were developed using the NVIDIA CUDA framework~\cite{Buck:2008aa,NVIDIA:2015aa}.
@@ -226,9 +228,9 @@ Finally, the adaptive time stepping procedures of all integrators used absolute 
 \subsection{Testing conditions}
 \label{S:pasr_conditions}
 
-In order to validate and measure the performance of the integrators for realistic conditions, a database of thermochemical conditions covering a wide range of temperatures and species mass fractions was generated using a previously developed stochastic partially stirred reactor (PaSR) code~\cite{Niemeyer:2015ws}.
+In order to validate and measure the performance of the integrators for realistic conditions, a database of thermochemical conditions covering a wide range of temperatures and species mass fractions was generated using a previously developed constant-pressure stochastic partially stirred reactor (PaSR) code~\cite{Niemeyer:2015ws}.
 We selected two chemical kinetic models to span the range of model sizes typically used in high-fidelity simulations: the \ce{H2}\slash\ce{CO} model of Burke et al.~\cite{Burke:2011fh} with 13 species and 27 reactions, and the GRI-Mech 3.0 model with 53 species and 325 reactions~\cite{smith_gri-mech_30}.
-The PaSR simulations were performed at the conditions listed in Table~\ref{T:pasr_parameters} for ten residence times to reach a statistical steady state; Niemeyer et al.~\cite{Niemeyer:2015ws} describe the PaSR simulation process in greater detail, which follows approaches used by others~\cite{Chen:1997ta,Pope:1997wu,Ren:2004fz,Ren:2014cd}.
+The PaSR simulations were performed at the conditions listed in Table~\ref{T:pasr_parameters} for ten residence times to reach a statistical steady state; Niemeyer et al.~\cite{Niemeyer:2015ws} described the PaSR simulation process in greater detail, which follows approaches used by others~\cite{Chen:1997ta,Pope:1997wu,Ren:2004fz,Ren:2014cd}.
 %
 %\label{S:pasr}
 %\begin{table}[htb]
@@ -256,8 +258,8 @@ The PaSR simulations were performed at the conditions listed in Table~\ref{T:pas
 Parameter & \ce{H2}\slash air & \ce{CH4}\slash air \\
 \midrule
 $\phi$ & \multicolumn{2}{c}{1} \\
-$T$ & \multicolumn{2}{c}{\SIlist{400;600;800}{\kelvin}} \\
-$p$ & \multicolumn{2}{c}{\SIlist{1;10;25}{\atm}} \\
+$T_in$ & \multicolumn{2}{c}{\SIlist{400;600;800}{\kelvin}} \\
+$p_0$ & \multicolumn{2}{c}{\SIlist{1;10;25}{\atm}} \\
 $N_p$ & \multicolumn{2}{c}{100} \\
 $\tau_{\text{res}}$ & \SI{10}{\milli\second} & \SI{5}{\milli\second} \\
 $\tau_{\text{mix}}$ & \SI{1}{\milli\second} & \SI{1}{\milli\second} \\
@@ -265,7 +267,7 @@ $\tau_{\text{pair}}$ & \SI{1}{\milli\second} & \SI{1}{\milli\second} \\
 \bottomrule
 \end{tabular}
 \caption{
-PaSR parameters used for hydrogen\slash air, methane\slash air, and ethylene\slash air premixed combustion cases, where $\phi$ indicates equivalence ratio, $T$ is temperature, $p$ is pressure, $N_p$ is the number of particles, $\tau_{\text{res}}$ is the residence time, $\tau_{\text{mix}}$ is the mixing time, and $\tau_{\text{pair}}$ is the pairing time.
+PaSR parameters used for hydrogen\slash air and methane\slash air premixed combustion cases, where $\phi$ indicates equivalence ratio, $T_in$ is the temperature of the inflowing particles, $p_0$ is the pressure, $N_p$ is the number of particles, $\tau_{\text{res}}$ is the residence time, $\tau_{\text{mix}}$ is the mixing time, and $\tau_{\text{pair}}$ is the pairing time.
 }
 \label{T:pasr_parameters}
 \end{table}
@@ -276,20 +278,20 @@ PaSR parameters used for hydrogen\slash air, methane\slash air, and ethylene\sla
 One aspect of the GPU platform particularly important to high-performance algorithms are the unique memory access patterns; each streaming multiprocessor can access only a small amount of fast cache memory (typically \SI{64}{\kilo\byte}) and \SI{32}{\bit} registers (typically \SIrange{32}{64}{\kilo\byte}).
 All other memory is stored globally on the device, with comparatively high latencies.
 Thus, it is critical to properly utilize the fast memory cache to achieve maximum performance on GPUs.
-When formulated on a per-block basis GPU-based integration algorithms typically used this memory to store the current state vector, and other commonly used values (e.g., the chemical Jacobian).
+When formulated on a per-block basis, GPU-based integration algorithms typically use this memory to store the current state vector and other commonly used values (e.g., the chemical Jacobian).
 However, on a per-thread basis the best use of this memory is less clear; this section will proposes one such approach for efficient use of this fast memory on a per-thread basis.
 
 The largest issue with fast memory utilization on a per-thread basis is that it must be split between all threads in the blocks resident on a streaming multiprocessor.
 This fast memory is further split into a L1 cache, shared memory available for inter-thread communication within a block.
-Most versions of the CUDA compute standards allow the user to specify whether the L1 cache or the shared memory pool is larger.
-In our study, a larger L1 cache proved to be the superior choice, to be expected for a per-thread approach where fast memory is at a premium, and memory accesses often result in much slower global memory read/writes.
+Most versions of the CUDA compute standards allow the user to specify the relative allocation of the L1 cache and the shared memory pool.
+In our preliminary studies, a larger L1 cache proved to be the superior choice, to be expected for a per-thread approach where fast memory is at a premium, and memory accesses often resulted in much slower global memory read/writes.
 However, this leaves a significant portion of the cache ($\sim$\SI{16}{\kilo\byte}) as shared memory, with only around \SIrange{2}{4} double precision variables available per thread.
-The very small amount of available memory makes use in the integration algorithm itself challenging, however opportunities exist during evaluation of the chemical source terms and analytical Jacobian.
+The very small amount of available memory makes use in the integration algorithm itself challenging, however opportunities for use of the shared memory exist during evaluation of the chemical source terms and analytical Jacobian.
 
 \begin{algorithm}[htb]
 %\fontsize{8pt}{10pt}\selectfont
 %\caption{\fontsize{9pt}{10pt}\selectfont Shared memory caching during evaluation of reaction rates.}
-\caption{Shared memory caching during evaluation of reaction rates.}
+\caption{\textbf{Algorithm:} A procedure for memory caching during evaluation of reaction rates.\label{A:shared_mem_caching}}
 \begin{algorithmic}[0]
   \State {Initialize the cached species concentration set $C = \varnothing$}
   \State {Let maximum set size be $C_{\max}$}
@@ -314,11 +316,10 @@ The very small amount of available memory makes use in the integration algorithm
     \State Compute $i$th reaction rate using values in $C$ where appropriate.
   \EndFor
 \end{algorithmic}
-\label{A:shared_mem_caching}
 \end{algorithm}
 
-Algorithm~\ref{A:shared_mem_caching} describes a strategy to use this available shared memory to store commonly used species concentrations during evaluation of the reaction rates. 
-Similar algorithms were developed for the species rate and Jacobian evaluation routines, using species rates and reaction rates\slash species concentrations as the cached variables, respectively.
+The presented~\hyperref[A:shared_mem_caching]{algorithm} describes a strategy to use this available shared memory to store commonly used species concentrations during evaluation of the reaction rates.
+Similar algorithms were developed for the species net production rates and Jacobian evaluation routines, using species net production rates  and reaction rates\slash species concentrations as the cached variables, respectively.
 As this algorithm is run during generation of the source code for the various subroutines, it introduces no computational or memory overhead related to determining the caching structure during runtime.
 Although this represents a relatively simple improvement, its use can achieve reasonable performance benefits, as will be seen in Sec.~\ref{S:smem}.
 
