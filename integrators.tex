@@ -449,7 +449,7 @@ Through the course of this work, we encountered a significant but under-discusse
 Namely, the size of the Jacobian places severe restrictions on either the maximum allowable mechanism size or the total number of independent chemical-kinetic ODEs that can be solved concurrently.
 For instance, the \texttt{Radau-IIA} solver requires storage of $N_s \times N_s$ matrices for the Jacobian, LU factorization, and complex LU factorization, where $N_s$ is the number of species in the mechanism.
 Similarly, the exponential integrators require storage of matrices for the Jacobian, the Hessenberg and vector subspace resulting from the Arnoldi process, and the corresponding Hessenberg exponential.
-While the Hessenberg, exponential Hessenberg , and vector subspaces may be smaller than the full Jacobian (e.g., by limiting the maximum Kyrlov subspace size), for the sake of simplicity in this analysis we assume full sizes.
+While the Hessenberg, exponential Hessenberg , and vector subspaces may be smaller than the full Jacobian (e.g., by limiting the maximum Krylov subspace size), for the sake of simplicity in this analysis we assume full sizes.
 This implies that storage requirements per ODE solved concurrently scale as $\mathcal{O}\left(3 \times N_s^2\right)$ for the \texttt{Radau-IIA} solver and as $\mathcal{O}\left(4 \times N_s^2\right)$ for the exponential solvers.
 
 Per-thread local memory, which resides in device global memory, offers one option for storing these matrices and other integrator variables.
