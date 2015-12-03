@@ -136,8 +136,7 @@ The implicit Runge--Kutta method performed up to eight times faster on a single 
 The exponential integration techniques performed less efficiently for all cases.
 The main limiter of GPU integrator performance was identified as thread divergence, and techniques to mitigate this issue were discussed.
 A novel shared memory caching strategy for the GPU was developed and shown to provide a \SIrange{5}{24}{\percent} performance increase to all GPU-based integrators.
-Additionally, an issue affecting storage of the chemical kinetic Jacobian in per-thread local memory was identified.
-Work-around methods were discussed and the resulting balance between chemical kinetic mechanism size and independent ODEs solved per kernel launch was explored.
+Additionally, an issue affecting storage of the chemical kinetic Jacobian in per-thread local memory was identified and work-around methods were discussed.
 Finally, future research directions were identified based on the current state-of-the-art of stiff chemical kinetics integration on the GPU.
 \end{abstract}
 
