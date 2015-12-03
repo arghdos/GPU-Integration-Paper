@@ -220,7 +220,7 @@ However, unlike the approach of Bisetti, we developed a custom routine based on 
 To ensure high performance of CPU-based methods, the Intel \texttt{MKL} library version 11.1.3 handled linear algebra (i.e., BLAS/LAPACK) operations.
 Next, we implemented GPU versions of the \texttt{Radau-IIA}, \texttt{exp4}, and \texttt{exprb43} methods; these follow the same descriptions as the CPU versions, but required specialized implementations of several BLAS and LAPACK methods, mostly related to LU factorization (or Hessenberg LU factorization for the exponential integrators).
 All GPU routines were developed using the NVIDIA CUDA framework~\cite{Buck:2008aa,NVIDIA:2015aa}.
-Finally, the adaptive time stepping procedures of all integrators used absolute and relative tolerances of \SI{1e-15} and \SI{1e-8}, respectively, throughout the work, and the exponential integrators used a rational approximant type of $\left(10,10\right)$ as suggested by Bisetti~\cite{Bisetti:2012jw}.
+Finally, the adaptive time stepping procedures of all integrators used absolute and relative tolerances of \SI{e-15} and \SI{e-8}, respectively, throughout the work, and the exponential integrators used a rational approximant type of $\left(10,10\right)$ as suggested by Bisetti~\cite{Bisetti:2012jw}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Testing conditions}
