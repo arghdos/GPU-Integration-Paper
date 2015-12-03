@@ -135,7 +135,7 @@ We do not authorize the reproduction of color images in print.
 \begin{abstract}
 A fifth-order implicit Runge--Kutta method and two fourth-order exponential integration methods equipped with Krylov subspace approximations were implemented for the GPU and paired with the analytical chemical kinetic Jacobian code \texttt{pyJac}.
 The performance of each was compared with the commonly used CPU-based implicit integrator \texttt{CVODE}.
-The implicit Runge--Kutta method performed over five times faster on a single GPU than \texttt{CVODE} on a single six-core CPU for a \ce{H2}\slash \ce{CO} model, and up to \SI{31.5}{\percent} faster than \texttt{CVODE} for the GRI-Mech 3.0 model.
+The implicit Runge--Kutta method performed over five times faster on a single GPU than \texttt{CVODE} on a single six-core CPU for a \ce{H2}\slash\ce{CO} model, and up to \SI{31.5}{\percent} faster than \texttt{CVODE} for the GRI-Mech 3.0 model.
 The exponential integration techniques performed less efficiently for all cases.
 The main limiter of GPU integrator performance was identified as thread divergence, and techniques to mitigate this issue were discussed.
 A novel shared memory caching strategy for the GPU was developed and shown to provide a \SIrange{5}{24}{\percent} performance increase to all GPU-based integrators.
