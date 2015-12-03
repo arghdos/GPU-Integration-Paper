@@ -225,6 +225,7 @@ Finally, the adaptive time stepping procedures of all integrators used absolute 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Testing conditions}
+\label{S:pasr_conditions}
 
 In order to validate and measure the performance of the integrators for realistic conditions, a database of thermochemical conditions covering a wide range of temperatures and species mass fractions was generated using a previously developed stochastic partially stirred reactor (PaSR) code~\cite{Niemeyer:2015ws}.
 We selected two chemical kinetic models to span the range of model sizes typically used in high-fidelity simulations: the \ce{H2}\slash\ce{CO} model of Burke et al.~\cite{Burke:2011fh} with 13 species and 27 reactions, and the GRI-Mech 3.0 model with 53 species and 325 reactions~\cite{smith_gri-mech_30}.
@@ -327,7 +328,7 @@ Although this represents a relatively simple improvement, its use can achieve re
 %\addvspace{10pt}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-To study the performance of the integrators, we tested each using the PaSR conditions described in Section~\ref{S:pasr} for two different global integration time-step sizes representative of those used in large eddy and Reynolds-averaged Navier--Stokes simulations: $\delta t = \SI{1e-6}{\s}$ and $\delta t = \SI{1e-4}{\s}$, respectively.
+To study the performance of the integrators, we tested each using the PaSR conditions described in Section~\ref{S:pasr_conditions} for two different global integration time-step sizes representative of those used in large eddy and Reynolds-averaged Navier--Stokes simulations: $\delta t = \SI{1e-6}{\s}$ and $\delta t = \SI{1e-4}{\s}$, respectively.
 Furthermore, the use of a larger global time step induces additional stiffness for a given mechanism and enables evaluation of integrator performance at varying stiffness levels.
 Runtimes are reported as the average over five runs, where each run started from the same set of PaSR conditions.
 While the computed runtimes exhibited some variations, we chose to omit error bars from the plots for clarity; in general, the implicit methods exhibited variations within \SI{\pm3}{\percent} and the exponential methods within \SI{\pm1}{\percent}.
