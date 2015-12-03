@@ -288,6 +288,7 @@ Most versions of the CUDA compute standards allow the user to specify the relati
 In our preliminary studies, a larger L1 cache proved to be the superior choice, to be expected for a per-thread approach where fast memory is at a premium, and memory accesses often resulted in much slower global memory read/writes.
 However, this leaves a significant portion of the cache ($\sim$\SI{16}{\kilo\byte}) as shared memory, with only around \SIrange{2}{4} double precision variables available per thread.
 The small amount of available memory poses challenges to use in the integration algorithm itself; however, evaluation of the chemical source terms and analytical Jacobian present opportunities for using the shared memory.
+
 \begin{algorithm}[htb]
 %\fontsize{8pt}{10pt}\selectfont
 %\caption{\fontsize{9pt}{10pt}\selectfont Shared memory caching during evaluation of reaction rates.}
