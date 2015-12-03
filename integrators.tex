@@ -338,7 +338,7 @@ The same CPU served as host for the GPU integrators, which were compiled using \
 Reported runtimes for the GPU-based algorithms include time need to transfer data between the host CPU and GPU before and after each global time step; in addition, the function \texttt{cudaSetDevice()} was used to initialize the GPU before timing to hide any device initialization delay.
 The open-source \texttt{pyJac} software~\cite{Niemeyer:2015im,Niemeyer:2015ws} produced CPU and GPU custom source-code functions for the chemical source terms and analytical Jacobian matrix evaluation.
 In order to present unbiased speedup\slash slowdown numbers, in this section the best and worst performance will be computed for cases where the computational resources became fully utilized---i.e., when the runtime began to increase linearly with the number of ODEs; this occurred at \num{1024} and \num{512} ODEs for the \ce{H2}\slash\ce{CO} model and GRI-Mech 3.0, respectively.
-In this section all the GPU results presented utilized the shared memory caching algorithm presented in Sec.~\ref{S:smem_present}, the benefit of which will be explored in Sec.~\label{S:smem}.
+In this section all the GPU results presented utilized the shared memory caching algorithm presented in Sec.~\ref{S:smem_present}, the benefit of which will be explored in Sec.~\ref{S:smem}.
 
 \subsection{Performance}
 %\addvspace{10pt}
