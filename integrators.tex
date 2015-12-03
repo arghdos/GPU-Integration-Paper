@@ -287,7 +287,7 @@ However, on a per-thread basis the best use of this memory is less clear; this s
 The largest issue with fast memory utilization on a per-thread basis is that it must be split between all threads in the blocks resident on a streaming multiprocessor.
 This fast memory is further split into a L1 cache and shared memory available for inter-thread communication within a block.
 Most versions of the CUDA compute standards allow the user to specify the relative allocation of the L1 cache and the shared memory pool.
-In our preliminary studies, a larger L1 cache proved to be the superior choice, to be expected for a per-thread approach where fast memory is at a premium, and memory accesses often resulted in much slower global memory read/writes.
+In our preliminary studies, a larger L1 cache proved to be the superior choice, to be expected for a per-thread approach where fast memory is at a premium and memory accesses often resulted in much slower global memory read/writes.
 However, this leaves a significant portion of the cache ($\sim$\SI{16}{\kilo\byte}) as shared memory, with only around \SIrange{2}{4} double precision variables available per thread.
 The small amount of available memory poses challenges to use in the integration algorithm itself; however, evaluation of the chemical source terms and analytical Jacobian present opportunities for using the shared memory.
 
