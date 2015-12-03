@@ -385,13 +385,13 @@ Correspondingly, for the more stiff, larger time-step size case the CPU \texttt{
       \includegraphics[width=\linewidth]{GRI_1e-04_cpuvsgpu.pdf}
       \caption{$\delta t = \SI{1e-4}{\sec}$}
   \end{subfigure}
-  \caption{Average runtimes of the integrators for the GRI-Mech.~3.0 model at two different global time steps. 
+  \caption{Average runtimes of the integrators for the GRI-Mech 3.0 model at two different global time steps. 
   CPU versions ran in parallel on six cores.
   Some of the longer-running exponential integration cases were omitted.}
   \label{F:GRI_perf}
 \end{figure}
 
-Figure~\ref{F:GRI_perf} shows the runtime of the integrators for the GRI-Mech.~3.0 model.
+Figure~\ref{F:GRI_perf} shows the runtime of the integrators for the GRI-Mech 3.0 model.
 The GPU \texttt{Radau-IIA} integrator outperformed \texttt{CVODE} for the smaller time-step size; at best, it ran \SI{31.5}{\percent} faster than \texttt{CVODE} (\num{131072} ODEs), and at worst was \SI{10}{\percent} faster (\num{16384} ODEs).
 The larger time-step size again negatively impacted the performance of the GPU-based \texttt{Radau-IIA} integrator, dropping the performance to \num{8.63}$\times$ slower than \texttt{CVODE} at best (\num{32768} ODEs), and \num{20.48}$\times$ slower in the worst case (\num{450900} ODEs).
 For the smaller time-step size the CPU \texttt{Radau-IIA} integrator was \SI{13}{\percent} faster than \texttt{CVODE} at best (\num{131072} ODEs) and \SI{10}{\percent} faster at worst (\num{450900} ODEs).
@@ -428,7 +428,7 @@ If all threads in a warp use identical internal integration time steps and thus 
 Figure~\ref{F:divergence} shows the distribution of the divergence measure $D$ for the \texttt{Radau-IIA} solver with both time-step sizes and kinetic models when run on \num{65536} ODEs, spread across \num{2048} warps.
 For both kinetic models, increasing time-step size resulted in a sharp increase in the number of warps with large thread divergence (i.e., $D < 0.5$).
 This implicates thread divergence, rather than chemical stiffness, as the main performance limiter for the GPU-based \texttt{Radau-IIA} integrator.
-Furthermore, increased thread divergence likely caused the relative performance difference of the GPU \texttt{Radau-IIA} solver between the \ce{H2}\slash\ce{CO} and GRI models at the smaller time-step size.
+Furthermore, increased thread divergence likely caused the relative performance difference of the GPU \texttt{Radau-IIA} solver between the \ce{H2}\slash\ce{CO} and GRI-Mech 3.0 models at the smaller time-step size.
 This observation motivates future work aimed at developing strategies to reduce thread divergence.
 Potential solutions include adoption of an ODE per-block approach~\cite{Stone:2013aa}, re-ordering of ODEs to increase similarity of chemical stiffness inside a warp, or time-step synchronization between threads in a warp.
 
@@ -446,7 +446,7 @@ Although not shown in Fig.~\ref{F:divergence}, the exponential integrators exper
 The effectiveness of the shared memory caching scheme was evaluated in several cases by comparing the mean runtime of the integrators using rate and analytical Jacobian subroutines generated with and without the caching algorithm enabled.
 We observed a typical speedup of $\SI{\sim5}{\percent}$ for the smaller global time-step size, and a $\SI{\sim10}{\percent}$ speedup for the larger time-step size.
 This difference resulted from an increase in chemical source term and Jacobian evaluations required for the larger time-step size cases.
-Even larger speedup factors were observed in certain cases with the GRI model: a \SI{24.4}{\percent} speedup with \texttt{exp4} for \num{131072} ODEs and the \SI{e-6}{\second} time-step size, and a \SI{13.2}{\percent} speedup with \text{Radau-IIA} for \SI{32768} ODEs and the \SI{e-4}{\second} time-step size.
+Even larger speedup factors were observed in certain cases with the GRI-Mech 3.0 model: a \SI{24.4}{\percent} speedup with \texttt{exp4} for \num{131072} ODEs and the \SI{e-6}{\second} time-step size, and a \SI{13.2}{\percent} speedup with \text{Radau-IIA} for \SI{32768} ODEs and the \SI{e-4}{\second} time-step size.
 Thus, we recommend using this or a similar caching scheme in order to exploit shared memory in GPU integrators implemented on a per-thread basis.
 
 \subsection{Limitations of per-thread local memory for implicit GPU integration}
