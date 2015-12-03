@@ -338,22 +338,23 @@ All CPU integrators were compiled using \texttt{gcc 4.4.7} (with the compiler op
 The same CPU served as host for the GPU integrators, which were compiled using \texttt{nvcc 7.0.27} (with compiler options ``\texttt{-arch=sm\_20 -O3 -maxrregcount 63 -{}-ftz=false -{}-prec-div=true -{}-prec-sqrt=true -{}-fmad=false}'') and run on a single NVIDIA Tesla C2075 with \SI{6}{\giga\byte} of global memory.
 Reported runtimes for the GPU-based algorithms include time need to transfer data between the host CPU and GPU before and after each global time step; in addition, the function \texttt{cudaSetDevice()} was used to initialize the GPU before timing to hide any device initialization delay.
 The open-source \texttt{pyJac} software~\cite{Niemeyer:2015im,Niemeyer:2015ws} produced CPU and GPU custom source-code functions for the chemical source terms and analytical Jacobian matrix evaluation.
-In order to present unbiased speedup\slash slowdown numbers, in this section the best and worst performance will be computed for cases where the computational resources became fully utilized---i.e., when the runtime began to increase linearly with the number of ODEs; this occurred at \num{1024} and \num{512} ODEs for the \ce{H2}\slash\ce{CO} model and GRI-Mech 3.0, respectively.
+In order to present unbiased speedup\slash slowdown numbers, in this section the best and worst performance will be computed for cases where the computational resources became fully utilized---i.e., when the runtime began to increase linearly with the number of ODEs; this occurred at \num{2048} and \num{1024} ODEs for the \ce{H2}\slash\ce{CO} model and GRI-Mech 3.0, respectively.
 All of the GPU performance results shown in this section used the shared memory caching algorithm discussed in Sec.~\ref{S:smem_present}, the benefit of which will be explored in Sec.~\ref{S:smem}.
 
 \subsection{Performance}
 %\addvspace{10pt}
 
 Figure~\ref{F:H2_perf} shows the runtimes of the CPU and GPU integrators for the \ce{H2}\slash\ce{CO} model.
-The CPU \texttt{Radau-IIA} integrator was at best \SI{24.4}{\percent} faster than \texttt{CVODE} (at 2048 ODEs) and at worst \SI{16}{\percent} slower (at 32768 ODEs) for the smaller global time-step size.
-In the best case for the larger global time-step, CPU \texttt{Radau-IIA} solver was \SI{3.7}{\percent} faster than \texttt{CVODE} (8192 ODEs) and \SI{91}{\percent} slower at worst (2048 ODEs).
-The GPU \texttt{Radau-IIA} integrator ran at best $\SI{8.41}{\times}$ faster than \texttt{CVODE}, and on average performed $5.39\pm1.35\times$ faster for the smaller time step size.
-Using the the larger time-step size negatively impacted the performance of the GPU \texttt{Radau-IIA} integrator---at best, it ran \SI{16}{\percent} slower, and \SI{78\pm81}{\percent} slower on average.
-At the smaller time-step size the GPU \texttt{exprb43} outperformed its CPU counterpart on average by \SI{15\pm27}{\percent} and was \SI{43}{\percent} faster at best, while the GPU \texttt{exp4} version was \SI{7\pm33}{\percent} slower the the CPU version on average, and was at best \SI{23}{\percent} faster.
-Although the \texttt{exprb43} and \texttt{exp4} algorithms each only require three exponential matrix function approximations, a single time step of \texttt{exprb43} is more expensive due to the extra chemical source term evaluations, matrix multiplications, and higher-order phi function requirement.
-As such, the CPU \texttt{exp4} integrator generally outperformed the relatively simpler \texttt{exp4} integrator by \SI{41\pm6}{\percent} on average for the smaller time-step size.
+The CPU \texttt{Radau-IIA} integrator was at best \SI{19.1}{\percent} faster than \texttt{CVODE} (at \num{8192} ODEs) and at worst \SI{16}{\percent} slower (at \num{32768} ODEs) for the smaller global time-step size.
+In the best case for the larger global time-step size, the CPU \texttt{Radau-IIA} solver was \SI{3.7}{\percent} faster than \texttt{CVODE} (\num{8192} ODEs) and \SI{43}{\percent} slower at worst (\num{4096} ODEs).
+For the smaller time-step size, the GPU \texttt{Radau-IIA} integrator was at best $\SI{8.41}{\times}$ faster than \texttt{CVODE} (\num{8192} ODEs) and $\SI{3.45}{\times}$ faster in the worst case (\num{900900} ODEs).
+Using the the larger time-step size negatively impacted the performance of the GPU \texttt{Radau-IIA} integrator---at best it ran \SI{16}{\percent} slower (\num{8192} ODEs) than \texttt{CVODE}, and was \SI{85}{\percent} slower in the worst case (\num{4096} ODEs).
+At the smaller time-step size the GPU \texttt{exprb43} integrator was at best \SI{30}{\percent} faster than its CPU counterpart (\num{262144} ODEs) and was \SI{13}{\percent} slower at worst (\num{4096} ODEs). 
+The GPU \texttt{exp4} solver was \SI{23}{\percent} faster the the CPU version at best (\num{262144} ODEs), and \SI{32}{\percent} slower in the worst case (\num{32768} ODEs).
+Although the \texttt{exprb43} and \texttt{exp4} algorithms only require three exponential matrix function approximations, a single time step of \texttt{exprb43} is more expensive due to the extra chemical source term evaluations, matrix multiplications, and higher-order exponential matrix function requirement.
+As such, the CPU \texttt{exprb43} integrator is outperformed by the relatively more simple CPU \texttt{exp4} integrator at the smaller time-step size; by \SI{22}{\percent} in the best case (\num{900900} ODEs) and \SI{44}{\percent} in the worst case (\num{65536} ODEs).
 However, the nominal fourth-order convergence of the \texttt{exp4} algorithm is a classical non-stiff order, and thus order reduction is expected for stiff problems~\cite{ANU:7701740,Bisetti:2012jw}.
-Correspondingly, for the more stiff, larger time-step case the CPU \texttt{exprb43} outperformed \texttt{exp4} by \SI{49\pm1}{\percent} on average.
+Correspondingly, for the more stiff, larger time-step size case the CPU \texttt{exprb43} outperformed \texttt{exp4} by up to \SI{34}{\percent} (\num{8192} ODEs) and \SI{32}{\percent} in the worst case (\num{524288} ODEs).
 
 \begin{figure}[htb]
   %\fontsize{8pt}{10pt}\selectfont
