@@ -345,8 +345,8 @@ All of the GPU performance results shown in this section used the shared memory 
 %\addvspace{10pt}
 
 Figure~\ref{F:H2_perf} shows the runtimes of the CPU and GPU integrators for the \ce{H2}\slash\ce{CO} model.
-The CPU \texttt{Radau-IIA} integrator was on average \SI{3\pm15}{\percent} faster than \texttt{CVODE} and up to \SI{32}{\percent} faster for the smaller global time-step size.
-For the larger global time-step, it was \SI{31\pm24}{\percent} slower than \texttt{CVODE}, although at best it was \SI{4}{\percent} faster.
+The CPU \texttt{Radau-IIA} integrator was at best \SI{24.4}{\percent} faster than \texttt{CVODE} (at 2048 ODEs) and at worst \SI{16}{\percent} slower (at 32768 ODEs) for the smaller global time-step size.
+In the best case for the larger global time-step, CPU \texttt{Radau-IIA} solver was \SI{3.7}{\percent} faster than \texttt{CVODE} (8192 ODEs) and \SI{91}{\percent} slower at worst (2048 ODEs).
 The GPU \texttt{Radau-IIA} integrator ran at best $\SI{8.41}{\times}$ faster than \texttt{CVODE}, and on average performed $5.39\pm1.35\times$ faster for the smaller time step size.
 Using the the larger time-step size negatively impacted the performance of the GPU \texttt{Radau-IIA} integrator---at best, it ran \SI{16}{\percent} slower, and \SI{78\pm81}{\percent} slower on average.
 At the smaller time-step size the GPU \texttt{exprb43} outperformed its CPU counterpart on average by \SI{15\pm27}{\percent} and was \SI{43}{\percent} faster at best, while the GPU \texttt{exp4} version was \SI{7\pm33}{\percent} slower the the CPU version on average, and was at best \SI{23}{\percent} faster.
