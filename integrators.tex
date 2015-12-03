@@ -166,7 +166,7 @@ These methods require repeated evaluation and factorization of the chemical kine
 However, significant cost savings in the Jacobian evaluation can be realized through the use of an analytic formulation, rather than the typical evaluation via finite difference approximations.
 This approach eliminates numerous chemical source term evaluations, and for a sparse Jacobian (e.g., formulated in terms of species concentrations) the cost of evaluation drops to a linear dependence on the number of species in the mechanism~\cite{Lu:2009gh}.
 
-Further acceleration of chemical kinetic integration techniques has focused on improving the integration itself, via development of new algorithms and use of high-performance hardware accelerators such as GPUs and other similar SIMD devices.
+Current efforts to accelerate of chemical kinetic integration techniques focus on improving the integration itself, via development of new algorithms and use of high-performance hardware accelerators such as GPUs and other similar SIMD devices.
 Central processing unit (CPU) clock speeds increased regularly over the past few decades---commonly known as Moore's Law---however, power consumption and heat dissipation issues slowed this trend recently.
 While multi-core parallelism somewhat increased CPU performance, recently SIMD processors gained popularity as a low cost, low power consumption, and massively parallel high-performance computing alternative.
 GPUs were originally developed for graphics\slash video processing applications and consist of hundreds to thousands of separate cores, compared with the tens of cores found on typical CPUs.
