@@ -338,7 +338,7 @@ All CPU integrators were compiled using \texttt{gcc 4.4.7} (with the compiler op
 The same CPU served as host for the GPU integrators, which were compiled using \texttt{nvcc 7.0.27} (with compiler options ``\texttt{-arch=sm\_20 -O3 -maxrregcount 63 -{}-ftz=false -{}-prec-div=true -{}-prec-sqrt=true -{}-fmad=false}'') and run on a single NVIDIA Tesla C2075 with \SI{6}{\giga\byte} of global memory.
 Reported runtimes for the GPU-based algorithms include time need to transfer data between the host CPU and GPU before and after each global time step; in addition, the function \texttt{cudaSetDevice()} was used to initialize the GPU before timing to hide any device initialization delay.
 The open-source \texttt{pyJac} software~\cite{Niemeyer:2015im,Niemeyer:2015ws} produced CPU and GPU custom source-code functions for the chemical source terms and analytical Jacobian matrix evaluation.
-In order to present unbiased speedup\slash slowdown numbers, in this section the best and worst performance will be computed for cases where the computational resources became fully utilized---i.e., when the runtime began to increase linearly with the number of ODEs; this occurred at \num{8192} ODEs for both models.
+In order to present unbiased speedup\slash slowdown numbers, in this section the best and worst performance will be computed for cases where the computational resources became fully utilized---i.e., when the runtime began to increase linearly with the number of ODEs; this occurred at \num{16384} ODEs and above for both models.
 All of the GPU performance results shown in this section used the shared memory caching algorithm discussed in Sec.~\ref{S:smem_present}, the benefit of which will be explored in Sec.~\ref{S:smem}.
 
 \subsection{Performance}
@@ -346,7 +346,7 @@ All of the GPU performance results shown in this section used the shared memory 
 
 Figure~\ref{F:H2_perf} shows the runtimes of the CPU and GPU integrators for the \ce{H2}\slash\ce{CO} model.
 The CPU \texttt{Radau-IIA} integrator was at best \SI{14}{\percent} faster than \texttt{CVODE} (at \num{65536} ODEs) and at worst \SI{16}{\percent} slower (at \num{32768} ODEs) for the smaller global time-step size.
-In the best case for the larger global time-step size, the CPU \texttt{Radau-IIA} solver was at best \SI{3.8}{\percent} slower than \texttt{CVODE} (\num{32768} ODEs) and \SI{35}{\percent} slower at worst (\num{8192} ODEs).
+In the best case for the larger global time-step size, the CPU \texttt{Radau-IIA} solver was at best \SI{3.8}{\percent} slower than \texttt{CVODE} (\num{32768} ODEs) and \SI{35}{\percent} slower at worst (\num{16384} ODEs).
 For the smaller time-step size, the GPU \texttt{Radau-IIA} integrator was at best $\SI{5.31}{\times}$ faster than \texttt{CVODE} (\num{16384} ODEs) and $\SI{3.45}{\times}$ faster in the worst case (\num{900900} ODEs).
 Using the the larger time-step size negatively impacted the performance of the GPU \texttt{Radau-IIA} integrator---at best it ran \SI{32}{\percent} slower (\num{524288} ODEs) than \texttt{CVODE}, and was \SI{69}{\percent} slower in the worst case (\num{65536} ODEs).
 At the smaller time-step size the GPU \texttt{exprb43} integrator was at best \SI{30}{\percent} faster than its CPU counterpart (\num{262144} ODEs) and was \SI{13}{\percent} faster at worst (\num{32768} ODEs). 
@@ -406,8 +406,8 @@ To investigate this further, we adopted a similar quantification of thread diver
 	\label{eqn:divergence}
 \end{equation}
 where $d_i$ is the number of internal integrator time steps taken to reach the global time step by thread $i$ in a warp (which consists of 32 threads).
-Thus, $D$ represents the variation in number of internal time steps across all threads in a warp.
-If a warp experiences no thread divergence due to differing internal integration time steps, then $D = 1$; however, if a warp experiences an unbalanced number of internal integration time steps, then $D$ will tend to zero.
+Thus, $D$ represents the variation in number of internal time steps across all threads in a warp caused by differing internal integration time steps.
+If a warp has identical internal integration time steps and experiences no thread divergence, then $D = 1$; however, if a warp experiences an unbalanced number of internal integration time steps, then $D$ will tend to zero.
 
 \begin{figure}[htb]
   %\fontsize{8pt}{10pt}\selectfont
@@ -426,13 +426,13 @@ If a warp experiences no thread divergence due to differing internal integration
 \end{figure}
 
 Figure~\ref{F:divergence} shows the distribution of the divergence measure $D$ for the \texttt{Radau-IIA} solver with both time-step sizes and kinetic models when run on \num{65536} ODEs, spread across \num{2048} warps.
-For both models, increasing time-step size resulted in a sharp increase in the number of warps with large thread divergence (i.e., $D < 0.5$).
-This implicates thread divergence, rather than pure chemical stiffness, as the main performance limiter for the GPU-based \texttt{Radau-IIA} integrator.
-Furthermore, increased thread divergence likely caused the relative performance difference of the GPU \texttt{Radau-IIA} solver between the \ce{H2}\slash\ce{CO} and GRI models at the smaller time-step size, due to differing chemical timescales.
+For both kinetic models, increasing time-step size resulted in a sharp increase in the number of warps with large thread divergence (i.e., $D < 0.5$).
+This implicates thread divergence, rather than chemical stiffness, as the main performance limiter for the GPU-based \texttt{Radau-IIA} integrator.
+Furthermore, increased thread divergence likely caused the relative performance difference of the GPU \texttt{Radau-IIA} solver between the \ce{H2}\slash\ce{CO} and GRI models at the smaller time-step size.
 This observation motivates future work aimed at developing strategies to reduce thread divergence.
 Potential solutions include adoption of an ODE per-block approach~\cite{Stone:2013aa}, re-ordering of ODEs to increase similarity of chemical stiffness inside a warp, or time-step synchronization between threads in a warp.
 
-Figure~\ref{F:GRI_perf} also shows that the CPU exponential integrators are only \numrange{2}{3}$\times$ slower than \texttt{CVODE} for the smaller time-step size.
+Figure~\ref{F:GRI_perf} also shows that the CPU exponential integrators are typically only \numrange{2}{3}$\times$ slower than \texttt{CVODE} for the smaller time-step size.
 As the exponential integrators must only factorize a much smaller Hessenberg matrix (e.g., $5\times 5$ for small integrator time-step sizes in stiff cases) rather than the entire Jacobian---as in the implicit integrators---significant savings in factorization can potentially be achieved with larger mechanism sizes.
 For larger integrator time-step sizes without severe chemical stiffness (e.g., near equilibrium) the size of the Hessenberg matrix to be factorized typically grows to $20\times 20$.
 However, as stiffness increases, e.g., as for the larger time-step size, the stability characteristics of the implicit integrators make them more favorable.
