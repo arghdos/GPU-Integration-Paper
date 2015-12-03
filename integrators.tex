@@ -422,7 +422,6 @@ If a warp experiences no thread divergence due to differing internal integration
 Figure~\ref{F:divergence} shows the distribution of the divergence measure $D$ for the \texttt{Radau-IIa} solver with both time-step sizes and kinetic models when run on \num{65536} ODEs, spread across \num{2048} warps.
 For both models, increasing time-step size resulted in a sharp increase in the number of warps with large thread divergence (i.e., $D > 0.5$).
 This implicates thread divergence, rather than pure chemical stiffness, as the main performance limiter for the GPU-based \texttt{Radau-IIa} integrator.
-Furthermore, the relative performance difference of the GPU \texttt{Radau-IIa} solver between the \ce{H2}\slash\ce{CO} and GRI models at the smaller time-step size is likely partially due to the increased thread divergence caused by different chemical timescales between the models.
 Furthermore, increased thread divergence likely caused the relative performance difference of the GPU \texttt{Radau-IIa} solver between the \ce{H2}\slash\ce{CO} and GRI models at the smaller time-step size, due to differing chemical timescales.
 This observation motivates future work aimed at developing strategies to reduce thread divergence.
 Potential solutions include adoption of an ODE per-block approach~\cite{Stone:2013aa}, re-ordering of ODEs to increase similarity of chemical stiffness inside a warp, or time-step synchronization between threads in a warp.
