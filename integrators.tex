@@ -439,7 +439,7 @@ For larger integrator time-step sizes without severe chemical stiffness (e.g., n
 However, as stiffness increases, e.g., as for the larger time-step size, the stability characteristics of the implicit integrators make them more favorable.
 We hypothesize that the exponential integrators may be more efficient than the implicit integrators for moderately stiff systems (e.g., with small time-step sizes, or low tolerances) with larger chemical mechanisms.
 Prior work~\cite{Niemeyer:2014aa} showed that stabilized explicit integrators can provide significant speedups for moderately stiff systems.
-Although not shown in Fig.~\ref{F:divergence}, the exponential integrators experienced significant thread divergence in all cases, and thus would also likely benefit from the thread divergence reduction techniques discussed above.
+Although not shown in Fig.~\ref{F:divergence}, the GPU exponential integrators experienced significant thread divergence in all cases, and thus would also likely benefit from the thread divergence reduction techniques discussed above.
 
 \subsection{Effect of shared memory caching}
 \label{S:smem}
