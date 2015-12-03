@@ -444,7 +444,7 @@ Although not shown in Fig.~\ref{F:divergence}, the GPU exponential integrators e
 \subsection{Effect of shared memory caching}
 \label{S:smem}
 
-The effectiveness of the shared memory caching scheme was evaluated in several cases by comparing the mean runtime of the integrators using rate and analytical Jacobian subroutines generated with and without the caching algorithm enabled.
+The effectiveness of the shared memory caching scheme was evaluated in several cases by comparing the mean runtime of the integrators using chemical source terms and analytical Jacobian subroutines generated with and without the caching algorithm enabled.
 We observed a typical speedup of $\SI{\sim5}{\percent}$ for the smaller global time-step size, and a $\SI{\sim10}{\percent}$ speedup for the larger time-step size.
 This difference resulted from an increase in chemical source term and Jacobian evaluations required for the larger time-step size cases.
 Even larger speedup factors were observed in certain cases with the GRI-Mech 3.0 model: a \SI{24.4}{\percent} speedup with \texttt{exp4} for \num{131072} ODEs and the \SI{e-6}{\second} time-step size, and a \SI{13.2}{\percent} speedup with \text{Radau-IIA} for \SI{32768} ODEs and the \SI{e-4}{\second} time-step size.
