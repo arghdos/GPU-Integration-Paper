@@ -384,7 +384,7 @@ Correspondingly, for the more stiff, larger time-step case the CPU \texttt{exprb
 
 Figure~\ref{F:GRI_perf} shows the runtime of the integrators for the GRI-Mech.~3.0 model.
 The GPU \texttt{Radau-IIa} integrator often outperformed the CPU version and \texttt{CVODE} for the smaller time-step size; at best, it ran \SI{31.5}{\percent} faster than \texttt{CVODE}, and \SI{21\pm64}{\percent} slower than on average.
-The larger time-step size again negatively impacted the performance of the GPU-based \texttt{Radau-IIa} integrator, dropping the performance to $\SI{8.63}{\times}$ slower than \texttt{CVODE} in the best case, and $\SI{17.98\pm13.04}{\times}$ slower on average.
+The larger time-step size again negatively impacted the performance of the GPU-based \texttt{Radau-IIa} integrator, dropping the performance to $\SI{8.63}{\times}$ slower than \texttt{CVODE} in the best case, and $\SI{18.0\pm13.0}{\times}$ slower on average.
 
 Two primary factors affect the performance of the GPU integration algorithms: chemical stiffness and thread divergence.
 The CPU-based \texttt{Radau-IIa} integrator demonstrated almost identical performance to \texttt{CVODE} except for the GRI-Mech.~3.0 model with the larger time step---the stiffest case---where it ran $\SI{3.1\pm0.47}{\times}$ slower on average.
