@@ -187,7 +187,7 @@ Additionally, they showed that the implicit VODE algorithm exhibited significant
 Furthermore, Stone and Davis~\cite{Stone:2013aa} showed that, for numbers of independent ODE systems greater than $\sim$\SI{e3}, using individual GPU threads to handle independent chemical kinetic ODEs offered greater performance over using a block of GPU threads to cooperatively solve a single ODE~\cite{Stone:2013aa}.
 Niemeyer and Sung~\cite{Niemeyer:2014aa} demonstrated an order-of-magnitude speedup for a GPU implementation of a stabilized explicit second-order Runge--Kutta--Chebyshev algorithm over a multi-core CPU implementation of VODE for moderately stiff chemical kinetics.
 They also investigated levels of thread divergence due to differing integrator time-step sizes, and found it negatively impacts overall performance for dissimilar ODE initial conditions in a thread-block.
-Sewerin and Rigopoulos~\cite{Sewerin20151375} implemented a three-stage\slash fifth-order implicit Runge--Kutta method~\cite{wanner1991solving} on a one-block per ODE basis on GPU, and found a $1.8\times$ slowdown at best compared with the same on a single eight-core CPU.
+Sewerin and Rigopoulos~\cite{Sewerin20151375} implemented a three-stage\slash fifth-order implicit Runge--Kutta method~\cite{wanner1991solving} on a one-block per ODE basis on GPU, and found a \num{1.8}$\times$ slowdown at best compared with the same on a single eight-core CPU.
 
 While increasing numbers of studies have explored GPU-based chemical kinetics integration, there remains a clear need to find or develop integration algorithms simultaneously suited for the SIMD parallelism of GPUs (along with similar hardware accelerators) and capable of handling stiffness.
 In this work we will investigate GPU implementations of several explicit and implicit integration techniques, as compared to their CPU counterparts and the baseline CPU \texttt{CVODE}~\cite{Hindmarsh:2005hg} algorithm.
@@ -347,7 +347,7 @@ All of the GPU performance results shown in this section used the shared memory 
 Figure~\ref{F:H2_perf} shows the runtimes of the CPU and GPU integrators for the \ce{H2}\slash\ce{CO} model.
 The CPU \texttt{Radau-IIA} integrator was at best \SI{14}{\percent} faster than \texttt{CVODE} (at \num{65536} ODEs) and at worst \SI{16}{\percent} slower (at \num{32768} ODEs) for the smaller global time-step size.
 In the best case for the larger global time-step size, the CPU \texttt{Radau-IIA} solver was at best \SI{3.8}{\percent} slower than \texttt{CVODE} (\num{32768} ODEs) and \SI{35}{\percent} slower at worst (\num{16384} ODEs).
-For the smaller time-step size, the GPU \texttt{Radau-IIA} integrator was at best $\SI{5.31}{\times}$ faster than \texttt{CVODE} (\num{16384} ODEs) and $\SI{3.45}{\times}$ faster in the worst case (\num{900900} ODEs).
+For the smaller time-step size, the GPU \texttt{Radau-IIA} integrator was at best \num{5.31}$\times$ faster than \texttt{CVODE} (\num{16384} ODEs) and \num{3.45}$\times$ faster in the worst case (\num{900900} ODEs).
 Using the the larger time-step size negatively impacted the performance of the GPU \texttt{Radau-IIA} integrator---at best it ran \SI{32}{\percent} slower (\num{524288} ODEs) than \texttt{CVODE}, and was \SI{69}{\percent} slower in the worst case (\num{65536} ODEs).
 At the smaller time-step size the GPU \texttt{exprb43} integrator was at best \SI{30}{\percent} faster than its CPU counterpart (\num{262144} ODEs) and was \SI{13}{\percent} faster at worst (\num{32768} ODEs). 
 The GPU \texttt{exp4} solver was \SI{23}{\percent} faster the the CPU version at best (\num{262144} ODEs), and \SI{32}{\percent} slower in the worst case (\num{32768} ODEs).
@@ -393,9 +393,9 @@ Correspondingly, for the more stiff, larger time-step size case the CPU \texttt{
 
 Figure~\ref{F:GRI_perf} shows the runtime of the integrators for the GRI-Mech.~3.0 model.
 The GPU \texttt{Radau-IIA} integrator outperformed \texttt{CVODE} for the smaller time-step size; at best, it ran \SI{31.5}{\percent} faster than \texttt{CVODE} (\num{131072} ODEs), and at worst was \SI{10}{\percent} faster (\num{16384} ODEs).
-The larger time-step size again negatively impacted the performance of the GPU-based \texttt{Radau-IIA} integrator, dropping the performance to $\SI{8.63}{\times}$ slower than \texttt{CVODE} at best (\num{32768} ODEs), and $\SI{20.48}{\times}$ slower in the worst case (\num{450900} ODEs).
+The larger time-step size again negatively impacted the performance of the GPU-based \texttt{Radau-IIA} integrator, dropping the performance to \num{8.63}$\times$ slower than \texttt{CVODE} at best (\num{32768} ODEs), and \num{20.48}$\times$ slower in the worst case (\num{450900} ODEs).
 For the smaller time-step size the CPU \texttt{Radau-IIA} integrator was \SI{13}{\percent} faster than \texttt{CVODE} at best (\num{131072} ODEs) and \SI{10}{\percent} faster at worst (\num{450900} ODEs).
-The larger time-step size---the stiffest case---was the only case where \texttt{CVODE} significantly outperformed CPU \texttt{Radau-IIA}, which was $\SI{2.66}{\times}$ slower at best (\num{65536} ODEs) and $\SI{4.11}{\times}$ slower at worst (\num{450900} ODEs).
+The larger time-step size---the stiffest case---was the only case where \texttt{CVODE} significantly outperformed CPU \texttt{Radau-IIA}, which was \num{2.66}$\times$ slower at best (\num{65536} ODEs) and \num{4.11}$\times$ slower at worst (\num{450900} ODEs).
 This difference may be due to the adaptive-order nature of the \texttt{CVODE} algorithm, or potentially due to its maturity and years of optimization.
 However, this effect is fairly minor and should not cause the order of magnitude decrease in relative performance between the GPU-based \texttt{Radau-IIA} integrator and \texttt{CVODE} observed when switching to the larger time step.
 
@@ -433,7 +433,7 @@ This observation motivates future work aimed at developing strategies to reduce 
 Potential solutions include adoption of an ODE per-block approach~\cite{Stone:2013aa}, re-ordering of ODEs to increase similarity of chemical stiffness inside a warp, or time-step synchronization between threads in a warp.
 
 Figure~\ref{F:GRI_perf} also shows that the CPU exponential integrators are typically only \numrange{2}{3}$\times$ slower than \texttt{CVODE} for the smaller time-step size.
-As the exponential integrators must only factorize a much smaller Hessenberg matrix (e.g., $5\times 5$ for small integrator time-step sizes in stiff cases) rather than the entire Jacobian---as in the implicit integrators---significant savings in factorization can potentially be achieved with larger mechanism sizes.
+As the exponential integrators must only factorize a much smaller Hessenberg matrix (e.g., $5 \times 5$ for small integrator time-step sizes in stiff cases) rather than the entire Jacobian---as in the implicit integrators---significant savings in factorization can potentially be achieved with larger mechanism sizes.
 For larger integrator time-step sizes without severe chemical stiffness (e.g., near equilibrium) the size of the Hessenberg matrix to be factorized typically grows to $20\times 20$.
 However, as stiffness increases, e.g., as for the larger time-step size, the stability characteristics of the implicit integrators make them more favorable.
 We hypothesize that the exponential integrators may be more efficient than the implicit integrators for moderately stiff systems (e.g., with small time-step sizes, or low tolerances) with larger chemical mechanisms.
