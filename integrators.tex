@@ -1,8 +1,15 @@
 \pdfoutput=1
 \pdfminorversion=4
 
+\newif\ifmeasure
+\measuretrue
+
+\ifmeasure
+\documentclass[final,twocolumn]{elsarticle}
+\else
 \documentclass[preprint]{elsarticle}
-%\documentclass[final,twocolumn]{elsarticle}
+\fi
+
 \usepackage[utf8]{inputenc}
 
 %packages
@@ -19,7 +26,6 @@
 \captionsetup[algorithm]{labelformat=empty}
 
 \usepackage{booktabs}
-
 \usepackage[version=3]{mhchem} % Formula subscripts using \ce{}, e.g., \ce{H2SO4}
 \usepackage{latexsym,amsmath,amssymb}
 
@@ -112,8 +118,10 @@ We do not authorize the reproduction of color images in print.
 }
 \end{titlepage}
 
-%\small
-%\baselineskip 10pt
+\ifmeasure
+\small
+\baselineskip 10pt
+\fi
 \begin{frontmatter}
 
 \title{An investigation of GPU-based stiff chemical kinetics integration methods}
@@ -154,7 +162,9 @@ Finally, future research directions were identified based on the current state-o
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Introduction}
 \label{sec:Intro}
-%\addvspace{10pt}
+\ifmeasure
+\addvspace{10pt}
+\fi
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 The need for accurate chemical kinetic models in predictive reacting-flow simulations has driven the development of detailed oxidation models for hydrocarbon fuels relevant to transportation and energy generation applications.
@@ -201,7 +211,9 @@ Finally, the three-stage fifth-order implicit Runge--Kutta algorithm~\cite{wanne
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Methodology}
 \label{sec:Method}
-%\addvspace{10pt}
+\ifmeasure
+\addvspace{10pt}
+\fi
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 In this section, we discuss details of the algorithms implemented for the GPU along with third-party software used.
@@ -254,7 +266,9 @@ The PaSR simulations were performed at the conditions listed in Table~\ref{T:pas
 
 \begin{table}[htb]
 \centering
-%\fontsize{8pt}{10pt}\selectfont
+\ifmeasure
+\fontsize{8pt}{10pt}\selectfont
+\fi
 \begin{tabular}{@{}l l l @{}}
 \toprule
 Parameter & \ce{H2}\slash air & \ce{CH4}\slash air \\
@@ -292,9 +306,12 @@ However, this leaves a significant portion of the fast memory cache ($\sim$\SI{1
 The small amount of available memory poses challenges to use in the integration algorithm itself; however, evaluation of the chemical source terms and analytical Jacobian present opportunities for using the shared memory.
 
 \begin{algorithm}[htb]
-%\fontsize{8pt}{10pt}\selectfont
-%\caption{\fontsize{9pt}{10pt}\selectfont Shared memory caching during evaluation of reaction rates.}
+\ifmeasure
+\fontsize{8pt}{10pt}\selectfont
+\caption{\fontsize{9pt}{10pt}\selectfont \textbf{Algorithm:} A procedure for memory caching during evaluation of reaction rates.\label{A:shared_mem_caching}}
+\else
 \caption{\textbf{Algorithm:} A procedure for memory caching during evaluation of reaction rates.\label{A:shared_mem_caching}}
+\fi
 \begin{algorithmic}[0]
   \State {Initialize the cached species concentration set $C = \varnothing$}
   \State {Let maximum set size be $C_{\max}$}
@@ -328,7 +345,9 @@ Although this represents a relatively simple improvement, its use can achieve re
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Results and discussion}
-%\addvspace{10pt}
+\ifmeasure
+\addvspace{10pt}
+\fi
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 To study the performance of the integrators, we tested each using the PaSR conditions described in Sec.~\ref{S:pasr_conditions} for two different global integration time-step sizes representative of those used in large eddy and Reynolds-averaged Navier--Stokes simulations: $\delta t = \SI{e-6}{\s}$ and $\delta t = \SI{e-4}{\s}$, respectively.\todo[inline]{would this read better as, ``The performance of the integrators was studied by testing each on the PaSR...''?}
@@ -343,7 +362,9 @@ In order to present unbiased speedup\slash slowdown numbers, in this section the
 All of the GPU performance results shown in this section used the shared memory caching algorithm discussed in Sec.~\ref{S:smem_present}, the benefit of which will be explored in Sec.~\ref{S:smem}.
 
 \subsection{Performance}
-%\addvspace{10pt}
+\ifmeasure
+\addvspace{10pt}
+\fi
 
 Figure~\ref{F:H2_perf} shows the runtimes of the CPU and GPU integrators for the \ce{H2}\slash\ce{CO} model.
 The CPU \texttt{Radau-IIA} integrator was at best \SI{14}{\percent} faster than \texttt{CVODE} (at \num{65536} ODEs) and at worst \SI{16}{\percent} slower (at \num{32768} ODEs) for the smaller global time-step size.
@@ -358,7 +379,9 @@ However, the nominal fourth-order convergence of the \texttt{exp4} algorithm is 
 Correspondingly, for the more stiff, larger time-step size case, the CPU \texttt{exprb43} outperformed \texttt{exp4} by \SIrange{32}{33}{\percent} for all cases.
 
 \begin{figure}[htb]
-  %\fontsize{8pt}{10pt}\selectfont
+  \ifmeasure
+  \fontsize{8pt}{10pt}\selectfont
+  \fi
   \centering
   \begin{subfigure}{0.49\textwidth}
       \includegraphics[width=\linewidth]{H2_1e-06_cpuvsgpu.pdf}
@@ -375,7 +398,9 @@ Correspondingly, for the more stiff, larger time-step size case, the CPU \texttt
 \end{figure}
 
 \begin{figure}[htb]
-  %\fontsize{8pt}{10pt}\selectfont
+  \ifmeasure
+  \fontsize{8pt}{10pt}\selectfont
+  \fi
   \centering
   \begin{subfigure}{0.49\textwidth}
       \includegraphics[width=\linewidth]{GRI_1e-06_cpuvsgpu.pdf}
@@ -411,7 +436,9 @@ $D$ represents the similarity of internal time step counts across threads in a w
 If all threads in a warp use identical internal integration time steps and thus the warp experiences no thread divergence from this source, then $D = 1$; however, if a warp experiences an unbalanced number of internal integration time steps, then $D$ will tend to zero.
 
 \begin{figure}[htb]
-  %\fontsize{8pt}{10pt}\selectfont
+  \ifmeasure
+  \fontsize{8pt}{10pt}\selectfont
+  \fi
   \centering
   \begin{subfigure}{0.49\textwidth}
       \includegraphics[width=\linewidth]{H2_radau2a_div.pdf}
@@ -503,7 +530,9 @@ Otherwise, mechanism reduction (a-priori or on the fly) may be employed to get a
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Conclusions}
-%\addvspace{10pt}
+\ifmeasure
+\addvspace{10pt}
+\fi
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 The large size and chemical stiffness of chemical kinetics models relevant to fuels for transportation and power generation traditionally requires the use of high-order implicit integrators for efficient solutions.
@@ -525,13 +554,17 @@ Finally, new integration techniques such as hybrid implicit\slash explicit solve
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section*{Acknowledgments}
-%\addvspace{10pt}
+\ifmeasure
+\addvspace{10pt}
+\fi
 
 This material is based upon work supported by the National Science Foundation under grants ACI-1534688 and ACI-1535065.
 
-%\footnotesize
-%\baselineskip 9pt
-%\setlength{\bibsep}{0pt plus 0.3ex}
+\ifmeasure
+\footnotesize
+\baselineskip 9pt
+\setlength{\bibsep}{0pt plus 0.3ex}
+\fi
 \bibliography{refs}
 \bibliographystyle{elsarticle-num}
 
