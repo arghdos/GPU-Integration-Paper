@@ -294,16 +294,16 @@ PaSR parameters used for hydrogen\slash air and methane\slash air premixed combu
 
 A unique memory-access pattern is one aspect of the GPU platform particularly important to high-performance algorithms; each streaming multiprocessor can access only a small amount of fast cache memory (typically \SI{64}{\kilo\byte}) and \SI{32}{\bit} registers (typically \SIrange{32}{64}{\kilo\byte}).
 All other memory is stored globally on the device, with comparatively high latencies.
-Thus, it is critical to properly utilize the fast memory cache to achieve maximum performance on GPUs.
+Thus, it is critical to properly utilize the cache memory to achieve maximum performance on GPUs.
 When formulated on a per-block basis, GPU-based integration algorithms typically use this memory to store commonly used values such as the current state vector and  chemical Jacobian.
 However, on a per-thread basis, the best use of this memory is less clear; this section proposes one approach for efficient use of this fast memory.
 
-The largest issue with fast memory utilization on a per-thread basis is that it must be split between all threads in the blocks resident on a streaming multiprocessor.
+Using fast memory on a per-thread basis poses a challenge: it must be split between all threads in the blocks resident on a streaming multiprocessor.
 This fast memory is further split into an L1 cache and shared memory available for interthread communication within a block.
-Most versions of the CUDA compute standards allow the user to specify the relative allocation of the L1 cache and the shared memory pool.
-In our preliminary studies, a larger L1 cache proved the superior choice for our per-thread approach, due to limited fast memory that resulted slower global memory accesses.
-However, this leaves a significant portion of the fast memory cache ($\sim$\SI{16}{\kilo\byte}) as shared memory, with only around \numrange{2}{4} double precision variables available per thread.
-The small amount of available memory poses challenges to use in the integration algorithm itself; however, evaluation of the chemical source terms and analytical Jacobian present opportunities for using the shared memory.
+Most versions of the CUDA compute standards allow the user to specify the relative allocation of the L1 cache and shared memory pool.
+In our preliminary studies, a larger L1 cache proved the superior choice for our per-thread approach; the inherent increased memory traffic quickly overwhelms the small cache memory, resulting in slower global memory accesses.
+However, this left $\sim$\SI{16}{\kilo\byte} of the cache memory as shared memory, with only around two to four double-precision variables available per thread.
+This small amount of available memory is challenging to use in the integration algorithm itself; however, evaluation of the chemical source terms and analytical Jacobian present opportunities for using the shared memory.
 
 \begin{algorithm}[htb]
 \ifmeasure
@@ -340,7 +340,7 @@ The small amount of available memory poses challenges to use in the integration 
 
 The presented~\hyperref[A:shared_mem_caching]{algorithm} describes a strategy to use this available shared memory to store commonly used species concentrations during evaluation of the reaction rates.
 Similar algorithms were developed for the species net production rates and Jacobian evaluation routines, using frequently updated species net production rates and frequently used reaction rates\slash species concentrations as the cached variables, respectively.
-As this algorithm is run during generation of the source code for the various subroutines, it introduces no computational or memory overhead related to determining the caching structure during runtime.
+As this algorithm runs during generation of the source code for the various subroutines, it introduces no computational or memory overhead related to determining the caching structure during runtime.
 Although this represents a relatively simple improvement, its use can achieve reasonable performance benefits, as will be seen in Sec.~\ref{S:smem}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -351,16 +351,16 @@ Although this represents a relatively simple improvement, its use can achieve re
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 We studied the performance of the integrators by testing each on the PaSR conditions described in Sec.~\ref{S:pasr_conditions} for two different global integration time-step sizes representative of those used in large eddy and Reynolds-averaged Navier--Stokes simulations: $\delta t = \SI{e-6}{\s}$ and $\delta t = \SI{e-4}{\s}$, respectively.
-Furthermore, the use of a larger global time step induces additional stiffness for a given mechanism and enables evaluation of integrator performance at varying stiffness levels.
+Furthermore, the use of a larger global time step induces additional stiffness for a given model and enables evaluation of integrator performance at varying stiffness levels.
 Runtimes are reported as the average over five runs, where each run started from the same set of PaSR conditions.
 While the computed runtimes exhibited some variations, we chose to omit error bars from the plots for clarity; in general, the implicit methods exhibited variations within \SI{\pm3}{\percent} and the exponential methods within \SI{\pm1}{\percent}.
 All CPU integrators were compiled using \texttt{gcc 4.4.7} (with the compiler options ``\texttt{-O3 -funroll-loops -mtune=native}''), and were executed in parallel via OpenMP on a six-core \SI{2.67}{\giga\hertz} Intel Xeon X5650 with \SI{256}{\kilo\byte} of L2 cache memory per core and \SI{12}{\mega\byte} of L3 cache memory.
 The same CPU served as host for the GPU integrators, which were compiled using \texttt{nvcc 7.0.27} (with compiler options ``\texttt{-arch=sm\_20 -O3 -maxrregcount 63 -{}-ftz=false -{}-prec-div=true -{}-prec-sqrt=true -{}-fmad=false}'') and run on a single NVIDIA Tesla C2075 with \SI{6}{\giga\byte} of global memory.
-Reported runtimes for the GPU-based algorithms include time need to transfer data between the host CPU and GPU before and after each global time step; in addition, the function \texttt{cudaSetDevice()} was used to initialize the GPU before timing to hide any device initialization delay.
+Reported runtimes for the GPU-based algorithms include time needed for CPU--GPU data transfer before and after each global time step; in addition, the function \texttt{cudaSetDevice()} was used to initialize the GPU before timing to hide any device initialization delay.
 The open-source \texttt{pyJac} software~\cite{Niemeyer:2015im,Niemeyer:2015ws} produced CPU and GPU custom source-code functions for the chemical source terms and analytical Jacobian matrix evaluation.
 In this section, the best and worst performance will be reported for cases when the GPU became fully utilized, to present unbiased performance results.
 In practice, we determined this point based on when the runtime began to increase linearly with the number of ODEs---this occurred at \num{16384} ODEs for both models.
-All of the GPU performance results shown in this section used the shared memory caching algorithm discussed in Sec.~\ref{S:smem_present}, the benefit of which will be explored in Sec.~\ref{S:smem}.
+All of the GPU performance results shown in this section used the shared memory caching algorithm discussed in Sec.~\ref{S:smem_present}, the benefit of which will be discussed in Sec.~\ref{S:smem}.
 
 \subsection{Performance}
 \ifmeasure
