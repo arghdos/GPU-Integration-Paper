@@ -177,14 +177,14 @@ In addition to the methods discussed in their work, significant effort has also 
 
 Reactive-flow modeling codes commonly rely on high-order implicit integration techniques to solve the stiff governing equations posed by chemical kinetic models.
 These methods require repeated evaluation and factorization of the chemical kinetic Jacobian matrix in order to solve the associated nonlinear algebraic equations through iterations of linear system solutions---the cost of which scales quadratically and cubically, respectively, with the number of species in a mechanism.
-However, significant cost savings in the Jacobian evaluation can be realized through the use of an analytic formulation, rather than the typical evaluation via finite difference approximations.
+However, significant cost savings in the Jacobian evaluation can be realized by using an analytical formulation, rather than the typical evaluation via finite difference approximations.
 This approach eliminates numerous chemical source term evaluations, and for a sparse Jacobian (e.g., formulated in terms of species concentrations) the cost of evaluation drops to a linear dependence on the number of species in the mechanism~\cite{Lu:2009gh}.
 
 In this study, our efforts to accelerate chemical kinetics focus on improving the integration strategy itself, via development of new algorithms and use of high-performance hardware accelerators such as graphics processing units (GPUs) and other similar single instruction multiple data (SIMD) devices.
 Central processing unit (CPU) clock speeds increased regularly over the past few decades---commonly known as Moore's Law---however, power consumption and heat dissipation issues slowed this trend recently.
-While multi-core parallelism somewhat increased CPU performance, recently SIMD processors gained popularity as a low cost, low power consumption, and massively parallel high-performance computing alternative.
+While multicore parallelism somewhat increased CPU performance, recently SIMD processors gained popularity as a low cost, low power consumption, and massively parallel high-performance computing alternative.
 GPUs were originally developed for graphics\slash video processing applications and consist of hundreds to thousands of separate cores, compared with the tens of cores found on typical CPUs.
-The SIMD parallelism model differs from a traditional CPU-based multi-threading model, with small per-core memory caches and acceleration resulting from executing the same instruction over multiple data.
+The SIMD parallelism model differs from a traditional CPU-based multithreading model, with small per-core memory caches and acceleration resulting from executing the same instruction over multiple data.
 For more details, we refer the reader to several works that discussed these differences in depth~\cite{Cruz:2011gc,Brodtkorb:2013hn,Niemeyer:2014hn}.
 
 A number of studies in recent years explored the use high-performance SIMD devices to accelerate (turbulent) reacting-flow simulations.
@@ -196,7 +196,7 @@ Le et al.~\cite{Le2013596} implemented GPU versions of two high-order shock-capt
 Stone and Davis~\cite{Stone:2013aa} implemented the implicit VODE~\cite{Brown:1989vl} solver for the GPU and achieved an order of magnitude speed-up over the baseline CPU version.
 Additionally, they showed that the implicit VODE algorithm exhibited significant thread divergence, as expected due to its complicated program flow (compared with an explicit integration scheme).
 Furthermore, Stone and Davis~\cite{Stone:2013aa} showed that, for numbers of independent ODE systems greater than $\sim$\SI{e3}, using individual GPU threads to handle independent chemical kinetic ODEs offered greater performance over using a block of GPU threads to cooperatively solve a single ODE.
-Niemeyer and Sung~\cite{Niemeyer:2014aa} demonstrated an order-of-magnitude speedup for a GPU implementation of a stabilized explicit second-order Runge--Kutta--Chebyshev algorithm over a multi-core CPU implementation of VODE for moderately stiff chemical kinetics.
+Niemeyer and Sung~\cite{Niemeyer:2014aa} demonstrated an order-of-magnitude speedup for a GPU implementation of a stabilized explicit second-order Runge--Kutta--Chebyshev algorithm over a multicore CPU implementation of VODE for moderately stiff chemical kinetics.
 They also investigated levels of thread divergence due to differing integrator time-step sizes, and found it negatively impacts overall performance for dissimilar ODE initial conditions in a thread-block.
 Sewerin and Rigopoulos~\cite{Sewerin20151375} implemented a three-stage\slash fifth-order implicit Runge--Kutta method~\cite{wanner1991solving} on a one-block per ODE basis on GPU, and found a \num{1.8}$\times$ slowdown at best compared with the same on a single eight-core CPU.
 
@@ -232,9 +232,9 @@ In addition, we implemented CPU versions of the methods under investigation for 
 These include the three-stage/fifth-order implicit Runge--Kutta algorithm~\cite{wanner1991solving}, called \texttt{Radau-IIA} here; the fourth-order exponential Rosenbrock-like method \texttt{exp4} of Hochbruck et al.~\cite{Hochbruck:1998}; and the newer fourth-order exponential Rosenbrock method~\cite{Hockbruck:2009}, called \texttt{exprb43} here.
 For the exponential methods, we used the method of rational approximants~\cite{gallopoulos:1992} paired with the Carath\'edothy--Fej\'er method~\cite{trefethen:2006} to approximate the action of the matrix exponential on a vector, as suggested by Bisetti~\cite{Bisetti:2012jw}.
 This technique relied on the external \texttt{FFTW3} library~\cite{frigo2005design}.
-However, unlike the approach of Bisetti~\cite{Bisetti:2012jw}, we developed a custom routine based on the algorithm presented by Stewart~\cite{stewart:1998} to perform the LU decomposition of the Hessenberg matrix resulting from the Arnoldi iteration.
+However, unlike the approach of Bisetti~\cite{Bisetti:2012jw}, we developed a custom routine based on the algorithm presented by Stewart~\cite{stewart:1998} to perform LU decomposition of the Hessenberg matrix resulting from the Arnoldi iteration.
 To ensure high performance of CPU-based methods, the Intel \texttt{MKL} library version 11.1.3 handled linear algebra (i.e., BLAS/LAPACK) operations.
-Next, we implemented GPU versions of the \texttt{Radau-IIA}, \texttt{exp4}, and \texttt{exprb43} methods; these follow the same descriptions as the CPU versions, but required specialized implementations of several BLAS and LAPACK methods, mostly related to LU factorization (or Hessenberg LU factorization for the exponential integrators).
+Next, we implemented GPU versions of the \texttt{Radau-IIA}, \texttt{exp4}, and \texttt{exprb43} methods; these follow the same descriptions as the CPU versions, but required specialized implementations of several BLAS and LAPACK methods, mostly related to LU factorization of the Jacobian or Hessenberg matrices.
 All GPU routines were developed using the NVIDIA CUDA framework~\cite{Buck:2008aa,NVIDIA:2015aa}.
 Finally, the adaptive time stepping procedures of all integrators used absolute and relative tolerances of \SI{e-15} and \SI{e-8}, respectively, throughout the work, and the exponential integrators used a rational approximant type of $\left(10,10\right)$ as suggested by Bisetti~\cite{Bisetti:2012jw}.
 
@@ -242,9 +242,9 @@ Finally, the adaptive time stepping procedures of all integrators used absolute 
 \subsection{Testing conditions}
 \label{S:pasr_conditions}
 
-In order to validate and measure the performance of the integrators for realistic conditions, a database of thermochemical conditions covering a wide range of temperatures and species mass fractions was generated using a previously developed constant-pressure stochastic partially stirred reactor (PaSR) code~\cite{Niemeyer:2015ws}.
+In order to measure the performance of the integrators for realistic conditions, a database of thermochemical states covering a wide range of temperatures and species mass fractions was generated using a previously developed constant-pressure stochastic partially stirred reactor (PaSR) code~\cite{Niemeyer:2015ws}.
 We selected two chemical kinetic models to span the range of model sizes typically used in high-fidelity simulations: the \ce{H2}\slash\ce{CO} model of Burke et al.~\cite{Burke:2011fh} with 13 species and 27 reactions, and the GRI-Mech 3.0 model with 53 species and 325 reactions~\cite{smith_gri-mech_30}.
-The PaSR simulations were performed at the conditions listed in Table~\ref{T:pasr_parameters} for ten residence times to reach a statistical steady state; Niemeyer et al.~\cite{Niemeyer:2015ws} described the PaSR simulation process in greater detail, which follows approaches used by others~\cite{Chen:1997ta,Pope:1997wu,Ren:2014cd}.
+The PaSR simulations were performed at the conditions listed in Table~\ref{T:pasr_parameters} for 10 residence times to reach a statistical steady state; Niemeyer et al.~\cite{Niemeyer:2015ws} described the PaSR simulation process in greater detail, which follows approaches used by others~\cite{Chen:1997ta,Pope:1997wu,Ren:2014cd}.
 %
 %\label{S:pasr}
 %\begin{table}[htb]
