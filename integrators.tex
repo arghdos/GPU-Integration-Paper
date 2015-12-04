@@ -2,7 +2,7 @@
 \pdfminorversion=4
 
 \newif\ifmeasure
-\measuretrue
+%\measuretrue
 
 \ifmeasure
 \documentclass[final,twocolumn]{elsarticle}
@@ -168,7 +168,7 @@ Finally, future research directions were identified based on the current state-o
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 The need for accurate chemical kinetic models in predictive reacting-flow simulations has driven the development of detailed oxidation models for hydrocarbon fuels relevant to transportation and energy generation applications.
-At the same time, growing understanding of the hydrocarbon oxidation processes resulted in orders of magnitude increases in model size and complexity.
+At the same time, growing understanding of hydrocarbon oxidation processes resulted in orders of magnitude increases in model size and complexity.
 For instance, a recently developed model for 2-methylalkanes, relevant for jet and diesel fuel surrogates, consists of over 7000 species and 30000 reactions~\cite{Sarathy:2011kx} while a recent detailed gasoline surrogate mechanism contains over 1500 species and 6000 reactions~\cite{Mehl:2011jn}.
 Furthermore, kinetic models for large hydrocarbon fuels tend to exhibit high chemical stiffness requiring implicit integration algorithms for efficient solution.
 The cost of these algorithms scales at best quadratically---and at worst cubically---with the number of species in a mechanism~\cite{Lu:2009gh}.
@@ -371,9 +371,9 @@ Figure~\ref{F:H2_perf} shows the runtimes of the CPU and GPU integrators for the
 The CPU \texttt{Radau-IIA} integrator was at best \SI{14}{\percent} faster than \texttt{CVODE} (at \num{65536} ODEs) and at worst \SI{16}{\percent} slower (at \num{32768} ODEs) for the smaller global time-step size.
 In the best case for the larger global time-step size, the CPU \texttt{Radau-IIA} solver was at best \SI{3.8}{\percent} slower than \texttt{CVODE} (\num{32768} ODEs) and \SI{35}{\percent} slower at worst (\num{16384} ODEs).
 For the smaller time-step size, the GPU \texttt{Radau-IIA} integrator was at best \num{5.31}$\times$ faster than \texttt{CVODE} (\num{16384} ODEs) and \num{3.45}$\times$ faster in the worst case (\num{900900} ODEs).
-Using the the larger time-step size negatively impacted the performance of the GPU \texttt{Radau-IIA} integrator---at best it ran \SI{32}{\percent} slower (\num{524288} ODEs) than \texttt{CVODE}, and was \SI{69}{\percent} slower in the worst case (\num{65536} ODEs).
+Using the larger time-step size negatively impacted the performance of the GPU \texttt{Radau-IIA} integrator---at best it ran \SI{32}{\percent} slower (\num{524288} ODEs) than \texttt{CVODE}, and was \SI{69}{\percent} slower in the worst case (\num{65536} ODEs).
 At the smaller time-step size the GPU \texttt{exprb43} integrator was at best \SI{30}{\percent} faster than its CPU counterpart (\num{262144} ODEs) and was \SI{13}{\percent} faster at worst (\num{32768} ODEs). 
-The GPU \texttt{exp4} solver was \SI{23}{\percent} faster the the CPU version at best (\num{262144} ODEs), and \SI{32}{\percent} slower in the worst case (\num{32768} ODEs).
+The GPU \texttt{exp4} solver was \SI{23}{\percent} faster than the CPU version at best (\num{262144} ODEs), and \SI{32}{\percent} slower in the worst case (\num{32768} ODEs).
 Although the \texttt{exprb43} and \texttt{exp4} algorithms only require three exponential matrix function approximations, a single time step of \texttt{exprb43} is more expensive due to the extra chemical source term evaluations, matrix multiplications, and higher-order exponential matrix function requirement.
 As such, the CPU \texttt{exprb43} integrator is outperformed by the relatively more simple CPU \texttt{exp4} integrator at the smaller time-step size; by \SI{22}{\percent} in the best case (\num{900900} ODEs) and \SI{44}{\percent} in the worst case (\num{65536} ODEs).
 However, the nominal fourth-order convergence of the \texttt{exp4} algorithm is a classical non-stiff order, and thus order reduction is expected for stiff problems~\cite{ANU:7701740,Bisetti:2012jw}.
