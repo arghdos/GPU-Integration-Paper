@@ -478,7 +478,7 @@ This difference resulted from an increase in chemical source term and Jacobian e
 Even larger speedup factors were observed in certain cases with the GRI-Mech 3.0 model: a \SI{24.4}{\percent} speedup with \texttt{exp4} for \num{131072} ODEs and the \SI{e-6}{\second} time-step size, and a \SI{13.2}{\percent} speedup with \text{Radau-IIA} for \SI{32768} ODEs and the \SI{e-4}{\second} time-step size.
 Thus, we recommend using this or a similar caching scheme in order to exploit shared memory in GPU integrators implemented on a per-thread basis.
 
-\subsection{Limitations of per-thread local memory for implicit GPU integration}
+\subsection{Limitations of per-thread local memory}
 
 Through the course of this work, we encountered a significant but under-discussed issue with the use of implicit and explicit exponential integrators on the GPU.
 One goal of GPU-based chemical kinetic integration is to enable use of larger detailed mechanisms in realistic reacting flow simulations.
@@ -501,7 +501,7 @@ These limitations would severely constrain the allowable model sizes; for exampl
 %It is noted that this analysis applies equally to GPU solvers implemented both on a per-thread and per-block basis.
 Sewerin and Rigopoulos~\cite{Sewerin20151375} discussed one approach to alleviate this issue: limiting the number of ODEs solved per kernel launch.
 However, for larger models, e.g., \SIrange{250}{500} species, this issue may negatively impact performance by forcing kernel launches small enough to under-utilize the GPU resources.
-Otherwise, mechanism reduction (a-priori or on the fly) may be employed to get around this complication.
+Otherwise, mechanism reduction (a priori or dynamic) may be employed to get around this complication.
 
 %As one goal of GPU based integration algorithms is to enable use of larger, say \SIrange{100}{200} species, skeletal mechanisms in general reacting flow simulations through acceleration of chemical kinetic integration, the restrictive mechanism size\slash ODEs per kernel launch limits pose an issue.
 %Thus we recommend use of global memory rather than per-thread local memory to store these matrices.
