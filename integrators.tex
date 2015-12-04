@@ -1,8 +1,10 @@
 \pdfoutput=1
 \pdfminorversion=4
 
+\newif\iftitlepage
 \newif\ifmeasure
 %\measuretrue
+%\titlepagetrue
 
 \ifmeasure
 \documentclass[final,twocolumn]{elsarticle}
@@ -76,6 +78,7 @@
 \journal{36th International Symposium on Combustion}
 
 \begin{document}
+\iftitlepage
 \begin{titlepage}
 \parbox{\linewidth}{
 \begin{flushleft}
@@ -117,7 +120,7 @@ We do not authorize the reproduction of color images in print.
 \end{flushleft}
 }
 \end{titlepage}
-
+\else
 \ifmeasure
 \small
 \baselineskip 10pt
@@ -568,5 +571,5 @@ This material is based upon work supported by the National Science Foundation un
 \fi
 \bibliography{refs}
 \bibliographystyle{elsarticle-num}
-
+\fi
 \end{document}
