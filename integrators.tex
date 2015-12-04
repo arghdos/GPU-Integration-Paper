@@ -143,7 +143,7 @@ We do not authorize the reproduction of color images in print.
 \begin{abstract}
 A fifth-order implicit Runge--Kutta method and two fourth-order exponential integration methods equipped with Krylov subspace approximations were implemented for the GPU and paired with the analytical chemical kinetic Jacobian code \texttt{pyJac}.
 The performance of each was compared with the commonly used CPU-based implicit integrator \texttt{CVODE}.
-The implicit Runge--Kutta method performed over five times faster on a single GPU than \texttt{CVODE} on a single six-core CPU for a \ce{H2}\slash\ce{CO} model, and up to \SI{31.5}{\percent} faster than \texttt{CVODE} for the GRI-Mech 3.0 model.
+The implicit Runge--Kutta method performed over five times faster on a single GPU than \texttt{CVODE} on a single six-core CPU for an \ce{H2}\slash\ce{CO} model, and up to \SI{31.5}{\percent} faster than \texttt{CVODE} for the GRI-Mech 3.0 model.
 The exponential integration techniques performed less efficiently for all cases.
 The main limiter of GPU integrator performance was identified as thread divergence, and techniques to mitigate this issue were discussed.
 A novel shared memory caching strategy for the GPU was developed and shown to provide a \SIrange{5}{24}{\percent} performance increase to all GPU-based integrators.
@@ -350,7 +350,7 @@ Although this represents a relatively simple improvement, its use can achieve re
 \fi
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-To study the performance of the integrators, we tested each using the PaSR conditions described in Sec.~\ref{S:pasr_conditions} for two different global integration time-step sizes representative of those used in large eddy and Reynolds-averaged Navier--Stokes simulations: $\delta t = \SI{e-6}{\s}$ and $\delta t = \SI{e-4}{\s}$, respectively.\todo[inline]{would this read better as, ``The performance of the integrators was studied by testing each on the PaSR...''?}
+We studied the performance of the integrators by testing each on the PaSR conditions described in Sec.~\ref{S:pasr_conditions} for two different global integration time-step sizes representative of those used in large eddy and Reynolds-averaged Navier--Stokes simulations: $\delta t = \SI{e-6}{\s}$ and $\delta t = \SI{e-4}{\s}$, respectively.
 Furthermore, the use of a larger global time step induces additional stiffness for a given mechanism and enables evaluation of integrator performance at varying stiffness levels.
 Runtimes are reported as the average over five runs, where each run started from the same set of PaSR conditions.
 While the computed runtimes exhibited some variations, we chose to omit error bars from the plots for clarity; in general, the implicit methods exhibited variations within \SI{\pm3}{\percent} and the exponential methods within \SI{\pm1}{\percent}.
@@ -358,7 +358,8 @@ All CPU integrators were compiled using \texttt{gcc 4.4.7} (with the compiler op
 The same CPU served as host for the GPU integrators, which were compiled using \texttt{nvcc 7.0.27} (with compiler options ``\texttt{-arch=sm\_20 -O3 -maxrregcount 63 -{}-ftz=false -{}-prec-div=true -{}-prec-sqrt=true -{}-fmad=false}'') and run on a single NVIDIA Tesla C2075 with \SI{6}{\giga\byte} of global memory.
 Reported runtimes for the GPU-based algorithms include time need to transfer data between the host CPU and GPU before and after each global time step; in addition, the function \texttt{cudaSetDevice()} was used to initialize the GPU before timing to hide any device initialization delay.
 The open-source \texttt{pyJac} software~\cite{Niemeyer:2015im,Niemeyer:2015ws} produced CPU and GPU custom source-code functions for the chemical source terms and analytical Jacobian matrix evaluation.
-In order to present unbiased speedup\slash slowdown numbers, in this section the best and worst performance will be computed for cases where the computational resources became fully utilized---i.e., when the runtime began to increase linearly with the number of ODEs; this occurred at \num{16384} ODEs and above for both models.\todo[inline]{I don't see the best way to fix this, but this sentence is seems like it runs on a long ways}
+In this section, the best and worst performance will be reported for cases when the GPU became fully utilized, to present unbiased performance results.
+In practice, we determined this point based on when the runtime began to increase linearly with the number of ODEs---this occurred at \num{16384} ODEs for both models.
 All of the GPU performance results shown in this section used the shared memory caching algorithm discussed in Sec.~\ref{S:smem_present}, the benefit of which will be explored in Sec.~\ref{S:smem}.
 
 \subsection{Performance}
@@ -472,7 +473,7 @@ Although not shown in Fig.~\ref{F:divergence}, the GPU exponential integrators e
 \label{S:smem}
 
 The effectiveness of the shared memory caching scheme was evaluated in several cases by comparing the mean runtime of the integrators using chemical source terms and analytical Jacobian subroutines generated with and without the caching algorithm enabled.
-We observed a typical speedup of $\SI{\sim5}{\percent}$ for the smaller global time-step size, and a $\SI{\sim10}{\percent}$ speedup for the larger time-step size.
+We observed typical speedups of $\SI{5}{\percent}$ and $\SI{10}{\percent}$ for the smaller and larger global time-step sizes, respectively.
 This difference resulted from an increase in chemical source term and Jacobian evaluations required for the larger time-step size cases.
 Even larger speedup factors were observed in certain cases with the GRI-Mech 3.0 model: a \SI{24.4}{\percent} speedup with \texttt{exp4} for \num{131072} ODEs and the \SI{e-6}{\second} time-step size, and a \SI{13.2}{\percent} speedup with \text{Radau-IIA} for \SI{32768} ODEs and the \SI{e-4}{\second} time-step size.
 Thus, we recommend using this or a similar caching scheme in order to exploit shared memory in GPU integrators implemented on a per-thread basis.
@@ -540,7 +541,7 @@ Past work showed orders-of-magnitude speedups for solution of non-stiff to moder
 In contrast, work on stiff chemical kinetic integration with implicit GPU solvers has been limited to specialized cases, or failed to surpass current CPU-based techniques.
 
 This work demonstrated the performance of GPU-based integration methods, including an implicit fifth-order Runge--Kutta algorithm and two fourth-order exponential integration algorithms, using chemical source term and analytical Jacobian subroutines provided by the \texttt{pyJac} software~\cite{Niemeyer:2015im}.
-For time-step sizes relevant to large eddy simulations, the GPU-based implicit Runge--Kutta method achieved a maximum speedup of over five compared with the CPU-based implicit \texttt{CVODE} integrator on a six-core CPU for a \ce{H2}\slash\ce{CO} model, and outperformed \texttt{CVODE} for the GRI-Mech 3.0 model by up to \SI{31.5}{\percent}; the exponential integrators performed worse in all cases.
+For time-step sizes relevant to large eddy simulations, the GPU-based implicit Runge--Kutta method achieved a maximum speedup of over five compared with the CPU-based implicit \texttt{CVODE} integrator on a six-core CPU for an \ce{H2}\slash\ce{CO} model, and outperformed \texttt{CVODE} for the GRI-Mech 3.0 model by up to \SI{31.5}{\percent}; the exponential integrators performed worse in all cases.
 For longer time-step sizes, the performance of all GPU solvers decreased significantly due to increased levels of thread divergence.
 Furthermore, a shared memory caching algorithm was developed for the evaluation of chemical source terms and the analytical chemical Jacobian and resulted in modest performance benefits of \SIrange{5}{24}{\percent} speedup.
 In addition, an issue was identified with storage of the Jacobian and similar matrices in per-thread local memory.
