@@ -274,7 +274,7 @@ The PaSR simulations were performed at the conditions listed in Table~\ref{T:pas
 Parameter & \ce{H2}\slash air & \ce{CH4}\slash air \\
 \midrule
 $\phi$ & \multicolumn{2}{c}{1} \\
-$T_{\text{in}}$ & \multicolumn{2}{c}{\SIlist{400;600;800}{\kelvin}} \\
+$T_{in}$ & \multicolumn{2}{c}{\SIlist{400;600;800}{\kelvin}} \\
 $p_0$ & \multicolumn{2}{c}{\SIlist{1;10;25}{\atm}} \\
 $N_p$ & \multicolumn{2}{c}{100} \\
 $\tau_{\text{res}}$ & \SI{10}{\milli\second} & \SI{5}{\milli\second} \\
@@ -283,7 +283,7 @@ $\tau_{\text{pair}}$ & \SI{1}{\milli\second} & \SI{1}{\milli\second} \\
 \bottomrule
 \end{tabular}
 \caption{
-PaSR parameters used for hydrogen\slash air and methane\slash air premixed combustion cases, where $\phi$ indicates equivalence ratio, $T_{\text{in}}$ is the temperature of the inflowing particles, $p_0$ is the pressure, $N_p$ is the number of particles, $\tau_{\text{res}}$ is the residence time, $\tau_{\text{mix}}$ is the mixing time, and $\tau_{\text{pair}}$ is the pairing time.
+PaSR parameters used for hydrogen\slash air and methane\slash air premixed combustion cases, where $\phi$ indicates equivalence ratio, $T_{in}$ is the temperature of the inflowing particles, $p_0$ is the pressure, $N_p$ is the number of particles, $\tau_{\text{res}}$ is the residence time, $\tau_{\text{mix}}$ is the mixing time, and $\tau_{\text{pair}}$ is the pairing time.
 }
 \label{T:pasr_parameters}
 \end{table}
@@ -292,14 +292,14 @@ PaSR parameters used for hydrogen\slash air and methane\slash air premixed combu
 \subsection{Shared memory caching}
 \label{S:smem_present}
 
-One aspect of the GPU platform particularly important to high-performance algorithms are the unique memory access patterns; each streaming multiprocessor can access only a small amount of fast cache memory (typically \SI{64}{\kilo\byte}) and \SI{32}{\bit} registers (typically \SIrange{32}{64}{\kilo\byte}).
+A unique memory-access pattern is one aspect of the GPU platform particularly important to high-performance algorithms; each streaming multiprocessor can access only a small amount of fast cache memory (typically \SI{64}{\kilo\byte}) and \SI{32}{\bit} registers (typically \SIrange{32}{64}{\kilo\byte}).
 All other memory is stored globally on the device, with comparatively high latencies.
 Thus, it is critical to properly utilize the fast memory cache to achieve maximum performance on GPUs.
-When formulated on a per-block basis, GPU-based integration algorithms typically use this memory to store the current state vector and other commonly used values (e.g., the chemical Jacobian).
-However, on a per-thread basis the best use of this memory is less clear; this section will proposes one such approach for efficient use of this fast memory.
+When formulated on a per-block basis, GPU-based integration algorithms typically use this memory to store commonly used values such as the current state vector and  chemical Jacobian.
+However, on a per-thread basis, the best use of this memory is less clear; this section proposes one approach for efficient use of this fast memory.
 
 The largest issue with fast memory utilization on a per-thread basis is that it must be split between all threads in the blocks resident on a streaming multiprocessor.
-This fast memory is further split into a L1 cache and shared memory available for interthread communication within a block.
+This fast memory is further split into an L1 cache and shared memory available for interthread communication within a block.
 Most versions of the CUDA compute standards allow the user to specify the relative allocation of the L1 cache and the shared memory pool.
 In our preliminary studies, a larger L1 cache proved the superior choice for our per-thread approach, due to limited fast memory that resulted slower global memory accesses.
 However, this leaves a significant portion of the fast memory cache ($\sim$\SI{16}{\kilo\byte}) as shared memory, with only around \numrange{2}{4} double precision variables available per thread.
