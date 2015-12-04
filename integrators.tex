@@ -176,7 +176,7 @@ Lu and Law~\cite{Lu:2009gh} extensively reviewed techniques to accelerate chemic
 In addition to the methods discussed in their work, significant effort has also been directed towards improvements of the integration algorithms.
 
 Reactive-flow modeling codes commonly rely on high-order implicit integration techniques to solve the stiff governing equations posed by chemical kinetics models.
-These methods require repeated evaluation and factorization of the chemical kinetic Jacobian matrix in order to solve the associated non-linear algebraic equations through iterations of linear system solutions---the cost of which scales quadratically and cubically, respectively, with the number of species in a mechanism.
+These methods require repeated evaluation and factorization of the chemical kinetic Jacobian matrix in order to solve the associated nonlinear algebraic equations through iterations of linear system solutions---the cost of which scales quadratically and cubically, respectively, with the number of species in a mechanism.
 However, significant cost savings in the Jacobian evaluation can be realized through the use of an analytic formulation, rather than the typical evaluation via finite difference approximations.
 This approach eliminates numerous chemical source term evaluations, and for a sparse Jacobian (e.g., formulated in terms of species concentrations) the cost of evaluation drops to a linear dependence on the number of species in the mechanism~\cite{Lu:2009gh}.
 
@@ -190,7 +190,7 @@ For more details, we refer the reader to several works that discussed these diff
 A number of studies in recent years explored the use high-performance SIMD devices to accelerate (turbulent) reacting-flow simulations.
 Spafford et al.~\cite{Spafford:2010aa} investigated using GPUs to accelerate a turbulent combustion direct numerical simulation code, demonstrating a sub-order of magnitude speedup in evaluating the species production rates on the GPU.
 Shi et al.~\cite{Shi:2011aa} used a GPU to evaluate species rates and factorize the Jacobian for the integration of independent kinetics systems, showing order-of-magnitude or greater speedups for large kinetic models.
-Niemeyer et al.~\cite{Niemeyer:2011aa} implemented an explicit fourth-order Runge--Kutta integrator for the GPU, and found a speedup of nearly two orders of magnitude with a non-stiff hydrogen mechanism.
+Niemeyer et al.~\cite{Niemeyer:2011aa} implemented an explicit fourth-order Runge--Kutta integrator for the GPU, and found a speedup of nearly two orders of magnitude with a nonstiff hydrogen mechanism.
 Shi et al.~\cite{Shi:2012aa} implemented a stabilized explicit solver for the GPU and paired it with a CPU-based implicit solver that handled integration of the most-stiff chemistry cells in a three-dimensional premixed diesel engine simulation, demonstrating an overall speedup of \numrange{2}{3}$\times$.
 Le et al.~\cite{Le2013596} implemented GPU versions of two high-order shock-capturing reacting flow codes, and found a \numrange{30}{50}$\times$ speedup over the baseline.
 Stone and Davis~\cite{Stone:2013aa} implemented the implicit VODE~\cite{Brown:1989vl} solver for the GPU and achieved an order of magnitude speed-up over the baseline CPU version.
@@ -299,7 +299,7 @@ When formulated on a per-block basis, GPU-based integration algorithms typically
 However, on a per-thread basis the best use of this memory is less clear; this section will proposes one such approach for efficient use of this fast memory.
 
 The largest issue with fast memory utilization on a per-thread basis is that it must be split between all threads in the blocks resident on a streaming multiprocessor.
-This fast memory is further split into a L1 cache and shared memory available for inter-thread communication within a block.
+This fast memory is further split into a L1 cache and shared memory available for interthread communication within a block.
 Most versions of the CUDA compute standards allow the user to specify the relative allocation of the L1 cache and the shared memory pool.
 In our preliminary studies, a larger L1 cache proved the superior choice for our per-thread approach, due to limited fast memory that resulted slower global memory accesses.
 However, this leaves a significant portion of the fast memory cache ($\sim$\SI{16}{\kilo\byte}) as shared memory, with only around \numrange{2}{4} double precision variables available per thread.
@@ -376,7 +376,7 @@ At the smaller time-step size the GPU \texttt{exprb43} integrator was at best \S
 The GPU \texttt{exp4} solver was \SI{23}{\percent} faster than the CPU version at best (\num{262144} ODEs), and \SI{32}{\percent} slower in the worst case (\num{32768} ODEs).
 Although the \texttt{exprb43} and \texttt{exp4} algorithms only require three exponential matrix function approximations, a single time step of \texttt{exprb43} is more expensive due to the extra chemical source term evaluations, matrix multiplications, and higher-order exponential matrix function requirement.
 As such, the CPU \texttt{exprb43} integrator is outperformed by the relatively more simple CPU \texttt{exp4} integrator at the smaller time-step size; by \SI{22}{\percent} in the best case (\num{900900} ODEs) and \SI{44}{\percent} in the worst case (\num{65536} ODEs).
-However, the nominal fourth-order convergence of the \texttt{exp4} algorithm is a classical non-stiff order, and thus order reduction is expected for stiff problems~\cite{ANU:7701740,Bisetti:2012jw}.
+However, the nominal fourth-order convergence of the \texttt{exp4} algorithm is a classical nonstiff order, and thus order reduction is expected for stiff problems~\cite{ANU:7701740,Bisetti:2012jw}.
 Correspondingly, for the more stiff, larger time-step size case, the CPU \texttt{exprb43} outperformed \texttt{exp4} by \SIrange{32}{33}{\percent} for all cases.
 
 \begin{figure}[htb]
@@ -459,7 +459,7 @@ For both kinetic models, increasing time-step size resulted in a sharp increase 
 This implicates thread divergence, rather than chemical stiffness, as the main performance limiter for the GPU-based \texttt{Radau-IIA} integrator.
 Furthermore, increased thread divergence likely caused the relative performance difference of the GPU \texttt{Radau-IIA} solver between the \ce{H2}\slash\ce{CO} and GRI-Mech 3.0 models at the smaller time-step size.
 This observation motivates future work aimed at developing strategies to reduce thread divergence.
-Potential solutions include adoption of an ODE per-block approach~\cite{Stone:2013aa}, re-ordering of ODEs to increase similarity of chemical stiffness inside a warp, or time-step synchronization between threads in a warp.
+Potential solutions include adoption of an ODE per-block approach~\cite{Stone:2013aa}, reordering of ODEs to increase similarity of chemical stiffness inside a warp, or time-step synchronization between threads in a warp.
 
 Figure~\ref{F:GRI_perf} also shows that the CPU exponential integrators are typically only \numrange{2}{3}$\times$ slower than \texttt{CVODE} for the smaller time-step size.
 As the exponential integrators must only factorize a much smaller Hessenberg matrix (e.g., $5 \times 5$ for small integrator time-step sizes in stiff cases) rather than the entire Jacobian---as in the implicit integrators---significant savings in factorization can potentially be achieved with larger mechanism sizes.
@@ -480,7 +480,7 @@ Thus, we recommend using this or a similar caching scheme in order to exploit sh
 
 \subsection{Limitations of per-thread local memory}
 
-Through the course of this work, we encountered a significant but under-discussed issue with the use of implicit and explicit exponential integrators on the GPU.
+Through the course of this work, we encountered a significant but underdiscussed issue with the use of implicit and explicit exponential integrators on the GPU.
 One goal of GPU-based chemical kinetic integration is to enable use of larger detailed mechanisms in realistic reacting flow simulations.
 However, storage of the Jacobian on the GPU places severe restrictions on either the maximum allowable mechanism size or the total number of independent chemical-kinetic ODEs that can be solved concurrently.
 For instance, the \texttt{Radau-IIA} solver requires storage of $N_s \times N_s$ matrices for the Jacobian, LU factorization, and complex LU factorization, where $N_s$ is the number of species in the mechanism.
@@ -493,14 +493,14 @@ While this ensures coalesced memory access and simplifies indexing---both advant
 %This limits the maximum mechanism size to relatively small numbers, as Table~\ref{T:size_limits} shows, for GPU solvers implemented on a per-thread basis.
 For example, even the USC Mech.~II model for \ce{C2H4}~\cite{Wang:2007} with 111 species caused the GPU to run out of local thread memory for our tests with all three GPU integrators.
 
-Another option involves pre-allocating the Jacobian and associated matrices in global memory, and thus splitting the total global memory between all ODEs to be solved in a kernel launch.
+Another option involves preallocating the Jacobian and associated matrices in global memory, and thus splitting the total global memory between all ODEs to be solved in a kernel launch.
 This work used a Tesla C2075 GPU, similar to that used by recent GPU-based chemical kinetic integration studies~\cite{Shi:2011aa,Niemeyer:2011aa,Shi:2012aa,Le2013596,Stone:2013aa,Niemeyer:2014aa}---with \SI{6}{\giga\byte} of global memory and \num{e6} independent ODEs, this works out to just 750 doubles available per concurrent ODE.
 Even assuming smaller problem sizes with \SI{e5} or \SI{e4} ODEs per kernel launch, each concurrent ODE is limited to just \num{7500} and \num{75000} doubles, respectively.
 These limitations would severely constrain the allowable model sizes; for example, the \texttt{Radau-IIA} algorithm could handle models with approximately 15, 50, and 158 species for \num{e6}, \num{e5}, and \num{e4} concurrent ODEs, respectively.
 %The resulting (approximate) maximum mechanism sizes are listed in Table~\ref{T:size_limits}.
 %It is noted that this analysis applies equally to GPU solvers implemented both on a per-thread and per-block basis.
 Sewerin and Rigopoulos~\cite{Sewerin20151375} discussed one approach to alleviate this issue: limiting the number of ODEs solved per kernel launch.
-However, for larger models, e.g., \SIrange{250}{500} species, this issue may negatively impact performance by forcing kernel launches small enough to under-utilize the GPU resources.
+However, for larger models, e.g., \SIrange{250}{500} species, this issue may negatively impact performance by forcing kernel launches small enough to underutilize the GPU resources.
 Otherwise, mechanism reduction (a priori or dynamic) may be employed to get around this complication.
 
 %As one goal of GPU based integration algorithms is to enable use of larger, say \SIrange{100}{200} species, skeletal mechanisms in general reacting flow simulations through acceleration of chemical kinetic integration, the restrictive mechanism size\slash ODEs per kernel launch limits pose an issue.
@@ -537,7 +537,7 @@ Otherwise, mechanism reduction (a priori or dynamic) may be employed to get arou
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 The large size and chemical stiffness of chemical kinetics models relevant to fuels for transportation and power generation traditionally requires the use of high-order implicit integrators for efficient solutions.
-Past work showed orders-of-magnitude speedups for solution of non-stiff to moderately stiff chemical kinetic systems using explicit solvers on GPUs.
+Past work showed orders-of-magnitude speedups for solution of nonstiff to moderately stiff chemical kinetic systems using explicit solvers on GPUs.
 In contrast, work on stiff chemical kinetic integration with implicit GPU solvers has been limited to specialized cases, or failed to surpass current CPU-based techniques.
 
 This work demonstrated the performance of GPU-based integration methods, including an implicit fifth-order Runge--Kutta algorithm and two fourth-order exponential integration algorithms, using chemical source term and analytical Jacobian subroutines provided by the \texttt{pyJac} software~\cite{Niemeyer:2015im}.
