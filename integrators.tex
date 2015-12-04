@@ -175,7 +175,7 @@ The cost of these algorithms scales at best quadratically---and at worst cubical
 Lu and Law~\cite{Lu:2009gh} extensively reviewed techniques to accelerate chemical kinetics integration.
 In addition to the methods discussed in their work, significant effort has also been directed towards improvements of the integration algorithms.
 
-Reactive-flow modeling codes commonly rely on high-order implicit integration techniques to solve the stiff governing equations posed by chemical kinetics models.
+Reactive-flow modeling codes commonly rely on high-order implicit integration techniques to solve the stiff governing equations posed by chemical kinetic models.
 These methods require repeated evaluation and factorization of the chemical kinetic Jacobian matrix in order to solve the associated nonlinear algebraic equations through iterations of linear system solutions---the cost of which scales quadratically and cubically, respectively, with the number of species in a mechanism.
 However, significant cost savings in the Jacobian evaluation can be realized through the use of an analytic formulation, rather than the typical evaluation via finite difference approximations.
 This approach eliminates numerous chemical source term evaluations, and for a sparse Jacobian (e.g., formulated in terms of species concentrations) the cost of evaluation drops to a linear dependence on the number of species in the mechanism~\cite{Lu:2009gh}.
@@ -536,7 +536,7 @@ Otherwise, mechanism reduction (a priori or dynamic) may be employed to get arou
 \fi
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-The large size and chemical stiffness of chemical kinetics models relevant to fuels for transportation and power generation traditionally requires the use of high-order implicit integrators for efficient solutions.
+The large size and chemical stiffness of chemical kinetic models relevant to fuels for transportation and power generation traditionally requires the use of high-order implicit integrators for efficient solutions.
 Past work showed orders-of-magnitude speedups for solution of nonstiff to moderately stiff chemical kinetic systems using explicit solvers on GPUs.
 In contrast, work on stiff chemical kinetic integration with implicit GPU solvers has been limited to specialized cases, or failed to surpass current CPU-based techniques.
 
