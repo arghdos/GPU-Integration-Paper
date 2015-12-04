@@ -424,7 +424,7 @@ The larger time-step size again negatively impacted the performance of the GPU-b
 For the smaller time-step size the CPU \texttt{Radau-IIA} integrator was \SI{13}{\percent} faster than \texttt{CVODE} at best (\num{131072} ODEs) and \SI{10}{\percent} faster at worst (\num{450900} ODEs).
 The larger time-step size---the stiffest case---was the only case where \texttt{CVODE} significantly outperformed CPU \texttt{Radau-IIA}, which was \num{2.66}$\times$ slower at best (\num{65536} ODEs) and \num{4.11}$\times$ slower at worst (\num{450900} ODEs).
 This difference may be due to the adaptive-order nature of the \texttt{CVODE} algorithm, or potentially due to its maturity and years of optimization.
-However, this effect is fairly minor and should not cause the order of magnitude decrease in relative performance between the GPU-based \texttt{Radau-IIA} integrator and \texttt{CVODE} observed when switching to the larger time step.
+However, this effect is fairly minor and should not cause the order-of-magnitude decrease in relative performance between the GPU-based \texttt{Radau-IIA} integrator and \texttt{CVODE} observed when switching to the larger time step.
 
 Two primary factors affect the performance of the GPU integration algorithms: chemical stiffness and thread divergence.
 To investigate this further, we adopted a similar quantification of thread divergence to that of Niemeyer and Sung~\cite{Niemeyer:2014aa}:
@@ -459,11 +459,11 @@ For both kinetic models, increasing time-step size resulted in a sharp increase 
 This implicates thread divergence, rather than chemical stiffness, as the main performance limiter for the GPU-based \texttt{Radau-IIA} integrator.
 Furthermore, increased thread divergence likely caused the relative performance difference of the GPU \texttt{Radau-IIA} solver between the \ce{H2}\slash\ce{CO} and GRI-Mech 3.0 models at the smaller time-step size.
 This observation motivates future work aimed at developing strategies to reduce thread divergence.
-Potential solutions include adoption of an ODE per-block approach~\cite{Stone:2013aa}, reordering of ODEs to increase similarity of chemical stiffness inside a warp, or time-step synchronization between threads in a warp.
+Potential solutions include adoption of an ODE per-block approach~\cite{Stone:2013aa}, reordering of ODEs to increase similarity of stiffness inside a warp, or time-step synchronization between threads in a warp.
 
 Figure~\ref{F:GRI_perf} also shows that the CPU exponential integrators are typically only \numrange{2}{3}$\times$ slower than \texttt{CVODE} for the smaller time-step size.
-As the exponential integrators must only factorize a much smaller Hessenberg matrix (e.g., $5 \times 5$ for small integrator time-step sizes in stiff cases) rather than the entire Jacobian---as in the implicit integrators---significant savings in factorization can potentially be achieved with larger mechanism sizes.
-For larger integrator time-step sizes without severe chemical stiffness (e.g., near equilibrium) the size of the Hessenberg matrix to be factorized typically grows to $20\times 20$.
+As the exponential integrators must only factorize a smaller Hessenberg matrix (e.g., $5 \times 5$ for small integrator time-step sizes in stiff cases) rather than the entire Jacobian---as in implicit integrators---significant savings in factorization can potentially be achieved for larger mechanism sizes.
+At larger integrator time-step sizes without severe chemical stiffness (e.g., near equilibrium), the size of the Hessenberg matrix to be factorized typically grows to $20\times 20$.
 However, as stiffness increases, e.g., as for the larger time-step size, the stability characteristics of the implicit integrators make them more favorable.
 We hypothesize that the exponential integrators may be more efficient than the implicit integrators for moderately stiff systems (e.g., with small time-step sizes, or low tolerances) with larger chemical mechanisms.
 Prior work~\cite{Niemeyer:2014aa} showed that stabilized explicit integrators can provide significant speedups for moderately stiff systems.
@@ -481,11 +481,11 @@ Thus, we recommend using this or a similar caching scheme in order to exploit sh
 \subsection{Limitations of per-thread local memory}
 
 Through the course of this work, we encountered a significant but underdiscussed issue with the use of implicit and explicit exponential integrators on the GPU.
-One goal of GPU-based chemical kinetic integration is to enable use of larger detailed mechanisms in realistic reacting flow simulations.
-However, storage of the Jacobian on the GPU places severe restrictions on either the maximum allowable mechanism size or the total number of independent chemical-kinetic ODEs that can be solved concurrently.
+One goal of GPU-based chemical kinetic integration is to enable use of larger detailed mechanisms in high-fidelity reactive-flow simulations.
+However, storage of the Jacobian on the GPU places severe restrictions on either the maximum allowable model size or the total number of independent chemical-kinetic ODEs that can be solved concurrently.
 For instance, the \texttt{Radau-IIA} solver requires storage of $N_s \times N_s$ matrices for the Jacobian, LU factorization, and complex LU factorization, where $N_s$ is the number of species in the mechanism.
-Similarly, the exponential integrators require storage of matrices for the Jacobian, the Hessenberg and vector subspace resulting from the Arnoldi process, and the corresponding Hessenberg exponential.
-While the Hessenberg, exponential Hessenberg , and vector subspaces may be smaller than the full Jacobian (e.g., by limiting the maximum Krylov subspace size), for the sake of simplicity in this analysis we assume full sizes.
+Similarly, the exponential integrators require storage of matrices for the Jacobian, Hessenberg and vector subspace resulting from the Arnoldi process, and corresponding Hessenberg exponential.
+While the Hessenberg, exponential Hessenberg, and vector subspaces may be smaller than the full Jacobian (e.g., by limiting the maximum Krylov subspace size), for the sake of simplicity in this analysis we assume full sizes.
 This implies that storage requirements per ODE solved concurrently scale as $\mathcal{O}\left(3 \times N_s^2\right)$ for the \texttt{Radau-IIA} solver and as $\mathcal{O}\left(4 \times N_s^2\right)$ for the exponential solvers.
 
 Per-thread local memory, which resides in device global memory, offers one option for storing these matrices and other integrator variables.
@@ -493,15 +493,15 @@ While this ensures coalesced memory access and simplifies indexing---both advant
 %This limits the maximum mechanism size to relatively small numbers, as Table~\ref{T:size_limits} shows, for GPU solvers implemented on a per-thread basis.
 For example, even the USC Mech.~II model for \ce{C2H4}~\cite{Wang:2007} with 111 species caused the GPU to run out of local thread memory for our tests with all three GPU integrators.
 
-Another option involves preallocating the Jacobian and associated matrices in global memory, and thus splitting the total global memory between all ODEs to be solved in a kernel launch.
+Another option involves preallocating the Jacobian and associated matrices in global memory, thus splitting the total global memory between all ODEs to be solved in a kernel launch.
 This work used a Tesla C2075 GPU, similar to that used by recent GPU-based chemical kinetic integration studies~\cite{Shi:2011aa,Niemeyer:2011aa,Shi:2012aa,Le2013596,Stone:2013aa,Niemeyer:2014aa}---with \SI{6}{\giga\byte} of global memory and \num{e6} independent ODEs, this works out to just 750 doubles available per concurrent ODE.
 Even assuming smaller problem sizes with \SI{e5} or \SI{e4} ODEs per kernel launch, each concurrent ODE is limited to just \num{7500} and \num{75000} doubles, respectively.
-These limitations would severely constrain the allowable model sizes; for example, the \texttt{Radau-IIA} algorithm could handle models with approximately 15, 50, and 158 species for \num{e6}, \num{e5}, and \num{e4} concurrent ODEs, respectively.
+These limits would severely constrain the allowable model sizes; for example, the \texttt{Radau-IIA} algorithm could handle models with approximately 15, 50, and 158 species for \num{e6}, \num{e5}, and \num{e4} concurrent ODEs, respectively.
 %The resulting (approximate) maximum mechanism sizes are listed in Table~\ref{T:size_limits}.
 %It is noted that this analysis applies equally to GPU solvers implemented both on a per-thread and per-block basis.
-Sewerin and Rigopoulos~\cite{Sewerin20151375} discussed one approach to alleviate this issue: limiting the number of ODEs solved per kernel launch.
+Sewerin and Rigopoulos~\cite{Sewerin20151375} discussed one approach to alleviate this issue: reducing the number of ODEs solved per kernel launch.
 However, for larger models, e.g., \SIrange{250}{500} species, this issue may negatively impact performance by forcing kernel launches small enough to underutilize the GPU resources.
-Otherwise, mechanism reduction (a priori or dynamic) may be employed to get around this complication.
+Otherwise, model reduction (a priori or dynamic) may be employed to bypass this complication.
 
 %As one goal of GPU based integration algorithms is to enable use of larger, say \SIrange{100}{200} species, skeletal mechanisms in general reacting flow simulations through acceleration of chemical kinetic integration, the restrictive mechanism size\slash ODEs per kernel launch limits pose an issue.
 %Thus we recommend use of global memory rather than per-thread local memory to store these matrices.
@@ -543,13 +543,13 @@ In contrast, work on stiff chemical kinetic integration with implicit GPU solver
 This work demonstrated the performance of GPU-based integration methods, including an implicit fifth-order Runge--Kutta algorithm and two fourth-order exponential integration algorithms, using chemical source term and analytical Jacobian subroutines provided by the \texttt{pyJac} software~\cite{Niemeyer:2015im}.
 For time-step sizes relevant to large eddy simulations, the GPU-based implicit Runge--Kutta method achieved a maximum speedup of over five compared with the CPU-based implicit \texttt{CVODE} integrator on a six-core CPU for an \ce{H2}\slash\ce{CO} model, and outperformed \texttt{CVODE} for the GRI-Mech 3.0 model by up to \SI{31.5}{\percent}; the exponential integrators performed worse in all cases.
 For longer time-step sizes, the performance of all GPU solvers decreased significantly due to increased levels of thread divergence.
-Furthermore, a shared memory caching algorithm was developed for the evaluation of chemical source terms and the analytical chemical Jacobian and resulted in modest performance benefits of \SIrange{5}{24}{\percent} speedup.
+Furthermore, a shared-memory caching algorithm was developed for the evaluation of chemical source terms and the analytical chemical Jacobian, and resulted in modest performance benefits of \SIrange{5}{24}{\percent} speedup.
 In addition, an issue was identified with storage of the Jacobian and similar matrices in per-thread local memory.
 
 When compared with the results of a similar integration technique by Sewerin and Rigopoulos~\cite{Sewerin20151375}, our results showed that using an analytical chemical Jacobian matrix greatly improves implicit integration speeds on the GPU.
 Further improvements to the analytical Jacobian code, e.g., by use of a chemical kinetic system based on species concentrations rather than mass fractions, are likely to further increase performance of the developed algorithms.
-However, this work showed clearly that thread divergence poses the largest challenge to high performance of GPU-based integration techniques on a per-thread basis.
-Therefore, our future work will focus on developing methods to mitigate and eliminate these effects.
+However, this work clearly showed that thread divergence poses the largest challenge to high performance of GPU-based integration techniques on a per-thread basis.
+Therefore, our future work will focus on developing methods to mitigate or eliminate these effects.
 Finally, new integration techniques such as hybrid implicit\slash explicit solvers, and selection of appropriate solvers based on estimated chemical stiffness, will be investigated.
 
 
