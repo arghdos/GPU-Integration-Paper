@@ -190,7 +190,31 @@ Central processing unit (CPU) clock speeds increased regularly over the past few
 While multicore parallelism somewhat increased CPU performance, recently SIMD processors gained popularity as a low cost, low power consumption, and massively parallel high-performance computing alternative.
 GPUs were originally developed for graphics\slash video processing applications and consist of hundreds to thousands of separate cores, compared with the tens of cores found on typical CPUs.
 The SIMD parallelism model differs from a traditional CPU-based multithreading model, with small per-core memory caches and acceleration resulting from executing the same instruction over multiple data.
-For more details, we refer the reader to several works that discussed these differences in depth~\cite{Cruz:2011gc,Brodtkorb:2013hn,Niemeyer:2014hn}.
+Subsequently, the SIMD parallelism model requires extra consideration for efficient use in chemical kinetic acceleration.
+
+In this work, the NVIDIA CUDA framework~\cite{Buck:2008aa,NVIDIA:2015aa} was used, hence the following discussion will use CUDA terminology; however the concepts within are widely applicable to SIMD processing.
+The basic parallel function call on a GPU, termed a kernel, is broken up into a grid of thread blocks.
+A GPU consists of a number of streaming multiprocessors (SMs), and the thread blocks in the grid are assigned to a SM, typically with multiple blocks assigned to a single SM.
+The SMs further subdivide the blocks into warps, the fundamental CUDA processing unit.
+The resources available on a SM (memory, cores, registers, etc.) are split between the warps from all the assigned blocks.
+The threads in a warp are executed in parallel on CUDA cores, which multiple warps are typically executed concurrently.
+Thread-divergence, a key performance concern for SIMD processing, occurs when the threads in a warp follow different execution paths, e.g. due to if\slash then branching.
+In this case, the divergent execution paths must executed serially causing a slowdown.
+Further, GPUs have relatively small memory caches and few registers available per SM, as compared to a typical CPU.
+These resources are further split between all the blocks\slash warps running on that SM.
+Overuse of these resources can cause slow global memory accesses for data not stored locally in-cache or even fewer blocks being assigned to each SM.
+The performance trade-offs of various CUDA execution patterns are quite involved and beyond the scope of this work, for more details we refer the interested reader to several works that discussed these topics in depth~\cite{Cruz:2011gc,Brodtkorb:2013hn,Niemeyer:2014hn}.
+Instead we will briefly highlight key considerations for CUDA-based chemical kinetic ODE integration.
+
+The extent of thread-cooperation within a CUDA-based chemical kinetic ODE integration algorithm is a key point that shapes much of implementation.
+Typically GPU accelerated chemical kinetic solvers follow either a ``per-thread'' pattern~\cite{Niemeyer:2011aa,Stone:2013aa,Niemeyer:2014aa}, in which each individual GPU thread solves a single set of chemical kinetic ODEs, or a ``per-block'' approach\cite{Stone:2013aa,Sewerin20151375}, in which all the threads in a block cooperate to solve a single set of chemical kinetic ODEs.\todo{check to see if any of the others list the approach used}
+The largest potential benefit of a per-thread approach is that a much larger number of ODEs can theoretically be solved concurrently; typically the number of blocks that can be executed concurrently on each SM is $\sim\num{8}$, whereas typical CUDA launch configurations in this work consist of 64--128 threads per block.
+Further, the per-thread approach tends to be simpler to optimize, particularly with respect to evaluation of the chemical source terms and chemical Jacobian as complex memory sharing between threads is minimized.
+The major disadvantage of the per-thread approach is its susceptibility to thread divergence~\cite{Stone:2013aa,Niemeyer:2014aa}, as different threads may follow different execution paths within the ODE integration algorithm itself.
+For this reason, implicit integration algorithms, which typically have complex branching and evaluation paths, may suffer more from thread divergence than relatively simpler explicit integration techniques~\cite{Stone:2013aa}.
+Conversely, thread-divergence is typically less of a concern for integrators following a per-block strategy as the execution path of each thread is planned by design of the algorithm.
+Further, a per-block approach has significantly more local cache memory and registers available for solution of a set of ODEs, and thus memory access speeds and cache size are less of a concern.
+However, in our experience efficient use of these resources requires significant hand-tuning (particularly in chemical source term evaluations) and make it more difficult to generalize the developed algorithm between different chemical kinetic models.
 
 A number of studies in recent years explored the use high-performance SIMD devices to accelerate (turbulent) reacting-flow simulations.
 Spafford et al.~\cite{Spafford:2010aa} investigated using GPUs to accelerate a turbulent combustion direct numerical simulation code, demonstrating a sub-order of magnitude speedup in evaluating the species production rates on the GPU.
