@@ -353,18 +353,18 @@ This small amount of available memory is challenging to use in the integration a
     \State Priority sort the species $s_{i,j}$ in $S_{i}$ in descending order by priority $P_{i,j}$ and store in $S_{i}^{\prime}$
     \For {$s_{i,j}$ in $S_{i}^{\prime}$}
       \If{$|C| < C_{\max}$}
-		\State Add $s_{i,j}$ to $C$
-      \ElsIf{$\max_j \left( L_j \right) \geq 2$ and $P_{i,j}$ > 1}
-	  \State Let $k = \argmax_j \left(L_j \right)$
+		\State Remove $s_{i,j}$ from $S_{i}^{\prime}$ and add to $C$
+      \ElsIf{$\max_l \left( L_l \right) \geq 2$ and $P_{i,j}$ > 1}
+	  \State Let $k = \argmax_l \left(L_l \right)$
 	  \State Remove $s_{i,j}$ from $S_{i}^{\prime}$ and replace $c_k$ in $C$ with $s_{i,j}$
       \EndIf
     \EndFor
     \For {$s_{i,j}$ in $S_{i}^{\prime}$}
       \If{$| S_{i}^{\prime} | > 0$ and $ |C| < C_{\max}$}
-		\State Add $s_{i,j}$ to $C$
+		\State Remove $s_{i,j}$ from $S_{i}^{\prime}$ and add to $C$
       \EndIf
     \EndFor
-    \State Compute $i$th reaction rate using values in $C$ where appropriate.
+    \State Write code for evaluation of $i$th reaction rate using values in $C$ where appropriate.
   \EndFor
 \end{algorithmic}
 \end{algorithm}
