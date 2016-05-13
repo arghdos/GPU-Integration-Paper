@@ -256,6 +256,7 @@ The generation of testing conditions will be discussed briefly, and a shared mem
 We investigated GPU implementations of three integration methods in this work, comparing them against equivalent CPU versions and a CPU-only implicit algorithm.
 While we describe important details or changes here, full descriptions of all algorithms may be found in the cited sources.
 The \texttt{pyJac} software~\cite{Niemeyer:2015im,Niemeyer:2015ws} provided both chemical source term and analytical Jacobian subroutines for CPU- and GPU-based algorithms.
+To evaluate the relative performance impact of use of a finite-difference Jacobian (as compared to an analytical Jacobian) for both platforms, a first-order finite difference method based on that used by \texttt{CVODE} was used; the chemical source term methods used in the finite difference Jacobian were provided by \texttt{pyJac} in all cases.
 For validation and performance assessments of \texttt{pyJac}, we direct readers to our previous work~\cite{Niemeyer:2015ws}.
 
 First, we used the \texttt{CVODE} solver~\cite{Hindmarsh:2005hg} to provide the baseline performance of a typical CPU-based (maximum of fifth-order) implicit integration technique.
