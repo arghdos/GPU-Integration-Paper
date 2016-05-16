@@ -555,56 +555,6 @@ This difference resulted from an increase in chemical source term and Jacobian e
 Even larger speedup factors were observed in certain cases with the GRI-Mech 3.0 model: a \SI{24.4}{\percent} speedup with \texttt{exp4} for \num{131072} ODEs and the \SI{e-6}{\second} time-step size, and a \SI{13.2}{\percent} speedup with \text{Radau-IIA} for \SI{32768} ODEs and the \SI{e-4}{\second} time-step size.
 Thus, we recommend using this or a similar caching scheme in order to exploit shared memory in GPU integrators implemented on a per-thread basis.
 
-\subsection{Limitations of per-thread local memory}
-
-Through the course of this work, we encountered a significant but underdiscussed issue with the use of implicit and explicit exponential integrators on the GPU.
-One goal of GPU-based chemical kinetic integration is to enable use of larger detailed mechanisms in high-fidelity reactive-flow simulations.
-However, storage of the Jacobian on the GPU places severe restrictions on either the maximum allowable model size or the total number of independent chemical-kinetic ODEs that can be solved concurrently.
-For instance, the \texttt{Radau-IIA} solver requires storage of $N_s \times N_s$ matrices for the Jacobian, LU factorization, and complex LU factorization, where $N_s$ is the number of species in the mechanism.
-Similarly, the exponential integrators require storage of matrices for the Jacobian, Hessenberg and vector subspace resulting from the Arnoldi process, and corresponding Hessenberg exponential.
-While the Hessenberg, exponential Hessenberg, and vector subspaces may be smaller than the full Jacobian (e.g., by limiting the maximum Krylov subspace size), for the sake of simplicity in this analysis we assume full sizes.
-This implies that storage requirements per ODE solved concurrently scale as $\mathcal{O}\left(3 \times N_s^2\right)$ for the \texttt{Radau-IIA} solver and as $\mathcal{O}\left(4 \times N_s^2\right)$ for the exponential solvers.
-
-Per-thread local memory, which resides in device global memory, offers one option for storing these matrices and other integrator variables.
-While this ensures coalesced memory access and simplifies indexing---both advantages from a programming standpoint---CUDA limits all threads to a maximum of \SI{512}{\kilo\byte} local memory, or \num{64000} double precision floating point numbers.
-%This limits the maximum mechanism size to relatively small numbers, as Table~\ref{T:size_limits} shows, for GPU solvers implemented on a per-thread basis.
-For example, even the USC Mech.~II model for \ce{C2H4}~\cite{Wang:2007} with 111 species caused the GPU to run out of local thread memory for our tests with all three GPU integrators.
-
-Another option involves preallocating the Jacobian and associated matrices in global memory, thus splitting the total global memory between all ODEs to be solved in a kernel launch.
-This work used a Tesla C2075 GPU, similar to that used by recent GPU-based chemical kinetic integration studies~\cite{Shi:2011aa,Niemeyer:2011aa,Shi:2012aa,Le2013596,Stone:2013aa,Niemeyer:2014aa}---with \SI{6}{\giga\byte} of global memory and \num{e6} independent ODEs, this works out to just 750 doubles available per concurrent ODE.
-Even assuming smaller problem sizes with \SI{e5} or \SI{e4} ODEs per kernel launch, each concurrent ODE is limited to just \num{7500} and \num{75000} doubles, respectively.
-These limits would severely constrain the allowable model sizes; for example, the \texttt{Radau-IIA} algorithm could handle models with approximately 15, 50, and 158 species for \num{e6}, \num{e5}, and \num{e4} concurrent ODEs, respectively.
-%The resulting (approximate) maximum mechanism sizes are listed in Table~\ref{T:size_limits}.
-%It is noted that this analysis applies equally to GPU solvers implemented both on a per-thread and per-block basis.
-Sewerin and Rigopoulos~\cite{Sewerin20151375} discussed one approach to alleviate this issue: reducing the number of ODEs solved per kernel launch.
-However, for larger models, e.g., \SIrange{250}{500} species, this issue may negatively impact performance by forcing kernel launches small enough to underutilize the GPU resources.
-Otherwise, model reduction (a priori or dynamic) may be employed to bypass this complication.
-
-%As one goal of GPU based integration algorithms is to enable use of larger, say \SIrange{100}{200} species, skeletal mechanisms in general reacting flow simulations through acceleration of chemical kinetic integration, the restrictive mechanism size\slash ODEs per kernel launch limits pose an issue.
-%Thus we recommend use of global memory rather than per-thread local memory to store these matrices.
-%In addition, a chemical kinetic Jacobian based on species concentrations instead of species mass fractions exhibits significantly greater sparsity~\cite{Lu:2009gh}, and thus may relax the mechanism size limits imposed by Jacobian storage.
-%This increased sparsity will also result in acceleration of Jacobian evaluation and factorization, and other related linear algebra operations; this is an avenue that will be explored in future work.
-%
-%\begin{table}[htb]
-%\centering
-%\begin{tabular}{@{}l l l l@{}}
-% \toprule
-%& \multicolumn{3}{c}{Model Size Limit} \\
-%Memory Type & \texttt{Radau-IIA} & \texttt{exp4} & \texttt{exprb43} \\
-%\midrule
-%Local	    & 146 & 126 & 126 \\
-%
-%Global (large)	    & 15 & 13 & 13 \\
-%Global (reasonable) & 50 & 43 & 43 \\
-%Global (low) & 158 & 136 & 136 \\
-%\bottomrule
-%\end{tabular}
-%\caption{
-%Approximate model species size limits for the various GPU integrators based on per-thread local memory and global memory limits.
-%``Large'', ``reasonable'', and ``low'' refer to kernel launches with a total of \SI{e6}, \SI{e5} and \SI{e4} independent ODEs respectively
-%}
-%\label{T:size_limits}
-%\end{table}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Conclusions}
