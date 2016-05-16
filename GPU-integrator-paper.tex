@@ -460,6 +460,8 @@ The larger time-step size---the stiffest case---was the only case where \texttt{
 This difference may be due to the adaptive-order nature of the \texttt{CVODE} algorithm, or potentially due to its maturity and years of optimization.
 However, this effect is fairly minor and should not cause the order-of-magnitude decrease in relative performance between the GPU-based \texttt{Radau-IIA} integrator and \texttt{CVODE} observed when switching to the larger time step.
 
+\subsection{Effect of Thread Divergence}
+\label{S:divergence}
 Two primary factors affect the performance of the GPU integration algorithms: chemical stiffness and thread divergence.
 To investigate this further, we adopted a similar quantification of thread divergence to that of Niemeyer and Sung~\cite{Niemeyer:2014aa}:
 \begin{equation}
@@ -502,6 +504,47 @@ However, as stiffness increases, e.g., as for the larger time-step size, the sta
 We hypothesize that the exponential integrators may be more efficient than the implicit integrators for moderately stiff systems (e.g., with small time-step sizes, or low tolerances) with larger chemical mechanisms.
 Prior work~\cite{Niemeyer:2014aa} showed that stabilized explicit integrators can provide significant speedups for moderately stiff systems.
 Although not shown in Fig.~\ref{F:divergence}, the GPU exponential integrators experienced significant thread divergence in all cases, and thus would also likely benefit from the thread divergence reduction techniques discussed above.
+
+\subsection{Effect of a Finite-Difference based chemical kinetic Jacobian}
+It is well established that use of an analytical Jacobian can significantly accelerate chemical kinetic integration on the CPU~(e.g. \cite{Lu:2009gh,stone2014comparison}), to our knowledge no work utilizing an analytical Jacobian for GPU-based chemical kinetic integration has been published.
+To this end, in this section we explore the use of a first-order finite-difference based Jacobian on the GPU and compare the relative performance benefits of the analytical Jacobian to those achieved on the CPU.
+As the exponential methods are formulated for use with exact Jacobian (rather than approximate finite-difference based Jacobians), their performance was not considered during this section.
+Figure~\ref{F:AJ_comp} shows the speedup achieved on the CPU for \texttt{CVODE} and on both the CPU\slash GPU for the \texttt{Radau-IIa} algorithm for various cases.
+For the \ce{H2}\slash\ce{CO} model, the performance benefit from use of the analytical Jacobian is fairly minimal for the CPU based integrators (speedup of $\sim\mathcal{0}(1))$; this is due to both the relatively small size of the model which results in modest chemical source term evaluation cost, and lower chemical stiffness resulting in only a few Jacobian evaluations for the implicit algorithms.
+Indeed in Fig.~\ref{F:AJ_ch4_small} we see that the speedup reaches \SIrange{2}{3}{$\times$} for the larger, more stiff GRI-Mech 3.0 model.
+In contrast, the performance of the analytical Jacobian based GPU \texttt{Radau-IIA} solver is significantly better than its finite-difference counterpart in all cases.
+The reasons for this result are two-fold, first the cost of repeated chemical source term evaluations is relatively more expensive on GPU due to the limited on-chip memory and subsequent expensive global memory accesses.
+Second, and more importantly, the effects of thread-divergence greatly exacerbate this increased chemical source term evaluation cost.
+To see this, we compare Figs~\ref{F:AJ_h2_small} and \ref{F:AJ_ch4_small} to Fig.~\ref{F:AJ_h2_large}.
+Based on the results presented in section~\ref{S:divergence}, roughly similar levels of thread-divergence are expected for both models at the smaller time-step, while significantly more thread-divergence is evident for both models with the larger time-step.
+As the finite-difference Jacobian evaluation on the GPU is relatively more costly, we therefore expect a large drop in efficiently due to thread divergence as the SM will be underutilized if only a few threads require Jacobian updates.
+Correspondingly, speedups of $\sim\mathcal{O}(10\times$) are observed for both models with the smaller time-step, while the speedups for the \ce{H2}\slash\ce{CO} model with the larger time-step are much larger ($\sim\mathcal{O}(100\times)$).
+
+\begin{figure}[htb]
+  \ifmeasure
+  \fontsize{8pt}{10pt}\selectfont
+  \fi
+  \centering
+  \begin{subfigure}{0.49\textwidth}
+      \includegraphics[width=\linewidth]{H2_1e-06_ajac_comp.pdf}
+      \caption{\ce{H2}\slash\ce{CO} model with $\delta t = \SI{1e-6}{\sec}$}   
+      \label{F:AJ_h2_small}
+  \end{subfigure}
+  %\hfill
+  \begin{subfigure}{0.49\textwidth}
+      \includegraphics[width=\linewidth]{H2_1e-04_ajac_comp.pdf}
+      \caption{\ce{H2}\slash\ce{CO} model with $\delta t = \SI{1e-4}{\sec}$}
+      \label{F:AJ_h2_large}
+  \end{subfigure}
+  \\
+  \begin{subfigure}{0.49\textwidth}
+      \includegraphics[width=\linewidth]{CH4_1e-06_ajac_comp.pdf}
+      \caption{GRI-Mech 3.0 model with $\delta t = \SI{1e-6}{\sec}$}
+      \label{F:AJ_ch4_small}
+  \end{subfigure}
+  \caption{Ratio of the average finite-difference Jacobian based integrator runtime $\lvert\textbf{R}_{FD}\rvert$ to that of the analytical Jacobian runtime $\lvert\textbf{R}_{AJ}\rvert$ for the \texttt{CVODE} (CPU only) and \texttt{Radau-IIA} (CPU\slash GPU) solvers}
+  \label{F:AJ_comp}
+\end{figure}
 
 \subsection{Effect of shared memory caching}
 \label{S:smem}
