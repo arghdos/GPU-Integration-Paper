@@ -518,7 +518,7 @@ Second, and more importantly, the effects of thread-divergence greatly exacerbat
 To see this, we compare Figs~\ref{F:AJ_h2_small} and \ref{F:AJ_ch4_small} to Fig.~\ref{F:AJ_h2_large}.
 Based on the results presented in section~\ref{S:divergence}, roughly similar levels of thread-divergence are expected for both models at the smaller time-step, while significantly more thread-divergence is evident for both models with the larger time-step.
 As the finite-difference Jacobian evaluation on the GPU is relatively more costly, we therefore expect a large drop in efficiently due to thread divergence as the SM will be underutilized if only a few threads require Jacobian updates.
-Correspondingly, speedups of $\sim\mathcal{O}(10\times$) are observed for both models with the smaller time-step, while the speedups for the \ce{H2}\slash\ce{CO} model with the larger time-step are much larger ($\sim\mathcal{O}(100\times)$).
+Correspondingly, speedups of $\sim\mathcal{O}(10\times$) are observed for both models with the smaller time-step, while much larger speedups, $\sim\mathcal{O}(100\times)$, are observerd for the \ce{H2}\slash\ce{CO} model with the larger time-step.
 
 \begin{figure}[htb]
   \ifmeasure
