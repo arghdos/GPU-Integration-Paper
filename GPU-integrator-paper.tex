@@ -382,22 +382,6 @@ As this algorithm runs during generation of the source code for the various subr
 Although this represents a relatively simple improvement, its use can achieve reasonable performance benefits, as will be seen in Sec.~\ref{S:smem}.
 
 \subsection{Solver Validation}
-To investigate the correctness of the developed solvers, the first \num{10000} conditions in the \ce{H2}\slash\ce{CO} database were integrated by each solver for \SI{e-6}{\second}.
-The error for condition $i$ was then determined using the weighted root mean square error:
-\begin{equation}
- E_i(t) = \left\lVert\frac{y_i(t) - \hat{y}_i(t)}{\text{atol} + \hat{y}_i(t) \cdot \text{rtol}}\right\rVert_2
-\end{equation}
-where the $y_i(t)$ is the solution obtained from the various solvers, and $\hat{y}_i(t)$ is the ``true'' solution obtained via \texttt{CVODE} using a time-step of $\delta t = \num{e-10}$ and absolute\slash relative tolerances of \num{e-20} and \num{e-15} respectively.
-The maximum error over all conditions:
-\begin{equation}
- \lvert\textbf{E}\rvert = \max_{i=1\dots1000}\{E_i(t)\}
-\end{equation}
-was then used to measure convergence.
-The solvers used the same tolerances as for the performance testing (absolute\slash relative tolerances of \num{e-10} and \num{e-6} respectively).
-Adaptive time-stepping was used in all cases, and Krylov subspace approximation was enabled for the the exponential integrators thus evaluating the accuracy of the solvers, in exact form as used for performance testing.
-The global integrator time-step was varied from \SI{e-6}{\second} to \SI{e-11}{\second} to generate the convergence plot, Fig.\ref{F:convergence}.
-
-
 \begin{figure}[htb]
   \ifmeasure
   \fontsize{8pt}{10pt}\selectfont
@@ -408,6 +392,33 @@ The global integrator time-step was varied from \SI{e-6}{\second} to \SI{e-11}{\
   \label{F:convergence}
 \end{figure}
 
+To investigate the correctness of the developed solvers, the first \num{10000} conditions in the \ce{H2}\slash\ce{CO} database were integrated by each solver for \SI{e-6}{\second}.
+The error for condition $i$ was then determined using the weighted root mean square error:
+\begin{equation}
+ E_i(t) = \left\lVert\frac{y_i(t) - \hat{y}_i(t)}{\text{atol} + \hat{y}_i(t) \cdot \text{rtol}}\right\rVert_2
+\end{equation}
+where the $y_i(t)$ is the solution obtained from the various solvers, and $\hat{y}_i(t)$ is the ``true'' solution obtained via \texttt{CVODE} using a global time-step of $\delta t = \num{e-10}$ and absolute\slash relative tolerances of \num{e-20} and \num{e-15} respectively.
+The maximum error over all conditions:
+\begin{equation}
+ \left\lvert\textbf{E}\right\rvert = \max_{i=\num{1}\dots\num{10000}}\{E_i(t)\}
+\end{equation}
+was then used to measure convergence.
+The solvers used the same tolerances as for the performance testing (absolute\slash relative tolerances of \num{e-10} and \num{e-6} respectively).
+Adaptive time-stepping was used in all cases, and Krylov subspace approximation was enabled for the the exponential integrators thus evaluating the accuracy of the solvers, in identical form as used for performance testing.
+The global integrator time-step was varied from \SI{e-6}{\second} to \SI{e-11}{\second} to examine convergence to the true solution.
+
+Figure~\ref{F:convergence} shows the convergence plot for the CPU solvers.
+The error of the \texttt{Radau-IIA} integrator is far below the specified integration tolerances (which are achieved in the ideal case for $\left\lvert\textbf{E}\right\rvert = 1$) for all cases.
+The exponential solvers exhibit much larger levels of error for the larger global time-step, with $\left\lvert\textbf{E}\right\rvert \sim \mathcal{O}(1)$ for the largest global time-step.
+As the time-step size is decreased two factors affect the overall error.
+First, the internal integration step-size was not held constant but instead allowed to vary adaptively, hence this is only a ``true'' convergence plot for the smaller time-steps ($\delta t < \num {e-9}$) where the global integrator time-step is smaller than any step-size taken by the adaptive scheme.
+In conjunction, the convergence of the Arnoldi algorithm is affected by the internal integration step-size (the error estimate is scaled by the internal step-size).
+To study the effect of the Arnoldi algorithm on the overall error, Fig.~\ref{F:convergence} also presents the convergence of the exponential integrators with the Krylov approximation error reduced to far below that of the error of the overall method.
+Practically, this is accomplished by detecting when the $n$th Krylov subspace vector approaches zero, a condition known as the ``happy breakdown'' in literature~\cite{datta2010numerical}.
+In this limit, the approximate exponential matrix\slash vector product approaches the exact value (within machine precision) and thus the error induced by the Krylov approximation is negligible.
+In Fig.~\ref{F:convergence} is it seen that with the approximate Krylov subspace, the exponential methods achieve only first order convergence to the true solution, however with the ``exact'' Krylov subspace both methods achieve second-order convergence.
+Although both methods are nominally forth order, the combination of chemical stiffness and adaptive time-stepping reduces the apparent convergence to order two.
+However, from Fig.~\ref{F:convergence} we may conclude that all produce reasonably accurate solutions as compared to \texttt{CVODE}.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
