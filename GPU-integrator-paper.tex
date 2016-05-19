@@ -237,7 +237,7 @@ Several previous works~\cite{Perini20141180,McNenly2015581} suggested so-called 
 Furthermore, Hochbruck and Lubich~\cite{Hochbruck:1997} demonstrated that the action of the matrix exponential on a vector obtained using Krylov subspace approximation converges faster than corresponding Krylov methods for the solution of linear equations.
 Others previously explored these so-called explicit exponential methods for applications in stiff chemical systems~\cite{Bisetti:2012jw,falati2011integration} and found them stable for time-step sizes greatly exceeding the stability bound.
 In addition, their explicit nature makes them potentially much better suited for SIMD acceleration due to an expected reduction of thread divergence (for a per-thread implementation) compared with implicit methods.
-Finally, the three-stage fifth-order implicit Runge--Kutta algorithm~\cite{wanner1991solving} investigated by Sewerin and Rigopoulos~\cite{Sewerin20151375} will be studied to determine the impact of increasing chemical stiffness on the algorithm and the performance benefits of using an analytical Jacobian matrix, such as that developed by Niemeyer et al.~\cite{Niemeyer:2015im,Niemeyer:2015ws}.
+Finally, the three-stage\slash fifth-order implicit Runge--Kutta algorithm~\cite{wanner1991solving} investigated by Sewerin and Rigopoulos~\cite{Sewerin20151375} will be studied to determine the impact of increasing chemical stiffness on the algorithm and the performance benefits of using an analytical Jacobian matrix, such as that developed by Niemeyer et al.~\cite{Niemeyer:2015im,Niemeyer:2015ws}.
 
 In Section~\ref{S:method}, the methods and implementation details of the algorithms used in this paper will be laid out.
 Subsequently, in Sec.~\ref{S:results} the performance of the algorithms run using a database of partially stirred reactor conditions will be presented and discussed, with particular focus on the effects of thread-divergence and the potential impacts of current state of the art GPU accelerated chemical kinetic evaluation for large-scale reacting flow simulations.
@@ -269,7 +269,7 @@ These include the three-stage/fifth-order implicit Runge--Kutta algorithm~\cite{
 For the exponential methods, we used the method of rational approximants~\cite{gallopoulos:1992} paired with the Carath\'edothy--Fej\'er method~\cite{trefethen:2006} to approximate the action of the matrix exponential on a vector, as suggested by Bisetti~\cite{Bisetti:2012jw}.
 This technique relied on the external \texttt{FFTW3} library~\cite{frigo2005design}.
 However, unlike the approach of Bisetti~\cite{Bisetti:2012jw}, we developed a custom routine based on the algorithm presented by Stewart~\cite{stewart:1998} to perform LU decomposition of the Hessenberg matrix resulting from the Arnoldi iteration.
-Convergence of the Arnoldi iteration algorithm was computed using the second term of the exponential matrix\slash vector product, as suggested in several works~\cite{Bisetti:2012jw,saad:1992}
+Convergence of the Arnoldi iteration algorithm was computed using the second term of the exponential matrix\slash vector product infinite series, as suggested in several works~\cite{Bisetti:2012jw,saad:1992}
 To ensure high performance of CPU-based methods, the Intel \texttt{MKL} library version 11.3.2 handled linear algebra (i.e., BLAS/LAPACK) operations.
 Next, we implemented GPU versions of the \texttt{Radau-IIA}, \texttt{exp4}, and \texttt{exprb43} methods; these follow the same descriptions as the CPU versions, but required specialized implementations of several BLAS and LAPACK methods, mostly related to LU factorization of the Jacobian or Hessenberg matrices.
 All GPU routines were developed using the NVIDIA CUDA framework~\cite{Buck:2008aa,NVIDIA:2015aa}.
@@ -411,7 +411,7 @@ Figure~\ref{F:convergence} shows the convergence plot for the CPU solvers.
 The error of the \texttt{Radau-IIA} integrator is far below the specified integration tolerances (which are achieved in the ideal case for $\left\lvert\textbf{E}\right\rvert = 1$) for all cases.
 The exponential solvers exhibit much larger levels of error for the larger global time-step, with $\left\lvert\textbf{E}\right\rvert \sim \mathcal{O}(1)$ for the largest global time-step.
 As the time-step size is decreased two factors affect the overall error.
-First, the internal integration step-size was not held constant but instead allowed to vary adaptively, hence this is only a ``true'' convergence plot for the smaller time-steps ($\delta t < \num {e-9}$) where the global integrator time-step is smaller than any step-size taken by the adaptive scheme.
+First, the internal integration step-size was not held constant but instead allowed to vary adaptively, hence this is only a ``true'' convergence plot for the smaller time-steps where the global integrator time-step is smaller than any step-size taken by the adaptive scheme.
 In conjunction, the convergence of the Arnoldi algorithm is affected by the internal integration step-size (the error estimate is scaled by the internal step-size).
 To study the effect of the Arnoldi algorithm on the overall error, Fig.~\ref{F:convergence} also presents the convergence of the exponential integrators with the Krylov approximation error reduced to far below that of the error of the overall method.
 Practically, this is accomplished by detecting when the $n$th Krylov subspace vector approaches zero, a condition known as the ``happy breakdown'' in literature~\cite{datta2010numerical}.
@@ -419,6 +419,7 @@ In this limit, the approximate exponential matrix\slash vector product approache
 In Fig.~\ref{F:convergence} is it seen that with the approximate Krylov subspace, the exponential methods achieve only first order convergence to the true solution, however with the ``exact'' Krylov subspace both methods achieve second-order convergence.
 Although both methods are nominally forth order, the combination of chemical stiffness and adaptive time-stepping reduces the apparent convergence to order two.
 However, from Fig.~\ref{F:convergence} we may conclude that all produce reasonably accurate solutions as compared to \texttt{CVODE}.
+Additionally, although not shown, the results for the GPU solvers are largely identical.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
