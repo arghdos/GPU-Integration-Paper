@@ -484,7 +484,8 @@ The presentation of the performance data in raw form has been been made availabl
       \caption{GPU performance results for $\delta t = \SI{e-4}{\sec}$}
       \label{F:h2_gpu_perf_large}
   \end{subfigure}
-  \caption{Average runtimes of the integrators on the CPU\slash GPU for the \ce{H2}\slash\ce{CO} model at two different global time-step sizes.}
+  \caption{Average runtimes of the integrators on the CPU\slash GPU for the \ce{H2}\slash\ce{CO} model at two different global time-step sizes.
+  Estimation of where the runtime per ODE reaches a constant value is marked in with a vertical line for all cases.}
   \label{F:H2_perf}
 \end{figure}
 
@@ -552,7 +553,8 @@ The \texttt{Radua-IIA} solver is more efficient for all cases, but does appear t
       \caption{GPU performance results for $\delta t = \SI{e-4}{\sec}$}
       \label{F:ch4_gpu_perf_large}
   \end{subfigure}
-  \caption{Average runtimes of the integrators on the CPU\slash GPU for the GRI-Mech 3.0 model at two different global time-step sizes.}
+  \caption{Average runtimes of the integrators on the CPU\slash GPU for the GRI-Mech 3.0 model at two different global time-step sizes.
+  Estimation of where the runtime per ODE reaches a constant value is marked in with a vertical line for all cases.}
   \label{F:CH4_perf}
 \end{figure}
 
@@ -572,6 +574,45 @@ The GPU exponential solvers again are highly negatively impacted by thread-diver
 % The larger time-step size---the stiffest case---was the only case where \texttt{CVODE} significantly outperformed CPU \texttt{Radau-IIA}, which was \num{2.66}$\times$ slower at best (\num{65536} ODEs) and \num{4.11}$\times$ slower at worst (\num{450900} ODEs).
 % This difference may be due to the adaptive-order nature of the \texttt{CVODE} algorithm, or potentially due to its maturity and years of optimization.
 % However, this effect is fairly minor and should not cause the order-of-magnitude decrease in relative performance between the GPU-based \texttt{Radau-IIA} integrator and \texttt{CVODE} observed when switching to the larger time step.
+
+\subsection{CPU\slash GPU Performance Comparison}
+Meaningful performance comparison between CPU\slash GPU based integration can be difficult for several reasons.
+First, the vastly different nature of the computation cores between platforms negates any possibility for normalized performance comparison by core count.
+Further, unlike many common GPU accelerated applications where the number of operations required to solve the problem is known (e.g. as in linear-algebra operations, or Fast Fourier Transforms), the FLOP count required for chemical kinetic integration is not so readily available, precluding performance comparison on a FLOP per second basis.
+Although the runtimes of the GPU integration algorithms can be directly compared to that of the CPU based solvers, these figures are not particularly informative.
+For instance, if a GPU algorithm is $\SI{10}{\times}$ faster than the equivalent algorithm on two 6-core CPUs, how does this compare to two 8-core CPUs, etc.
+For researchers in numerical combustion, two issues stand out as particularly important for performance evaluation.
+As established in the introduction, large-scale reacting flow simulations with realistic chemical kinetic models are extremely expensive, and remain outside of the capabilities of most in the field.
+In this light we ask, in a given a large-scale reacting flow simulation, what is the effect on the overall runtime of adding more CPU cores v.s. adding GPU accelerators?
+Additionally, if a budget is allocated to expand available computational resources, how might these funds be best allocated?
+To answer this, we attempt to derive a rough estimate of the number of CPU cores required for equivalent performance on the GPU.
+In doing so, both the above questions will be addressed.
+
+First a nominal performance metric for both the CPU and GPU based integration algorithms must be obtained.
+As the most efficient solvers in all cases are \texttt{CVODE} for the CPU, and \texttt{Radau-IIA} for the GPU, these algorithms will be considered for the performance benchmarks.
+Further, most large scale simulations consist of millions of cells (or more), with tens to hundreds of time-steps, only the limit performance of each algorithm is of concern; that is, the cost per ODE of each algorithm in the region where this cost reaches a (reasonably) constant value.
+To this end, Figs.~\ref{F:H2_perf} and \ref{F:CH4_perf} have been marked with a vertical line in all cases where it is estimated that the runtime per ODE has reached the limit performance.
+These choices are somewhat arbitrary (it could be argued that they should be moved up or down a point), however this section does not seek to provide an exacting performance comparison, rather general trends.
+The cost per ODE above and including these thresholds has been averaged and forms our nominal performance measure.
+The ratio of these performance measures can give a rough estimate of the number of CPU cores required to equal the GPU performance for the cases studied, and are presented in Table~\ref{T:cpu_equiv}.
+
+\begin{table}[htb]
+\centering
+\ifmeasure
+\fontsize{8pt}{10pt}\selectfont
+\fi
+\begin{tabular}{@{}l S[table-format=2.1] S[table-format=2.1] @{}}
+\toprule
+Step-size & \multicolumn{1}{c}{\ce{H2}\slash\ce{CO}} & \multicolumn{1}{c}{\ce{CH4}} \\
+\midrule
+\SI{e-6}{\second} & 34.3 & 10.4 \\
+\SI{e-4}{\second} & 22.8 & 2.6 \\
+\bottomrule
+\end{tabular}
+\caption{The number of CPU cores (roughly) required for equivalent performance to a single GPU for all cases studied}
+\label{T:cpu_equiv}
+\end{table}
+
 
 \subsection{Effect of Thread Divergence}
 \label{S:divergence}
