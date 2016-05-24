@@ -25,7 +25,7 @@
 \usepackage{caption}
 \usepackage{subcaption}
 
-\captionsetup[algorithm]{labelformat=empty}
+%\captionsetup[algorithm]{labelformat=empty}
 
 \usepackage{booktabs}
 \usepackage[version=3]{mhchem} % Formula subscripts using \ce{}, e.g., \ce{H2SO4}
@@ -332,60 +332,60 @@ PaSR parameters used for hydrogen\slash air and methane\slash air premixed combu
 \end{table}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Shared memory caching}
-\label{S:smem_present}
-
-A unique memory-access pattern is one aspect of the GPU platform particularly important to high-performance algorithms; each streaming multiprocessor can access only a small amount of fast cache memory (typically \SI{64}{\kilo\byte}) and \SI{32}{\bit} registers (typically \SIrange{32}{64}{\kilo\byte}).
-All other memory is stored globally on the device, with comparatively high latencies.
-Thus, it is critical to properly use cache memory to achieve maximum performance on GPUs.
-When formulated on a per-block basis, GPU-based integration algorithms typically use this memory to store commonly used values such as the current state vector and  chemical Jacobian.
-However, on a per-thread basis, the best use of this memory is less clear; this section proposes one approach for efficient use of this fast memory.
-
-Using fast memory on a per-thread basis poses a challenge: it must be split between all threads in the blocks resident on a streaming multiprocessor.
-This fast memory is further split into an L1 cache and shared memory available for interthread communication within a block.
-Most versions of the CUDA compute standards allow the user to specify the relative allocation of the L1 cache and shared memory pool.
-In our preliminary studies, a larger L1 cache proved the superior choice for our per-thread approach; the inherent increased memory traffic quickly overwhelms the small cache memory, resulting in slower global memory accesses.
-However, this left $\sim$\SI{16}{\kilo\byte} of the cache memory as shared memory, with only around two to four double-precision variables available per thread.
-This small amount of available memory is challenging to use in the integration algorithm itself; however, evaluation of the chemical source terms and analytical Jacobian present opportunities for using the shared memory.
-
-\begin{algorithm}[htb]
-\ifmeasure
-\fontsize{8pt}{10pt}\selectfont
-\caption{\fontsize{9pt}{10pt}\selectfont \textbf{Algorithm:} A procedure for memory caching during evaluation of reaction rates.\label{A:shared_mem_caching}}
-\else
-\caption{\textbf{Algorithm:} A procedure for memory caching during evaluation of reaction rates.\label{A:shared_mem_caching}}
-\fi
-\begin{algorithmic}[0]
-  \State {Initialize the cached species concentration set $C = \varnothing$}
-  \State {Let maximum set size be $C_{\max}$}
-  \For {reaction $r_i$ of reactions $R$}
-    \State Let $S_i$ be the set of participating species in $r_i$
-    \State Let $P_{i,j}$ be the number of consecutive reactions starting from $r_{i + 1}$ in which each species $s_{i,j} \in S_i$ participates
-    \State For each species $c_j \in C$ let $L_j$ be the number of reactions since $c_j$ directly participated in a reaction
-    \State Priority sort the species $s_{i,j}$ in $S_{i}$ in descending order by priority $P_{i,j}$ and store in $S_{i}^{\prime}$
-    \For {$s_{i,j}$ in $S_{i}^{\prime}$}
-      \If{$|C| < C_{\max}$}
-		\State Remove $s_{i,j}$ from $S_{i}^{\prime}$ and add to $C$
-      \ElsIf{$\max_l \left( L_l \right) \geq 2$ and $P_{i,j}$ > 1}
-	  \State Let $k = \argmax_l \left(L_l \right)$
-	  \State Remove $s_{i,j}$ from $S_{i}^{\prime}$ and replace $c_k$ in $C$ with $s_{i,j}$
-      \EndIf
-    \EndFor
-    \For {$s_{i,j}$ in $S_{i}^{\prime}$}
-      \If{$| S_{i}^{\prime} | > 0$ and $ |C| < C_{\max}$}
-		\State Remove $s_{i,j}$ from $S_{i}^{\prime}$ and add to $C$
-      \EndIf
-    \EndFor
-    \State Load into shared memory all values in $C$ not already stored there.
-    \State Write code for evaluation of $i$th reaction rate using values in $C$ in place of global memory loads where possible.
-  \EndFor
-\end{algorithmic}
-\end{algorithm}
-
-The presented~\hyperref[A:shared_mem_caching]{algorithm} describes a strategy to use this available shared memory to store commonly used species concentrations during evaluation of the reaction rates.
-Similar algorithms were developed for the species net production rates and Jacobian evaluation routines, using frequently updated species net production rates and frequently used reaction rates\slash species concentrations as the cached variables, respectively.
-As this algorithm runs during generation of the source code for the various subroutines, it introduces no computational or memory overhead related to determining the caching structure during runtime.
-Although this represents a relatively simple improvement, its use can achieve reasonable performance benefits, as will be seen in Sec.~\ref{S:smem}.
+% \subsection{Shared memory caching}
+% \label{S:smem_present}
+% 
+% A unique memory-access pattern is one aspect of the GPU platform particularly important to high-performance algorithms; each streaming multiprocessor can access only a small amount of fast cache memory (typically \SI{64}{\kilo\byte}) and \SI{32}{\bit} registers (typically \SIrange{32}{64}{\kilo\byte}).
+% All other memory is stored globally on the device, with comparatively high latencies.
+% Thus, it is critical to properly use cache memory to achieve maximum performance on GPUs.
+% When formulated on a per-block basis, GPU-based integration algorithms typically use this memory to store commonly used values such as the current state vector and  chemical Jacobian.
+% However, on a per-thread basis, the best use of this memory is less clear; this section proposes one approach for efficient use of this fast memory.
+% 
+% Using fast memory on a per-thread basis poses a challenge: it must be split between all threads in the blocks resident on a streaming multiprocessor.
+% This fast memory is further split into an L1 cache and shared memory available for interthread communication within a block.
+% Most versions of the CUDA compute standards allow the user to specify the relative allocation of the L1 cache and shared memory pool.
+% In our preliminary studies, a larger L1 cache proved the superior choice for our per-thread approach; the inherent increased memory traffic quickly overwhelms the small cache memory, resulting in slower global memory accesses.
+% However, this left $\sim$\SI{16}{\kilo\byte} of the cache memory as shared memory, with only around two to four double-precision variables available per thread.
+% This small amount of available memory is challenging to use in the integration algorithm itself; however, evaluation of the chemical source terms and analytical Jacobian present opportunities for using the shared memory.
+% 
+% \begin{algorithm}[htb]
+% \ifmeasure
+% \fontsize{8pt}{10pt}\selectfont
+% \caption{\fontsize{9pt}{10pt}\selectfont \textbf{Algorithm:} A procedure for memory caching during evaluation of reaction rates.\label{A:shared_mem_caching}}
+% \else
+% \caption{\textbf{Algorithm:} A procedure for memory caching during evaluation of reaction rates.\label{A:shared_mem_caching}}
+% \fi
+% \begin{algorithmic}[0]
+%   \State {Initialize the cached species concentration set $C = \varnothing$}
+%   \State {Let maximum set size be $C_{\max}$}
+%   \For {reaction $r_i$ of reactions $R$}
+%     \State Let $S_i$ be the set of participating species in $r_i$
+%     \State Let $P_{i,j}$ be the number of consecutive reactions starting from $r_{i + 1}$ in which each species $s_{i,j} \in S_i$ participates
+%     \State For each species $c_j \in C$ let $L_j$ be the number of reactions since $c_j$ directly participated in a reaction
+%     \State Priority sort the species $s_{i,j}$ in $S_{i}$ in descending order by priority $P_{i,j}$ and store in $S_{i}^{\prime}$
+%     \For {$s_{i,j}$ in $S_{i}^{\prime}$}
+%       \If{$|C| < C_{\max}$}
+% 		\State Remove $s_{i,j}$ from $S_{i}^{\prime}$ and add to $C$
+%       \ElsIf{$\max_l \left( L_l \right) \geq 2$ and $P_{i,j}$ > 1}
+% 	  \State Let $k = \argmax_l \left(L_l \right)$
+% 	  \State Remove $s_{i,j}$ from $S_{i}^{\prime}$ and replace $c_k$ in $C$ with $s_{i,j}$
+%       \EndIf
+%     \EndFor
+%     \For {$s_{i,j}$ in $S_{i}^{\prime}$}
+%       \If{$| S_{i}^{\prime} | > 0$ and $ |C| < C_{\max}$}
+% 		\State Remove $s_{i,j}$ from $S_{i}^{\prime}$ and add to $C$
+%       \EndIf
+%     \EndFor
+%     \State Load into shared memory all values in $C$ not already stored there.
+%     \State Write code for evaluation of $i$th reaction rate using values in $C$ in place of global memory loads where possible.
+%   \EndFor
+% \end{algorithmic}
+% \end{algorithm}
+% 
+% The presented~\hyperref[A:shared_mem_caching]{algorithm} describes a strategy to use this available shared memory to store commonly used species concentrations during evaluation of the reaction rates.
+% Similar algorithms were developed for the species net production rates and Jacobian evaluation routines, using frequently updated species net production rates and frequently used reaction rates\slash species concentrations as the cached variables, respectively.
+% As this algorithm runs during generation of the source code for the various subroutines, it introduces no computational or memory overhead related to determining the caching structure during runtime.
+% Although this represents a relatively simple improvement, its use can achieve reasonable performance benefits, as will be seen in Sec.~\ref{S:smem}.
 
 \subsection{Solver Validation}
 \begin{figure}[htb]
