@@ -148,8 +148,8 @@ We do not authorize the reproduction of color images in print.
 \begin{abstract}
 A fifth-order implicit Runge--Kutta method and two fourth-order exponential integration methods equipped with Krylov subspace approximations were implemented for the GPU and paired with the analytical chemical kinetic Jacobian code \texttt{pyJac}.
 The performance of each was evaluated by integrating thermochemical state data sampled from stochastic partially stirred reactor simulations and compared with the commonly used CPU-based implicit integrator \texttt{CVODE}.
-We estimate that the implicit Runge--Kutta method on a single GPU is roughly equivalent to \texttt{CVODE} running on 10 or more CPU cores for all but the stiffest case studied, where performance was greatly decreased by thread divergence.
-The exponential integration techniques performed less efficiently for all cases.
+We estimate that the implicit Runge--Kutta method running on a single GPU is roughly equivalent to \texttt{CVODE} running on \num{10} or more CPU cores (up to $\sim$\num{35}) for all but the stiffest case studied, where performance was greatly decreased by thread divergence.
+The exponential integration techniques were less efficient for all cases.
 Thread divergence and memory traffic were identified as the main limiters of GPU integrator performance, and techniques to mitigate these issues were discussed.
 Use of an analytical Jacobian on the GPU was found to be critical for efficient integration, far surpassing the benefits of analytical Jacobian use on the CPU for identical problems.
 Finally, future research directions were identified based on the current state-of-the-art of stiff chemical kinetics integration on the GPU.
@@ -206,7 +206,7 @@ The performance trade-offs of various CUDA execution patterns are quite involved
 Instead we will briefly highlight key considerations for CUDA-based chemical kinetic ODE integration.
 
 The extent of thread-cooperation within a CUDA-based chemical kinetic ODE integration algorithm is a key point that shapes much of implementation.
-Typically GPU accelerated chemical kinetic solvers follow either a ``per-thread'' pattern~\cite{Niemeyer:2011aa,Stone:2013aa,Niemeyer:2014aa}, in which each individual GPU thread solves a single set of chemical kinetic ODEs, or a ``per-block'' approach\cite{Stone:2013aa,Sewerin20151375}, in which all the threads in a block cooperate to solve a single set of chemical kinetic ODEs.
+Typically GPU accelerated chemical kinetic solvers follow either a ``per-thread'' pattern~\cite{Niemeyer:2011aa,Stone:2013aa,Niemeyer:2014aa}, in which each individual GPU thread solves a single set of chemical kinetic ODEs, or a ``per-block'' approach~\cite{Stone:2013aa,Sewerin20151375}, in which all the threads in a block cooperate to solve a single set of chemical kinetic ODEs.
 The greatest potential benefit of a per-thread approach is that a much larger number of ODEs can theoretically be solved concurrently; typically the number of blocks that can be executed concurrently on each SM is $\sim$8, whereas typical CUDA launch configurations in this work consist of 64 threads per block, or 512 of sets ODEs solved concurrently per SM.
 The much larger amount of parallelism available in a per-thread approach is not without drawbacks however.
 For instance as the memory available per SM must now be split between many more sets of ODEs, a per-thread approach may encounter more cache-misses, resulting in expensive global memory loads.
@@ -269,11 +269,11 @@ For the exponential methods, we used the method of rational approximants~\cite{g
 This technique relied on the external \texttt{FFTW3} library~\cite{frigo2005design}.
 However, unlike the approach of Bisetti~\cite{Bisetti:2012jw}, we developed a custom routine based on the algorithm presented by Stewart~\cite{stewart:1998} to perform LU decomposition of the Hessenberg matrix resulting from the Arnoldi iteration.
 Convergence of the Arnoldi iteration algorithm was computed using the second term of the exponential matrix\slash vector product infinite series, as suggested in several works~\cite{Bisetti:2012jw,saad:1992}.
-The exponential integrators used a rational approximant type of $\left(10,10\right)$ as suggested by Bisetti~\cite{Bisetti:2012jw}
+The exponential integrators used a rational approximant type of $\left(10,10\right)$ as suggested by Bisetti~\cite{Bisetti:2012jw}.
 To ensure high performance of CPU-based methods, the Intel \texttt{MKL} library version 11.3.2 handled linear algebra (i.e., BLAS/LAPACK) operations.
 Next, we implemented GPU versions of the \texttt{Radau-IIA}, \texttt{exp4}, and \texttt{exprb43} methods; these follow the same descriptions as the CPU versions, but required specialized implementations of several BLAS and LAPACK methods, mostly related to LU factorization of the Jacobian or Hessenberg matrices.
 All GPU routines were developed using the NVIDIA CUDA framework~\cite{Buck:2008aa,NVIDIA:2015aa}.
-The \texttt{Radau-IIA} solver as developed by Hairer and Wanner~\cite{wanner1991solving} contains an adaptive time-stepping technique, the exponential methods used a standard adaptive time-stepping technique~\cite{wanner1991solving} (pg.\ 28--31); adaptive time-stepping was handled internally by the \texttt{CVODE} solver.
+The \texttt{Radau-IIA} solver as developed by Hairer and Wanner~\cite{wanner1991solving} contains an adaptive time-stepping technique, the exponential methods used a standard adaptive time-stepping technique~\cite{wanner1991solving} (pages 28--31); adaptive time-stepping was handled internally by the \texttt{CVODE} solver.
 Finally, the adaptive time stepping procedures of all integrators used absolute and relative tolerances of \SI{e-10} and \SI{e-6}, respectively, throughout the work.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -283,7 +283,7 @@ Finally, the adaptive time stepping procedures of all integrators used absolute 
 In order to measure the performance of the integrators for realistic conditions, a database of thermochemical states covering a wide range of temperatures and species mass fractions was generated using a previously developed constant-pressure stochastic partially stirred reactor (PaSR) code~\cite{Niemeyer:2015ws}.
 We selected two chemical kinetic models to span the range of model sizes typically used in high-fidelity simulations: the \ce{H2}\slash\ce{CO} model of Burke et al.~\cite{Burke:2011fh} with 13 species and 27 reactions, and the GRI-Mech 3.0 model with 53 species and 325 reactions~\cite{smith_gri-mech_30}.
 The PaSR simulations were performed at the conditions listed in Table~\ref{T:pasr_parameters} for 10 residence times to reach a statistical steady state; Niemeyer et al.~\cite{Niemeyer:2015ws} described the PaSR simulation process in greater detail, which follows approaches used by others~\cite{Chen:1997ta,Pope:1997wu,Ren:2014cd}.
-The PaSR particles were initialized using the equilibrium state, and gradually move away from equilibrium conditions due to mixing\slash inflow \slash outflow.
+The PaSR particles were initialized using the equilibrium state, and gradually move away from equilibrium conditions due to mixing\slash inflow\slash outflow.
 In order to not influence the solution runtime trends for small numbers of ODEs, the first \num{1000} conditions, were removed from each database.
 This corresponded to a single $\tau_\text{pair}$; at this point in the simulation, $\sim\SI{20}{\percent}$ of the conditions were no longer near-equilibrium temperature, and by the \num{5000}th condition $\sim\SI{80}{\percent}$ of the states were no longer near-equilibrium.
 
@@ -402,7 +402,7 @@ The error for condition $i$ was then determined using the weighted root mean squ
 \begin{equation}
  E_i(t) = \left\lVert\frac{y_i(t) - \hat{y}_i(t)}{\text{atol} + \hat{y}_i(t) \cdot \text{rtol}}\right\rVert_2
 \end{equation}
-where the $y_i(t)$ is the solution obtained from the various solvers, and $\hat{y}_i(t)$ is the ``true'' solution obtained via \texttt{CVODE} using a global time-step of $\delta t = \num{e-10}$ and absolute\slash relative tolerances of \num{e-20} and \num{e-15} respectively.
+where the $y_i(t)$ is the solution obtained from the various solvers, and $\hat{y}_i(t)$ is the ``true'' solution obtained via \texttt{CVODE} using a global time-step of $\delta t = \SI{e-10}{\second}$ and absolute\slash relative tolerances of \num{e-20} and \num{e-15} respectively.
 The maximum error over all conditions:
 \begin{equation}
  \left\lvert\textbf{E}\right\rvert = \max_{i=\num{1}\dots\num{10000}}\{E_i(t)\}
@@ -422,7 +422,7 @@ To study the effect of the Arnoldi algorithm on the overall error, Fig.~\ref{F:c
 Practically, this is accomplished by detecting when the $n$th Krylov subspace vector approaches zero, a condition known as the ``happy breakdown'' in literature~\cite{datta2010numerical}.
 In this limit, the approximate exponential matrix\slash vector product approaches the exact value and thus the error induced by the Krylov approximation is negligible.
 In Fig.~\ref{F:convergence} is it seen that with the approximate Krylov subspace, the exponential methods achieve only first order convergence to the true solution, however with the ``exact'' Krylov subspace both methods are closer to second-order convergence.
-Although both methods are nominally forth order, the combination of chemical stiffness and adaptive time-stepping reduces the apparent convergence to order two.
+Although both methods are nominally fourth order, the combination of chemical stiffness and adaptive time-stepping reduces the apparent convergence to order two.
 Further, we note that the error in Krylov subspace approximation dominates the error measurement $\lvert\textbf{E}\rvert$.
 From Fig.~\ref{F:convergence} we may conclude that all solvers produce reasonably accurate solutions as compared to \texttt{CVODE}.
 Additionally, although not shown, the results for the GPU solvers are largely identical.
