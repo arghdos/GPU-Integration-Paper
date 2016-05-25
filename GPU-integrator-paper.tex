@@ -216,7 +216,7 @@ For this reason, implicit integration algorithms, which typically have complex b
 Conversely, thread divergence is typically less of a concern for integrators following a per-block strategy as the execution path of each thread is planned by design of the algorithm.
 Further, a per-block approach has significantly more local cache memory and registers available for solution of a set of ODEs, and thus memory access speeds and cache size are less of a concern.
 However, in our experience efficient use of these resources requires significant hand-tuning for optimization, making it more difficult to generalize the developed algorithm between different chemical kinetic models (a key feature for potential non-academic applications).
-Finally we note that past work has shown that in the best-case scenario, elimination of the majority of thread divergence by choice of identical initial conditions, the performance of a per-thread implicit integration algorithm greatly surpassed that of the per-block implementation of the same algorithm~\cite{Stone:2013aa}.
+Finally, past work has shown that in the best-case scenario, elimination of the majority of thread divergence by choice of identical initial conditions, the performance of a per-thread implicit integration algorithm greatly surpassed that of the per-block implementation of the same algorithm~\cite{Stone:2013aa}.
 
 A number of studies in recent years explored the use high-performance SIMD devices to accelerate (turbulent) reacting-flow simulations.
 Spafford et al.~\cite{Spafford:2010aa} investigated using GPUs to accelerate a turbulent combustion direct numerical simulation code, demonstrating a sub-order of magnitude speedup in evaluating the species production rates on the GPU.
@@ -410,7 +410,7 @@ The maximum error over all conditions:
 \end{equation}
 was then used to measure convergence.
 The solvers used the same tolerances as for the performance testing (absolute\slash relative tolerances of \num{e-10} and \num{e-6} respectively).
-Adaptive time-stepping was used in all cases, and Krylov subspace approximation was enabled for the the exponential integrators thus evaluating the accuracy of the solvers, in identical form as used for performance testing.
+Adaptive time-stepping was used in all cases, and Krylov subspace approximation was enabled for the exponential integrators thus evaluating the accuracy of the solvers, in identical form as used for performance testing.
 The global integrator time-step was varied from \SI{e-6}{\second} to \SI{e-11}{\second} to examine convergence to the true solution.
 
 Figure~\ref{F:convergence} shows the convergence plot for the CPU solvers.
@@ -424,9 +424,9 @@ Practically, this is accomplished by detecting when the $n$th Krylov subspace ve
 In this limit, the approximate exponential matrix\slash vector product approaches the exact value and thus the error induced by the Krylov approximation is negligible.
 In Fig.~\ref{F:convergence} is it seen that with the approximate Krylov subspace, the exponential methods achieve only first order convergence to the true solution, however with the ``exact'' Krylov subspace both methods are closer to second-order convergence.
 Although both methods are nominally fourth order, the combination of chemical stiffness and adaptive time-stepping reduces the apparent convergence to order two.
-Further, we note that the error in Krylov subspace approximation dominates the error measurement $\lvert\textbf{E}\rvert$.
+Furthermore, the error of Krylov subspace approximation dominates the error measurement $\lvert\textbf{E}\rvert$.
 From Fig.~\ref{F:convergence} we may conclude that all solvers produce reasonably accurate solutions as compared to \texttt{CVODE}.
-Additionally, although not shown, the results for the GPU solvers are largely identical.
+Additionally, although not shown, the results for the GPU solvers are nearly identical.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -456,7 +456,7 @@ Finally, the L1\slash shared-memory cache was set to prefer a larger L1 cache us
 The runtimes in this section were normalized by the number of ODEs solved for all cases.
 The reasoning behind this presentation is two-fold.
 First, saturation of the available computational resources becomes visually apparent (transition from a linear decrease to a flat trend), and secondly, certain other performance trends (e.g., the effects of thread divergence) are easily highlighted.
-The presentation of the performance data in raw form has been been made available in \ref{S:raw} for completeness.
+The presentation of the performance data in raw form has been made available in \ref{S:raw} for completeness.
 
 \begin{figure}[htb]
   \ifmeasure
@@ -550,8 +550,8 @@ For larger numbers of conditions, the implicit integrators are more efficient, a
 As compared to the \ce{H2}\slash\ce{CO} case, there is more separation between the performance of the CPU exponential and implicit integrators for the small time-step, a result of the larger stiffness of the GRI-Mech 3.0 model.
 This performance gap between the CPU implicit\slash exponential integrators increases for the larger time-step (Fig.~\ref{F:ch4_cpu_perf_large}) reaching nearly an order of magnitude difference in some cases.
 When we compare the performance of the CPU implicit solvers between models, it is seen that there is roughly an order of magnitude performance decrease for both time-steps.
-This phenomena, due largely to the increase in problem size, is mostly mirrored by by the \texttt{Radau-IIA} GPU solver for the smaller time-step; the performance of which decreases by just over an order of magnitude.
-For the larger time-step size however, the performance of the \texttt{Radau-IIA} GPU solver decreases roughly two orders of magnitude as compared the the \ce{H2}\slash\ce{CO} case.
+This phenomena, due largely to the increase in problem size, is mostly mirrored by the \texttt{Radau-IIA} GPU solver for the smaller time-step; the performance of which decreases by just over an order of magnitude.
+For the larger time-step size however, the performance of the \texttt{Radau-IIA} GPU solver decreases roughly two orders of magnitude as compared the \ce{H2}\slash\ce{CO} case.
 As will be explored in Sec.~\ref{S:divergence} this is dramatic decrease is likely due to greatly increased thread divergence in the \texttt{Radau-IIA} solver, as well as the increased memory traffic inherent in the larger model.
 
 Unlike when using the \ce{H2}\slash\ce{CO} model, the \texttt{exprb43} solver outperforms \texttt{exp4} for the GRI-Mech 3.0 model in all cases but for the CPU solvers with the smaller time-step (for which the performance is similar).
@@ -582,19 +582,19 @@ Additionally, if a budget is allocated to expand available computational resourc
 To answer this, we attempt to derive a rough estimate of the number of CPU cores required for equivalent performance on the GPU.
 In doing so, both the above questions will be addressed.
 
-First a nominal performance metric for both the CPU and GPU based integration algorithms must be obtained.
+First, a nominal performance metric for both the CPU and GPU based integration algorithms must be obtained.
 As the most efficient solvers in all cases are \texttt{CVODE} for the CPU, and \texttt{Radau-IIA} for the GPU, these algorithms will be considered for the performance benchmarks.
 Further, most large scale simulations consist of millions of cells (or more), with tens to hundreds of time-steps, only the limit performance of each algorithm is of concern; that is, the cost per ODE of each algorithm in the region where this cost reaches a (reasonably) constant value.
-To this end, Figs.~\ref{F:H2_perf} and \ref{F:CH4_perf} have been marked with a vertical line in all cases where the runtime per ODE is first within \SI{10}{\percent} of it's final value (based on \texttt{CVODE}\slash\texttt{Radau-IIA} for the CPU\slash GPU accordingly).
+To this end, Figs.~\ref{F:H2_perf} and \ref{F:CH4_perf} have been marked with a vertical line in all cases where the runtime per ODE is first within \SI{10}{\percent} of its final value (based on \texttt{CVODE}\slash\texttt{Radau-IIA} for the CPU\slash GPU accordingly).
 The cost per ODE above and including these thresholds has been averaged and forms our nominal performance measure.
 The CPU performance measure also must be normalized by the total number of cores used, i.e., \num{40}.
 The ratio of these performance measures can give a rough estimate of the number of CPU cores required to equal the GPU performance for the cases studied, and are presented in Table~\ref{T:cpu_equiv}.
 For all but the GRI-Mech 3.0 case with the larger time-step, the GPU is roughly equivalent to \num{10} or more CPU cores and up to $\sim$\num{35} for the \ce{H2}\slash\ce{CO} case with the smaller time-step.
-Finally, we note that the ten-core Intel Xeon E5-4640 v2 CPU used in this study is listed for a recommended customer price of \SI{2725}[\$]{}, while a new Tesla C2075 GPU is available for $\sim$\SI{1400}[\$]{}.
+Finally, the ten-core Intel Xeon E5-4640 v2 CPU used in this study is listed for a recommended customer price of \SI{2725}[\$]{}, while a new Tesla C2075 GPU is available for $\sim$\SI{1400}[\$]{}.
 These prices are only rough estimates of the actual cost of these devices, e.g., the actual price for the Intel CPU may be significantly less in a configured server node, while the Tesla C2075 is no longer sold directly by NVIDIA, and thus the prices are variable.
-Further, the performance decrease using an older, cheaper CPU (e.g., the Intel Xeon X5650 used as host processor for the GPU simulations in this work) may not be that large.
+Furthermore, the performance decrease using an older, cheaper CPU (e.g., the Intel Xeon X5650 used as host processor for the GPU simulations in this work) may not be that large.
 However, combined with the equivalent core counts in Table~\ref{T:cpu_equiv}, this information suggests that the Tesla C2075 is reasonable investment to supplement computing power for chemical-kinetic integration in large-scale large-eddy simulations.
-For Reynolds-Averaged simulations, the benefit is less clear for the stiffer GRI-Mech 3.0 model; more work is required in thread divergence avoidance and memory traffic reduction to improve the performance in this case.
+For Reynolds-averaged simulations, the benefit is less clear for the stiffer GRI-Mech 3.0 model; more work is required in thread divergence avoidance and memory traffic reduction to improve the performance in this case.
 
 
 \begin{table}[htb]
@@ -620,7 +620,7 @@ Step-size & \multicolumn{1}{c}{\ce{H2}\slash\ce{CO}} & \multicolumn{1}{c}{\ce{CH
 Thread divergence and memory traffic are two performance concerns particularly important for chemical kinetic integration on SIMD platforms.
 Slowdown due to memory traffic for a GPU integration algorithm implemented on a per-thread basis is primarily due to the small amount of on-chip memory available.
 It is likely that reformulation of the chemical kinetic equations to generate sparse Jacobian matrices~\cite{Schwer2002270} would be particularly beneficial for GPU based integration algorithms due to the reduced memory requirements; this is a planned improvement to the \texttt{pyJac} software.
-The performance penalty due to thread divergence depends both on the cost of of the divergent branches as well as the proportion of the warp that executes each branch.
+The performance penalty due to thread divergence depends both on the cost of the divergent branches as well as the proportion of the warp that executes each branch.
 For example, if only one thread in a warp executes an expensive branch (e.g., a Jacobian update) the rest of the warp is idle during that time, and the SM may become underutilized.
 
 To investigate the effects of thread divergence further, we have adopted a similar quantification of thread divergence to that of Niemeyer and Sung~\cite{Niemeyer:2014aa}:
@@ -631,9 +631,9 @@ To investigate the effects of thread divergence further, we have adopted a simil
 where $d_i$ is the number of internal integrator time steps taken to reach the global time step by thread $i$ in a warp (which consists of 32 threads).
 $D$ represents the similarity of internal time step counts across threads in a warp---a significant source of thread divergence.
 If all threads in a warp use identical internal integration time steps and thus the warp experiences no thread divergence from this source, then $D = 1$; however, if a warp experiences an unbalanced number of internal integration time steps, then $D$ will tend to zero.
-We note that this is not the only source of thread divergence for the GPU integration algorithms.
+This is not the only source of thread divergence for the GPU integration algorithms.
 For instance, threads in a warp may have different Krylov subspace sizes for the exponential integrators, or different numbers of required Newton iterations for the \texttt{Radau-IIA} solver.
-Indeed, in Sec.~\ref{S:results} we noted that we suspect thread divergence from differing Krylov subspace sizes as the reason the exponential solvers are less efficient for small numbers of ODEs for the \ce{H2}\slash\ce{CO} model with the small time-step.
+Indeed, Sec.~\ref{S:results} notes that we suspect thread divergence from differing Krylov subspace sizes as the reason the exponential solvers are less efficient for small numbers of ODEs for the \ce{H2}\slash\ce{CO} model with the small time-step.
 However, the cost of these operations are clearly less than that of an entire internal integration step (in which they are embedded) and thus we look only at the thread divergence of internal integration time steps.
 An investigation of thread divergence for the operations within a internal integration step is important and will be investigated in our future work.
 
