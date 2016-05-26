@@ -117,10 +117,10 @@ for state in op:
     #draw order lines
     if not gpu and not opt:
         plt.plot([1e-8, 1e-9], [2, 0.2], 'k')
-        plt.text(2e-9, 0.2, r"Order--1")
+        plt.text(3.5e-9, 0.3, r"Order--1")
 
         plt.plot([2e-7, 2e-8], [0.2, 0.002], 'k')
-        plt.text(4e-8, 0.003, r"Order--2")
+        plt.text(8e-8, 0.011, r"Order--2")
 
         plt.text(1e-10, 5e-3, r"``Exact'' Krylov")
         plt.text(1e-10, 3e0, r"Approximate Krylov", rotation=35)
