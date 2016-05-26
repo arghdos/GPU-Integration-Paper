@@ -1,0 +1,20 @@
+# threads: 131072 	 block size: 64
+Time: 3.959279e+00 sec
+Time per step: 3.959279e+00 (s)	3.020690e-05 (s/thread)
+TFinal: 2.438261e+03
+# threads: 131072 	 block size: 64
+Time: 3.960938e+00 sec
+Time per step: 3.960938e+00 (s)	3.021956e-05 (s/thread)
+TFinal: 2.438261e+03
+# threads: 131072 	 block size: 64
+Time: 3.955326e+00 sec
+Time per step: 3.955326e+00 (s)	3.017674e-05 (s/thread)
+TFinal: 2.438261e+03
+# threads: 131072 	 block size: 64
+Time: 3.955495e+00 sec
+Time per step: 3.955495e+00 (s)	3.017803e-05 (s/thread)
+TFinal: 2.438261e+03
+# threads: 131072 	 block size: 64
+Time: 3.955063e+00 sec
+Time per step: 3.955063e+00 (s)	3.017474e-05 (s/thread)
+TFinal: 2.438261e+03
