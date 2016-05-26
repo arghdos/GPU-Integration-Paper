@@ -104,16 +104,21 @@ for state in op:
         if nk:
             if 'radau' in s.name:
                 continue
-            marker = nk_markers[s.name[:s.name.index('nk')]]
             name = s.name[:s.name.index('nk')]
             s.name = s.name[:s.name.index('nk')] + ' (exact)'
         else:
-            marker, dummy = ps.marker_dict[s.name]
             name = s.name
 
+        marker, dummy = ps.marker_dict[name]
+        if nk and 'exp4' in name:
+            marker = '.'
         color = color_dict[name]
-        s.set_clear_marker(marker=marker, color=color, **ps.clear_marker_style)
-        s.plot(ax, ps.pretty_names)
+        if not nk:
+            s.set_clear_marker(marker=marker, color=color, **ps.clear_marker_style)
+        else:
+            s.set_marker(marker=marker, color=color, **ps.marker_style)
+        #s.set_clear_marker(marker=marker, color=color, **ps.clear_marker_style)
+        s.plot(ax, ps.pretty_names, zorder=10 if nk and 'exp4' in name else None)
 
     #draw order lines
     if not gpu and not opt:
@@ -122,6 +127,9 @@ for state in op:
 
         plt.plot([2e-7, 2e-8], [0.2, 0.002], 'k')
         plt.text(4e-8, 0.003, r"Order--2")
+
+        plt.text(1e-10, 5e-3, r"``Exact'' Krylov")
+        plt.text(1e-10, 3e0, r"Approximate Krylov", rotation=35)
 
     plt.xlabel(r'$\delta t(s)$')
     plt.ylabel(r'$\left\lvert\textbf{E}\right\rvert$')
@@ -138,18 +146,8 @@ for state in op:
         artists.append(artist)
         labels.append(show)
 
-    artist = matplotlib.patches.Rectangle((0, 0), 1, 1, 
-        fill=False, edgecolor='k', facecolor='k')
-    artists.append(artist)
-    labels.append('Approx. Krylov')
-
-    artist = matplotlib.patches.Rectangle((0,0), 1, 1, 
-        fill=True, edgecolor='k', facecolor='k')
-    artists.append(artist)
-    labels.append("``Exact'' Krylov")
-
     plt.legend(artists, labels, **ps.legend_style)
-    ax.set_xlim((5e-12, 5e-6))
+    ax.set_xlim((5e-12, 3e-6))
     ps.finalize()
 
     plt.savefig(os.path.join(ps.figpath,

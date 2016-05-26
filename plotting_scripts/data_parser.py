@@ -80,9 +80,11 @@ class data_series(object):
 		self.y = np.array(self.y)
 		self.z = np.array(self.z)
 
-	def plot(self, plt, name_fn=None, show_dev=False):
+	def plot(self, plt, name_fn=None, show_dev=False, zorder=None):
 		if not self.is_sorted:
 			self.sort()
+		if zorder is not None:
+			self.kwargs['zorder'] = zorder
 		args = [self.x, self.y]
 
 		self.kwargs['label'] = self.name if name_fn is None else name_fn(self)
