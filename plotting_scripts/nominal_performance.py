@@ -33,7 +33,7 @@ for dt in dt_list:
 gpu_marker = 's'
 cpu_marker = 'o'
 
-with open('thresholds.txt', 'w'):
+with open(os.path.join(ps.scriptpath, 'thresholds.txt'), 'w'):
     pass
 
 
@@ -71,7 +71,7 @@ for state in oploop:
     x_index = np.where(to_calc.y <= last_value)[0][0]
     x_t = to_calc.x[x_index]
 
-    with open('thresholds.txt', 'a') as file:
+    with open(os.path.join(ps.scriptpath, 'thresholds.txt'), 'a') as file:
         file.write('{}\t{}\t{:.0e}\t{}\n'.format(mech, 'gpu' if gpu else 'cpu', dt, x_t))
 
     #(s * unit)/ODE

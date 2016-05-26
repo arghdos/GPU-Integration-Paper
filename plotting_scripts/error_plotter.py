@@ -15,7 +15,8 @@ PaSR = None
 opt = None
 smem = None
 timestep = None
-alpha_level = 0.5
+nk_markers = {'exp4' : '^',
+              'exprb43' : 'd'}
 
 lines = []
 files = [f for f in os.listdir(ps.datapath) if f.endswith('logfile') 
@@ -99,17 +100,19 @@ for state in op:
                     x.cache_opt == opt and x.smem == smem]
 
     for s in sorted(data_list, key = lambda x: x.name):
-        hollow = not 'nk' in s.name
-        if not hollow:
-            s.name = s.name[:s.name.index('nk')]
-        if not hollow and 'radau' in s.name:
-            continue
-        marker, dummy = ps.marker_dict[s.name]
-        color = color_dict[s.name]
-        if not hollow:
-            s.set_marker(marker=marker, color=color, alpha=alpha_level, **ps.marker_style)
+        nk = 'nk' in s.name
+        if nk:
+            if 'radau' in s.name:
+                continue
+            marker = nk_markers[s.name[:s.name.index('nk')]]
+            name = s.name[:s.name.index('nk')]
+            s.name = s.name[:s.name.index('nk')] + ' (exact)'
         else:
-            s.set_clear_marker(marker=marker, color=color, **ps.clear_marker_style)
+            marker, dummy = ps.marker_dict[s.name]
+            name = s.name
+
+        color = color_dict[name]
+        s.set_clear_marker(marker=marker, color=color, **ps.clear_marker_style)
         s.plot(ax, ps.pretty_names)
 
     #draw order lines
@@ -141,7 +144,7 @@ for state in op:
     labels.append('Approx. Krylov')
 
     artist = matplotlib.patches.Rectangle((0,0), 1, 1, 
-        fill=True, edgecolor='k', facecolor='k', alpha=alpha_level)
+        fill=True, edgecolor='k', facecolor='k')
     artists.append(artist)
     labels.append("``Exact'' Krylov")
 

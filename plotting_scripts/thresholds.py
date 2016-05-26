@@ -9,12 +9,14 @@ Used for plotting and GPU/CPU comparison plots
 """
 
 import sys
+import os
+import plot_styles as ps
 thresholds = None
 
 def parse_file():
     t = {}
     try:
-        with open('thresholds.txt', 'r') as file:
+        with open(os.path.join(ps.scriptpath, 'thresholds.txt'), 'r') as file:
             for line in file:
                 mech, gpu, dt, xval = line.strip().split('\t')
                 dt = float(dt)

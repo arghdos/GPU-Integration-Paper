@@ -16,7 +16,7 @@ oploop = op({'dt' : [1e-6, 1e-4],
             'mech' : data.keys()})
 
 smem = False
-normalize = False
+normalize = True
 
 #guarentee the same colors between plots
 name_list = set()
@@ -80,6 +80,9 @@ for state in oploop:
         plt.ylabel('Runtime (s)')
     #final stylings
     ps.finalize()
+    print os.path.join(ps.figpath,
+        '{}_{:.0e}_{}{}.pdf'.format(mech, dt,
+        'gpu' if gpu else 'cpu', '' if normalize else '_nonorm'))
     plt.savefig(os.path.join(ps.figpath,
         '{}_{:.0e}_{}{}.pdf'.format(mech, dt,
         'gpu' if gpu else 'cpu', '' if normalize else '_nonorm')))

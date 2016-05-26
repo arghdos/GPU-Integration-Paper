@@ -6,11 +6,12 @@ matplotlib.use('agg')
 import matplotlib.pyplot as plt
 import os.path
 
+scriptpath = os.path.dirname(os.path.abspath(__file__))
 figpath = os.path.join(
-    os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), os.pardir)),
+    os.path.abspath(os.path.join(scriptpath, os.pardir)),
     'figures')
 datapath = os.path.join(
-    os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), os.pardir)),
+    os.path.abspath(os.path.join(scriptpath, os.pardir)),
     'data')
 
 #setup latex
@@ -38,7 +39,7 @@ clear_marker_style = {
 }
 
 marker_dict = {'cvodes' : ('.', False),
-'radau2a' : ('>', True),
+'radau2a' : ('x', True),
 'exp4' : ('o', True),
 'exprb43' : ('s', True)
 }
