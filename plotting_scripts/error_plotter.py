@@ -15,8 +15,6 @@ PaSR = None
 opt = None
 smem = None
 timestep = None
-nk_markers = {'exp4' : '^',
-              'exprb43' : 'd'}
 
 lines = []
 files = [f for f in os.listdir(ps.datapath) if f.endswith('logfile') 
@@ -78,12 +76,6 @@ cuda_params = OptionLoop({'gpu' : True,
             'opt' : [True, False],
             'smem' : [True, False],
             'same_ics' : [False]}, lambda: False)
-#create color dictionary
-color_dict = {}
-color_list = iter(ps.color_wheel)
-for x in series_list:
-    if not x.name in color_dict and not 'nk' in x.name:
-        color_dict[x.name] = color_list.next()
 
 op = c_params + cuda_params
 for state in op:
@@ -99,6 +91,7 @@ for state in op:
     data_list = [x for x in series_list if x.gpu == gpu and
                     x.cache_opt == opt and x.smem == smem]
 
+    name_list = []
     for s in sorted(data_list, key = lambda x: x.name):
         nk = 'nk' in s.name
         if nk:
@@ -109,14 +102,15 @@ for state in op:
         else:
             name = s.name
 
+        name_list = set(name_list).union([name])
         marker, dummy = ps.marker_dict[name]
         if nk and 'exp4' in name:
             marker = '.'
-        color = color_dict[name]
-        if not nk:
-            s.set_clear_marker(marker=marker, color=color, **ps.clear_marker_style)
-        else:
-            s.set_marker(marker=marker, color=color, **ps.marker_style)
+        color = ps.color_dict[name]
+        marker_style = ps.clear_marker_style if not nk else ps.marker_style
+        s.set_clear_marker(marker=marker, color=color, **marker_style)
+        #else:
+        #    s.set_marker(marker=marker, color=color, **ps.marker_style)
         #s.set_clear_marker(marker=marker, color=color, **ps.clear_marker_style)
         s.plot(ax, ps.pretty_names, zorder=10 if nk and 'exp4' in name else None)
 
@@ -136,11 +130,11 @@ for state in op:
 
     artists = []
     labels = []
-    for name in color_dict:
-        color = color_dict[name]
+    for name in name_list:
+        color = ps.color_dict[name]
         show = ps.pretty_names(name)
         artist = plt.Line2D((0,1),(0,0), 
-            markerfacecolor=color, marker=ps.marker_dict[name][0],
+            markerfacecolor='none', marker=ps.marker_dict[name][0],
             markeredgecolor=color, linestyle='',
             markersize=15)
         artists.append(artist)

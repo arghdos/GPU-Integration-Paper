@@ -1,8 +1,8 @@
 #a single consolidated place to import
 #such that all figures have identical styling (when possible)
 
-import matplotlib
-matplotlib.use('agg')
+import matplotlib as mpl
+mpl.use('agg')
 import matplotlib.pyplot as plt
 import os.path
 
@@ -53,7 +53,14 @@ def pretty_names(pname):
         pname = 'Radau-IIA'
     return '\\texttt{{\\textbf{{{}}}}}'.format(pname)
 
-color_wheel = ['b', 'r', 'g', 'k', 'y']
+#color schemes
+color_wheel = ['r', 'b', 'g', 'k']
+color_dict = {'cvodes' : 'r',
+'radau2a' : 'b',
+'exp4' : 'g',
+'exprb43' : 'k'
+}
+
 
 def finalize():
     ax = plt.gca()

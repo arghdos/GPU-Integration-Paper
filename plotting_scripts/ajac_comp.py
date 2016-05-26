@@ -34,10 +34,10 @@ def make_comp_legend(names, loc=0, patch_names=None):
         labels.append(show)
 
     if patch_names is not None:
-        artists.append(mpatches.Patch(facecolor='None', edgecolor=ps.color_wheel[0]))
+        artists.append(mpatches.Patch(facecolor=ps.color_wheel[0], edgecolor=ps.color_wheel[0]))
         labels.append(patch_names[0])
 
-        artists.append(mpatches.Patch(facecolor='None', edgecolor=ps.color_wheel[1]))
+        artists.append(mpatches.Patch(facecolor=ps.color_wheel[1], edgecolor=ps.color_wheel[1]))
         labels.append(patch_names[1])
 
     plt.legend(artists, labels, **ps.legend_style)
@@ -110,7 +110,7 @@ for dt in dt_list:
         #top left
         ps.legend_style['loc'] = 2
         #make legend
-        make_comp_legend(names, patch_names=['GPU', 'CPU'])
+        make_comp_legend([], patch_names=['GPU', 'CPU'])
 
         plt.xlabel('Number of ODEs')
         plt.ylabel(r'$\lvert \textbf{R}_{FD}\rvert\slash\lvert \textbf{R}_{AJ}\rvert$')
