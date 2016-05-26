@@ -16,6 +16,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import matplotlib.lines as mlines
+import os
 
 def make_comp_legend(names, loc=0, patch_names=None):
     artists = []

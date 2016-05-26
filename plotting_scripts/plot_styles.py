@@ -4,7 +4,6 @@
 import matplotlib
 matplotlib.use('agg')
 import matplotlib.pyplot as plt
-from data_parser import data_series
 import os.path
 
 figpath = os.path.join(
@@ -45,7 +44,7 @@ marker_dict = {'cvodes' : ('.', False),
 }
 
 def pretty_names(pname):
-    if isinstance(pname, data_series):
+    if not isinstance(pname, str):
         pname = pname.name
     if pname == 'cvodes':
         pname = 'CVODE'

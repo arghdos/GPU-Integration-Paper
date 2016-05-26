@@ -18,9 +18,10 @@ timestep = None
 alpha_level = 0.5
 
 lines = []
-files = [f for f in os.listdir(ps.datapath) if f.endswith('logfile') and os.path.isfile(f)]
+files = [f for f in os.listdir(ps.datapath) if f.endswith('logfile') 
+            and os.path.isfile(os.path.join(ps.datapath, f))]
 for f in files:
-    with open(f, 'r') as file:
+    with open(os.path.join(ps.datapath, f), 'r') as file:
         lines = [l.strip() for l in file.readlines() if l.strip()]
 
     for line in lines:

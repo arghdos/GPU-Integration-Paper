@@ -8,6 +8,7 @@ data = parser.get_series()
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
+import os
 
 def get_color(series):
     if series.smem:
@@ -72,6 +73,6 @@ for dt in dt_list:
         plt.xlabel('Number of ODEs', )
         plt.ylabel('Runtime (s)')
         ps.finalize()
-        plt.savefig(os.path.join(figpath, 
+        plt.savefig(os.path.join(ps.figpath, 
             '{}_{:.0e}_smem.pdf'.format(mech, dt)))
         plt.close()

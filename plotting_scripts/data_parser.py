@@ -109,7 +109,7 @@ def read_data(file_name):
 	return y
 
 def get_series():
-	base = ps.data_path
+	base = ps.datapath
 	dir_list = sorted([name for name in os.listdir(base)
 	            if os.path.isdir(os.path.join(base, name)) and
 	            os.path.isdir(os.path.join(base, name, 'output'))])

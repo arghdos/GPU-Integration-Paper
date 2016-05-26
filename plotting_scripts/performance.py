@@ -9,6 +9,7 @@ data = parser.get_series()
 from optionloop import OptionLoop as op
 import numpy as np
 import matplotlib.pyplot as plt
+import os
 
 oploop = op({'dt' : [1e-6, 1e-4],
             'gpu' : [True, False],
