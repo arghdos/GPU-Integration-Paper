@@ -554,7 +554,7 @@ This phenomena, due largely to the increase in problem size, is mostly mirrored 
 For the larger time-step size however, the performance of the \texttt{Radau-IIA} GPU solver decreases roughly two orders of magnitude as compared the \ce{H2}\slash\ce{CO} case.
 As will be explored in Sec.~\ref{S:divergence} this is dramatic decrease is likely due to greatly increased thread divergence in the \texttt{Radau-IIA} solver, as well as the increased memory traffic inherent in the larger model.
 
-Unlike when using the \ce{H2}\slash\ce{CO} model, the \texttt{exprb43} solver outperforms \texttt{exp4} for the GRI-Mech 3.0 model in all cases but for the CPU solvers with the smaller time-step (for which the performance is similar).
+Unlike when using the \ce{H2}\slash\ce{CO} model, the \texttt{exprb43} solver outperforms \texttt{exp4} for the GRI-Mech 3.0 model in all cases for the larger time-step size.
 Although the \texttt{exprb43} and \texttt{exp4} algorithms each only require three exponential matrix function approximations, a single time step of \texttt{exprb43} is more expensive due to the extra chemical source term evaluations, matrix multiplications, and higher-order exponential matrix function requirement.
 As such, the relatively simpler CPU \texttt{exp4} integrator outperforms the CPU \texttt{exprb43} integrator for the \ce{H2}\slash\ce{CO} model where there is relatively less chemical stiffness.
 However, the nominal fourth-order convergence of the \texttt{exp4} algorithm is a classical nonstiff order, and thus order reduction is expected for stiff problems~\cite{ANU:7701740,Bisetti:2012jw}.
