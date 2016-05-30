@@ -219,7 +219,7 @@ However, in our experience efficient use of these resources requires significant
 Finally, past work has shown that in the best-case scenario, elimination of the majority of thread divergence by choice of identical initial conditions, the performance of a per-thread implicit integration algorithm greatly surpassed that of the per-block implementation of the same algorithm~\cite{Stone:2013aa}.
 
 A number of studies in recent years explored the use high-performance SIMD devices to accelerate (turbulent) reacting-flow simulations.
-Spafford et al.~\cite{Spafford:2010aa} investigated using GPUs to accelerate a turbulent combustion direct numerical simulation code, demonstrating a sub-order of magnitude speedup in evaluating the species production rates on the GPU.
+Spafford et al.~\cite{Spafford:2010aa} investigated use of GPUs to accelerate a turbulent combustion direct numerical simulation code, demonstrating a sub-order of magnitude speedup in evaluating the species production rates on the GPU.
 Shi et al.~\cite{Shi:2011aa} used a GPU to evaluate species rates and factorize the Jacobian for the integration of independent kinetics systems, showing order-of-magnitude or greater speedups for large kinetic models.
 Niemeyer et al.~\cite{Niemeyer:2011aa} implemented an explicit fourth-order Runge--Kutta integrator for the GPU, and found a speedup of nearly two orders of magnitude with a nonstiff hydrogen mechanism.
 Shi et al.~\cite{Shi:2012aa} implemented a stabilized explicit solver for the GPU and paired it with a CPU-based implicit solver that handled integration of the most-stiff chemistry cells in a three-dimensional premixed diesel engine simulation, demonstrating an overall speedup of \numrange{2}{3}$\times$.
@@ -285,7 +285,7 @@ In order to measure the performance of the integrators for realistic conditions,
 We selected two chemical kinetic models to span the range of model sizes typically used in high-fidelity simulations: the \ce{H2}\slash\ce{CO} model of Burke et al.~\cite{Burke:2011fh} with 13 species and 27 reactions, and the GRI-Mech 3.0 model with 53 species and 325 reactions~\cite{smith_gri-mech_30}.
 The PaSR simulations were performed at the conditions listed in Table~\ref{T:pasr_parameters} for 10 residence times to reach a statistical steady state; Niemeyer et al.~\cite{Niemeyer:2015ws} described the PaSR simulation process in greater detail, which follows approaches used by others~\cite{Chen:1997ta,Pope:1997wu,Ren:2014cd}.
 The PaSR particles were initialized using the equilibrium state, and gradually move away from equilibrium conditions due to mixing\slash inflow\slash outflow.
-In order to not influence the solution runtime trends for small numbers of ODEs, the first \num{1000} conditions, were removed from each database.
+In order to reduce the influence of the equilibrium condition on the solution runtime trends for small numbers of ODEs, the first \num{1000} conditions, were removed from each database.
 This corresponded to a single $\tau_\text{pair}$; at this point in the simulation, $\sim\SI{20}{\percent}$ of the conditions were no longer near-equilibrium temperature, and by the \num{5000}th condition $\sim\SI{80}{\percent}$ of the states were no longer near-equilibrium.
 
 %
