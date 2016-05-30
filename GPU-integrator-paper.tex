@@ -696,7 +696,7 @@ As the exponential methods are formulated for use with exact Jacobian (rather th
 Figure~\ref{F:AJ_comp} shows the speedup achieved on both the CPU\slash GPU for the \texttt{Radau-IIA} algorithm for various cases.
 For the \ce{H2}\slash\ce{CO} model, the performance benefit from use of the analytical Jacobian is fairly minimal for the CPU based integrators reaching speedup of only $\sim\mathcal{O}(1\times)$.
 This is due to both the relatively small size of the model which and modest resulting chemical source term evaluation cost, as well as the lower chemical stiffness which requires only a few Jacobian evaluations for the \texttt{Radau-IIA} solver.
-In some cases the finite-difference Jacobian solver is faster than the analytical Jacobian solver; although difficult to explain it is likely that differences in the finite-difference Jacobian caused the integrator to follow a slightly different path (e.g., with fewer Jacobian updates\slash chemical source term evaluations) changing the integration cost.
+In some cases the finite-difference Jacobian solver is faster than the analytical Jacobian solver; although difficult to explain the exact cause of this phenomena, it is likely that differences in the finite-difference Jacobian caused the integrator to follow a slightly different path (e.g., with fewer Jacobian updates\slash chemical source term evaluations) changing the integration cost.
 However for large numbers of conditions, the analytical Jacobian based solver is indeed faster than the finite-difference counterpart.
 
 In Fig.~\ref{F:AJ_ch4_small} we see that the speedup for the CPU solver reaches \SIrange{2}{3}{$\times$} for the larger, more stiff GRI-Mech 3.0 model.
