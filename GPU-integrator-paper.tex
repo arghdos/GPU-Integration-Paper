@@ -674,7 +674,7 @@ An investigation of thread divergence for the operations within a internal integ
 \end{figure}
 
 Figure~\ref{F:rad_divergence} shows the distribution of the divergence measure $D$ for the \texttt{Radau-IIA} solver with both time-step sizes and kinetic models when run on \num{262144} ODEs, spread across \num{8192} warps.
-For both kinetic models, increasing time-step size resulted in a sharp increase in the number of warps with high levels of thread divergence (i.e., $D < 0.5$).
+For both kinetic models, increasing the global  integration time-step size resulted in a sharp increase in the number of warps with high levels of thread divergence (i.e., $D < 0.5$).
 Correspondingly, the approximate equivalent CPU core-count (Table~\ref{T:cpu_equiv}) drops around \SIrange{2.5}{4}{$\times$}.
 Further, the GRI-Mech 3.0 model experiences higher levels of thread divergence for the larger time-step, and subsequently a larger drop in performance is observed.
 Thread divergence may be an even more important concern for chemical kinetic models with high chemical stiffness.
@@ -694,9 +694,9 @@ To this end, in this section we explore the use of a first-order finite-differen
 As the exponential methods are formulated for use with exact Jacobian (rather than approximate finite-difference based Jacobians), their performance was not considered during this section.
 
 Figure~\ref{F:AJ_comp} shows the speedup achieved on both the CPU\slash GPU for the \texttt{Radau-IIA} algorithm for various cases.
-For the \ce{H2}\slash\ce{CO} model, the performance benefit from use of the analytical Jacobian is fairly minimal for the CPU based integrators reaching speedup of only $\sim\mathcal{O}(1))$; in some cases the finite-difference Jacobian solver may actually be faster.
+For the \ce{H2}\slash\ce{CO} model, the performance benefit from use of the analytical Jacobian is fairly minimal for the CPU based integrators reaching speedup of only $\sim\mathcal{O}(1)$.
 This is due to both the relatively small size of the model which and modest resulting chemical source term evaluation cost, as well as the lower chemical stiffness which requires only a few Jacobian evaluations for the \texttt{Radau-IIA} solver.
-The faster performance of the finite-difference Jacobian based solver is difficult to explain; it is likely that differences in the finite-difference Jacobian caused the integrator to follow a slightly different path changing the integration cost.
+In some cases the finite-difference Jacobian solver is faster than the analytical Jacobian solver; although difficult to explain it is likely that differences in the finite-difference Jacobian caused the integrator to follow a slightly different path (e.g., with fewer Jacobian updates\slash chemical source term evaluations) changing the integration cost.
 However for large numbers of conditions, the analytical Jacobian based solver is indeed faster than the finite-difference counterpart.
 
 In Fig.~\ref{F:AJ_ch4_small} we see that the speedup for the CPU solver reaches \SIrange{2}{3}{$\times$} for the larger, more stiff GRI-Mech 3.0 model.
