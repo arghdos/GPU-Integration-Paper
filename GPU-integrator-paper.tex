@@ -625,7 +625,7 @@ For example, if only one thread in a warp executes an expensive branch (e.g., a 
 
 To investigate the effects of thread divergence further, we have adopted a similar quantification of thread divergence to that of Niemeyer and Sung~\cite{Niemeyer:2014aa}:
 \begin{equation}
-	D = \frac{\sum_{i=1}^{32}{d_i}}{32 \max_{i \in 32} d_i} \;,
+	D = \frac{\sum_{i=1}^{32}{d_i}}{32 \times \max\limits_{i = 1\dots32} d_i} \;,
 	\label{eqn:divergence}
 \end{equation}
 where $d_i$ is the number of internal integrator time steps taken to reach the global time step by thread $i$ in a warp (which consists of 32 threads).
