@@ -634,7 +634,7 @@ This is not the only source of thread divergence for the GPU integration algorit
 For instance, threads in a warp may have different Krylov subspace sizes for the exponential integrators, or different numbers of required Newton iterations for the \texttt{Radau-IIA} solver.
 Indeed, Sec.~\ref{S:results} notes that we suspect thread divergence from differing Krylov subspace sizes as the reason the exponential solvers are less efficient for small numbers of ODEs for the \ce{H2}\slash\ce{CO} model with the small time-step.
 However, the cost of these operations are clearly less than that of an entire internal integration step (in which they are embedded) and thus we look only at the thread divergence of internal integration time steps.
-An investigation of thread divergence for the operations within a internal integration step is important and will be investigated in our future work.
+Investigation of thread divergence for the operations within a internal integration step is an important consideration and will be explored in our future work.
 
 \begin{figure}[htb]
   \ifmeasure
