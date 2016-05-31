@@ -496,7 +496,7 @@ For small numbers of ODEs, the exponential integrators are seen to outperform th
 For larger numbers conditions, the CPU resources begin to be saturated, and the runtime per ODE levels off to a more constant value.
 Eventually relatively stiffer conditions are encountered and the performance of the implicit integration techniques catches up and surpasses that of the exponential integrators; \texttt{CVODE} is the most efficient solver on the CPU when solving more than \num{e4} ODEs, however the other solvers are of relatively similar efficiency in this case.
 Fig.~\ref{F:h2_gpu_perf_small} shows the performance of the GPU integrators for the smaller global time-step.
-A similar trend to the CPU solver is exhibited, with an linearly decreasing solution cost that reaches a roughly constant value at $\sim$\num{e3} ODEs.
+A similar trend to the CPU solver is exhibited, with an linearly decreasing solution cost that reaches a roughly constant value between \numrange{e3}{e4} ODEs.
 Unlike the CPU solvers, the \texttt{Radau-IIA} solver is more efficient than the exponential solvers for all numbers of ODEs on the GPU.
 As will be seen in Sec.~\ref{S:divergence} both solver classes have minimal thread divergence due to differing internal integration time-step size in this case.
 Therefore we conclude that this difference is due to thread divergence in the Arnoldi iteration (caused by varying Krylov subspace sizes between threads) for the exponential algorithms.
