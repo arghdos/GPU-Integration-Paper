@@ -508,9 +508,8 @@ Fig.~\ref{F:h2_gpu_perf_large} shows the performance of the GPU solvers for the 
 At \num{4} ODEs, a significant spike in cost is observed for the exponential solvers; a smaller increase in cost is seen around \num{32} ODEs, and is mirrored to a much lesser extent for the implicit \texttt{Radau-IIA} solver.
 The performance decrease at \num{4} ODEs is mirrored in the CPU solvers, indicating chemical stiffness as the primary cause.
 The decrease at \num{32} ODEs is much smaller for the CPU exponential solvers, additionally the \texttt{Radau-IIA} GPU solver shows a performance decrease at the same point, a trend completely absent in the CPU version.
-These factors indicate that thread divergence is also playing a key role in the performance trend here.
-This pattern of thread divergence, which will be explored further in Sec.~\ref{S:divergence}, is exhibited to some extent for all GPU integrators in this work.
-The \texttt{Radua-IIA} solver is more efficient for all cases.
+These factors indicate that thread divergence is also playing a key role in the performance trend here, and will be explored further in Sec.~\ref{S:divergence}.
+Similar to the smaller global time-step size, the \texttt{Radua-IIA} solver is the most efficient GPU algorithm in all cases.
 
 \begin{figure}[htb]
   \ifmeasure
