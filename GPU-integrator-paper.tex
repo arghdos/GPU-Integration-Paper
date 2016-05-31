@@ -414,7 +414,7 @@ Adaptive time-stepping was used in all cases, and Krylov subspace approximation 
 The global integrator time-step was varied from \SI{e-6}{\second} to \SI{e-11}{\second} to examine convergence to the true solution.
 
 Figure~\ref{F:convergence} shows the convergence plot for the CPU solvers.
-The error of the \texttt{Radau-IIA} integrator is far below the specified integration tolerances (which are achieved in the ideal case for $\left\lvert\textbf{E}\right\rvert = 1$) for all cases.
+The error of the \texttt{Radau-IIA} integrator is far below the specified integration tolerances (which are ideally achieved for $\left\lvert\textbf{E}\right\rvert = 1$) for all cases.
 The exponential solvers exhibit much larger levels of error for the larger global time-step, with $\left\lvert\textbf{E}\right\rvert \sim \mathcal{O}(1)$ for the largest global time-step.
 As the time-step size is decreased two factors affect the overall error.
 First, the internal integration step-size was not held constant but instead allowed to vary adaptively, hence this is only a ``true'' convergence plot for the smaller time-steps where the global integrator time-step is smaller than any step-size taken by the adaptive scheme.
