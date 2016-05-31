@@ -491,7 +491,7 @@ The presentation of the performance data in raw form has been made available in 
 \end{figure}
 
 Figure~\ref{F:H2_perf} shows the runtimes of the CPU and GPU integrators for the \ce{H2}\slash\ce{CO} model.
-In Fig.~\ref{F:h2_cpu_perf_small} the runtimes per ODE for the CPU integrators with a global time-step of $\delta t= \SI{e-6}{\second}$ are seen to decrease approximately linearly with the number of ODEs for small numbers of ODEs (shown here on a log-log plot).
+In Fig.~\ref{F:h2_cpu_perf_small} the runtimes per ODE for the CPU integrators with a global time-step of $\delta t= \SI{e-6}{\second}$ are seen to decrease approximately linearly with the number of ODEs for small numbers of initial conditions (shown here on a log-log plot).
 For small numbers of ODEs, the exponential integrators are seen to outperform the implicit integration techniques due to the modest stiffness of the \ce{H2}\slash\ce{CO} model; even with many near-equilibrium states removed from the beginning of the PaSR database, the model is not particularly stiff for this small time-step.
 For larger numbers conditions, the CPU resources begin to be saturated, and the runtime per ODE levels off to a more constant value.
 Eventually relatively stiffer conditions are encountered and the performance of the implicit integration techniques catches up and eventually surpasses that of the exponential integrators; \texttt{CVODE} is the most efficient solver on the CPU when solving more than \num{e4} ODEs, however the other solvers are of relatively similar efficiency in this case.
