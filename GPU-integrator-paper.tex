@@ -693,17 +693,15 @@ To this end, in this section we explore the use of a first-order finite-differen
 As the exponential methods are formulated for use with an exact Jacobian (rather than approximate finite-difference based Jacobians), their performance was not considered during this section.
 
 Figure~\ref{F:AJ_comp} shows the speedup achieved on both the CPU\slash GPU for the \texttt{Radau-IIA} algorithm for various cases.
-For the \ce{H2}\slash\ce{CO} model (Figs.~\ref{F:AJ_h2_small} and~\ref{F:AJ_h2_large}), the performance benefit from use of the analytical Jacobian is fairly minimal for the CPU based integrators reaching speedup of only $\sim\mathcal{O}(1\times)$ for both time-step sizes.
+For the \ce{H2}\slash\ce{CO} model (Figs.~\ref{F:AJ_h2_small} and~\ref{F:AJ_h2_large}), the performance benefit from use of the analytical Jacobian is fairly minimal for the CPU based integrators reaching speedup of only $\mathcal{O}(\num{1}\times)$ for both time-step sizes.
 This is due to both the relatively small size of the model which and modest resulting chemical source term evaluation cost, as well as the lower chemical stiffness which requires only a few Jacobian evaluations for the \texttt{Radau-IIA} solver.
 In some cases the finite-difference Jacobian solver is faster than the analytical Jacobian solver; although difficult to explain the exact cause of this phenomena, it is likely that differences in the finite-difference Jacobian caused the integrator to follow a slightly different path (e.g., with fewer Jacobian updates\slash chemical source term evaluations) changing the integration cost.
 However for large numbers of conditions, the analytical Jacobian based solver is indeed faster than the finite-difference counterpart.
 In contrast, the analytical Jacobian based GPU solver is significantly faster than the finite-difference GPU solver in all cases for the \ce{H2}\slash\ce{CO} model.
+Further, from Sec.~\ref{S:divergence}, significantly higher levels of thread divergence are expected for the larger time-step size.
+Correspondingly, a maximum speedup of $\mathcal{O}(\num{10}\times)$ is observed on the GPU for the smaller time-step, while a much larger speedup, $\mathcal{O}(\num{100}\times)$, is observed with the larger time-step.
 In Fig.~\ref{F:AJ_ch4_small} we see that the speedup for the CPU solver reaches \SIrange{2}{3}{$\times$} for the larger, more stiff GRI-Mech 3.0 model.
-The performance of the analytical Jacobian based GPU \texttt{Radau-IIA} solver is again significantly better than its finite-difference counterpart in all cases.
-
-Based on the results presented in Sec.~\ref{S:divergence}, roughly similar levels of thread divergence are expected for both models at the smaller time-step for the \texttt{Radau-IIA} solver, while significantly more thread divergence is evident for both models with the larger time-step.
-As the finite-difference Jacobian evaluation is relatively costly, we expect a large drop in efficiency when thread divergence is encountered; if only a few threads require Jacobian updates, the SM will be underutilized for long periods.
-Correspondingly, maximum speedups of $\sim\mathcal{O}(10\times$) are observed on the GPU for both models with the smaller time-step, while much larger speedups, $\sim\mathcal{O}(100\times)$, are observed for the \ce{H2}\slash\ce{CO} model with the larger time-step.
+Similar to the \ce{H2}\slash\ce{CO} case with the smaller time-step, the analytical Jacobian based GPU \texttt{Radau-IIA} solver is $\mathcal{O}(10\times)$ faster for the GRI-Mech 3.0 Model.
 
 \begin{figure}[htb]
   \ifmeasure
