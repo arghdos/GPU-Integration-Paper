@@ -419,7 +419,7 @@ The exponential solvers exhibit much larger levels of error for the larger globa
 As the time-step size is decreased two factors affect the overall error.
 First, the internal integration step-size was not held constant but instead allowed to vary adaptively, hence this is only a ``true'' convergence plot for the smaller time-steps where the global integrator time-step is smaller than any step-size taken by the adaptive scheme.
 In conjunction, the convergence of the Arnoldi algorithm is affected by the internal integration step-size (the matrix exponentials and error estimates are scaled by the internal step-size).
-To study the effect of the Arnoldi algorithm on the overall error, Fig.~\ref{F:convergence} also presents the convergence of the exponential integrators with the Krylov approximation error reduced to far below that of the error of the overall method.
+To study the effect of the Arnoldi algorithm on the overall error, Fig.~\ref{F:convergence} also presents the convergence of the exponential integrators with the Krylov approximation error reduced far below the error of the overall method.
 Practically, this is accomplished by detecting when the $n$th Krylov subspace vector approaches zero, a condition known as the ``happy breakdown'' in literature~\cite{datta2010numerical}.
 In this limit, the approximate exponential matrix\slash vector product approaches the exact value and thus the error induced by the Krylov approximation is negligible.
 In Fig.~\ref{F:convergence} is it seen that with the approximate Krylov subspace, the exponential methods achieve only first order convergence to the true solution, however with the ``exact'' Krylov subspace both methods are closer to second-order convergence.
