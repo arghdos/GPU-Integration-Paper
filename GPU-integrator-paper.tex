@@ -694,7 +694,7 @@ As the exponential methods are formulated for use with an exact Jacobian (rather
 
 Figure~\ref{F:AJ_comp} shows the speedup achieved on both the CPU\slash GPU for the \texttt{Radau-IIA} algorithm for various cases.
 For the \ce{H2}\slash\ce{CO} model (Figs.~\ref{F:AJ_h2_small} and~\ref{F:AJ_h2_large}), the performance benefit from use of the analytical Jacobian is fairly minimal for the CPU based integrators reaching speedup of only $\mathcal{O}(\num{1}\times)$ for both time-step sizes.
-This is due to both the relatively small size of the model which and modest resulting chemical source term evaluation cost, as well as the lower chemical stiffness which requires only a few Jacobian evaluations for the \texttt{Radau-IIA} solver.
+This is due to both the relatively small size of the model and modest resulting chemical source term evaluation cost, as well as the lower chemical stiffness which requires only a few Jacobian evaluations for the \texttt{Radau-IIA} solver.
 In some cases the finite-difference Jacobian solver is faster than the analytical Jacobian solver; although difficult to explain the exact cause of this phenomena, it is likely that differences in the finite-difference Jacobian caused the integrator to follow a slightly different path (e.g., with fewer Jacobian updates\slash chemical source term evaluations) changing the integration cost.
 However for large numbers of conditions, the analytical Jacobian based solver is indeed faster than the finite-difference counterpart.
 In contrast, the analytical Jacobian based GPU solver is significantly faster than the finite-difference GPU solver in all cases for the \ce{H2}\slash\ce{CO} model.
