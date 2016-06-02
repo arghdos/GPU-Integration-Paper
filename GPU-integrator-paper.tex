@@ -406,7 +406,7 @@ The error for condition $i$ was then determined using the weighted root mean squ
 where the $y_i(t)$ is the solution obtained from the various solvers, and $\hat{y}_i(t)$ is the ``true'' solution obtained via \texttt{CVODE} using a global time-step of $\delta t = \SI{e-10}{\second}$ and absolute\slash relative tolerances of \num{e-20} and \num{e-15} respectively.
 The maximum error over all conditions:
 \begin{equation}
- \left\lvert\textbf{E}\right\rvert = \max_{i=\num{1}\dots\num{10000}}\{E_i(t)\}
+ \left\lvert\textbf{E}\right\rvert = \max_{i= 1, \dots, \num{10000}}\{E_i(t)\}
 \end{equation}
 was then used to measure convergence.
 The solvers used the same tolerances as for the performance testing (absolute\slash relative tolerances of \num{e-10} and \num{e-6} respectively).
