@@ -2,16 +2,7 @@
 \pdfminorversion=5
 \pdfsuppresswarningpagegroup=1
 
-\newif\iftitlepage
-\newif\ifmeasure
-%\measuretrue
-%\titlepagetrue
-
-\ifmeasure
-\documentclass[final,twocolumn]{elsarticle}
-\else
 \documentclass[preprint]{elsarticle}
-\fi
 
 \usepackage[utf8]{inputenc}
 
@@ -81,53 +72,7 @@
 \journal{Journal of Computational Physics}
 
 \begin{document}
-\iftitlepage
-\begin{titlepage}
-\parbox{\linewidth}{
-\begin{flushleft}
-\textbf{Title:}\linebreak
-An investigation of GPU-based stiff chemical kinetics integration methods
-\linebreak
-\linebreak
-\textbf{Authors and Affiliations:} \linebreak\linebreak
-  N.  Curtis	(860) 803-4660 \linebreak
-  C.J Sung	(860) 486-3679 \linebreak
-  Department of Mechanical Engineering \linebreak
-  The University of Connecticut \linebreak
-  191 Auditorium Road, Unit 3139 \linebreak
-  Storrs, CT 06269-3139 \linebreak
-  \linebreak
-  K.E. Niemeyer	(541) 737-5614 \linebreak
-  School of Mechanical, Industrial, and Manufacturing Engineering\linebreak
-  Oregon State University\linebreak
-\linebreak
-\textbf{Corresponding Author:}\linebreak
-  N. Curtis\linebreak
-  (860) 803-4660 \linebreak
-  Department of Mechanical Engineering\linebreak
-  The University of Connecticut \linebreak
-  191 Auditorium Road, Unit 3139 \linebreak
-  Storrs, CT 06269-3139 \linebreak
-  \href{mailto:nicholas.curtis@uconn.edu}{nicholas.curtis@uconn.edu}\linebreak
-\linebreak
-\textbf{Colloquium:}\linebreak
-REACTION KINETICS\linebreak
-\linebreak
-\textbf{Word Count:}\linebreak
-Method 2\linebreak
-Formatted into two columns using elsarticle\linebreak
-With font sizes and spacing as specified in the Latex Author Instructions.\linebreak
-Six full pages $\times$ 900 words/page + 170 mm column $\times$ 2.2 words/mm = 5774 words.\linebreak
-\textbf{Color Charges:}\linebreak
-We do not authorize the reproduction of color images in print.
-\end{flushleft}
-}
-\end{titlepage}
-\else
-\ifmeasure
-\small
-\baselineskip 10pt
-\fi
+
 \begin{frontmatter}
 
 \title{An investigation of GPU-based stiff chemical kinetics integration methods}
@@ -167,9 +112,6 @@ Finally, future research directions were identified based on the current state-o
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Introduction}
 \label{sec:Intro}
-\ifmeasure
-\addvspace{10pt}
-\fi
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 The need for accurate chemical kinetic models in predictive reacting-flow simulations has driven the development of detailed oxidation models for hydrocarbon fuels relevant to transportation and energy generation applications.
@@ -246,9 +188,6 @@ Finally in Sec.~\ref{S:conclusions}, the results of this work will be used to id
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Methodology}
 \label{S:method}
-\ifmeasure
-\addvspace{10pt}
-\fi
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 In this section, we discuss details of the algorithms implemented for the GPU along with third-party software used.
@@ -309,9 +248,6 @@ This corresponded to a single $\tau_\text{pair}$; at this point in the simulatio
 
 \begin{table}[htb]
 \centering
-\ifmeasure
-\fontsize{8pt}{10pt}\selectfont
-\fi
 \begin{tabular}{@{}l l l @{}}
 \toprule
 Parameter & \ce{H2}\slash air & \ce{CH4}\slash air \\
@@ -349,12 +285,7 @@ PaSR parameters used for hydrogen\slash air and methane\slash air premixed combu
 % This small amount of available memory is challenging to use in the integration algorithm itself; however, evaluation of the chemical source terms and analytical Jacobian present opportunities for using the shared memory.
 % 
 % \begin{algorithm}[htb]
-% \ifmeasure
-% \fontsize{8pt}{10pt}\selectfont
-% \caption{\fontsize{9pt}{10pt}\selectfont \textbf{Algorithm:} A procedure for memory caching during evaluation of reaction rates.\label{A:shared_mem_caching}}
-% \else
 % \caption{\textbf{Algorithm:} A procedure for memory caching during evaluation of reaction rates.\label{A:shared_mem_caching}}
-% \fi
 % \begin{algorithmic}[0]
 %   \State {Initialize the cached species concentration set $C = \varnothing$}
 %   \State {Let maximum set size be $C_{\max}$}
@@ -389,9 +320,6 @@ PaSR parameters used for hydrogen\slash air and methane\slash air premixed combu
 
 \subsection{Solver Validation}
 \begin{figure}[htb]
-  \ifmeasure
-  \fontsize{8pt}{10pt}\selectfont
-  \fi
   \centering
   \includegraphics[width=0.5\linewidth]{c_nco_nosmem_error.pdf}
   \caption{Error of the various CPU solvers as a function of global integrator step-size $\delta t$.}
@@ -432,9 +360,6 @@ Additionally, although not shown, the results for the GPU solvers are nearly ide
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Results and discussion}
 \label{S:results}
-\ifmeasure
-\addvspace{10pt}
-\fi
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 We studied the performance of the integrators by testing each on the PaSR conditions described in Sec.~\ref{S:pasr_conditions} for two different global integration time-step sizes representative of those used in large eddy and Reynolds-averaged Navier--Stokes simulations: $\delta t = \SI{e-6}{\s}$ and $\delta t = \SI{e-4}{\s}$, respectively.
@@ -449,9 +374,6 @@ The open-source \texttt{pyJac} software~\cite{niemeyer_2016_51139,Niemeyer:2015w
 Finally, the L1\slash shared-memory cache was set to prefer a larger L1 cache using the \texttt{cudaDeviceSetCacheConfig()} function.
 
 \subsection{Performance}
-\ifmeasure
-\addvspace{10pt}
-\fi
 
 The runtimes in this section were normalized by the number of ODEs solved for all cases.
 The reasoning behind this presentation is two-fold.
@@ -459,9 +381,6 @@ First, saturation of the available computational resources becomes visually appa
 The presentation of the performance data in raw form has been made available in \ref{S:raw} for completeness.
 
 \begin{figure}[htb]
-  \ifmeasure
-  \fontsize{8pt}{10pt}\selectfont
-  \fi
   \centering
   \begin{subfigure}{0.49\textwidth}
       \includegraphics[width=\linewidth]{H2_1e-06_cpu.pdf}
@@ -512,9 +431,6 @@ These factors indicate that thread divergence is also playing a key role in the 
 As in the smaller global time-step case, the \texttt{Radua-IIA} solver is the most efficient GPU algorithm in all cases.
 
 \begin{figure}[htb]
-  \ifmeasure
-  \fontsize{8pt}{10pt}\selectfont
-  \fi
   \centering
   \begin{subfigure}{0.49\textwidth}
       \includegraphics[width=\linewidth]{CH4_1e-06_cpu.pdf}
@@ -598,9 +514,6 @@ For Reynolds-averaged simulations, the benefit is less clear for the stiffer GRI
 
 \begin{table}[htb]
 \centering
-\ifmeasure
-\fontsize{8pt}{10pt}\selectfont
-\fi
 \begin{tabular}{@{}l S[table-format=2.1] S[table-format=2.1] @{}}
 \toprule
 Step-size & \multicolumn{1}{c}{\ce{H2}\slash\ce{CO}} & \multicolumn{1}{c}{\ce{CH4}} \\
@@ -637,9 +550,6 @@ However, the cost of these operations are clearly less than that of an entire in
 Investigation of thread divergence for the operations within a internal integration step is an important consideration and will be explored in our future work.
 
 \begin{figure}[htb]
-  \ifmeasure
-  \fontsize{8pt}{10pt}\selectfont
-  \fi
   \centering
   \begin{subfigure}{0.49\textwidth}
       \includegraphics[width=\linewidth]{H2_radau2a_div.pdf}
@@ -655,9 +565,6 @@ Investigation of thread divergence for the operations within a internal integrat
   \label{F:rad_divergence}
 \end{figure}
 \begin{figure}[htb]
-  \ifmeasure
-  \fontsize{8pt}{10pt}\selectfont
-  \fi
   \centering
   \begin{subfigure}{0.49\textwidth}
       \includegraphics[width=\linewidth]{H2_exprb43_div.pdf}
@@ -704,9 +611,6 @@ In Fig.~\ref{F:AJ_ch4_small} we see that the speedup for the CPU solver reaches 
 Similar to the \ce{H2}\slash\ce{CO} case with the smaller time-step, the analytical Jacobian based GPU \texttt{Radau-IIA} solver is $\mathcal{O}(10\times)$ faster for the GRI-Mech 3.0 Model.
 
 \begin{figure}[htb]
-  \ifmeasure
-  \fontsize{8pt}{10pt}\selectfont
-  \fi
   \centering
   \begin{subfigure}{0.49\textwidth}
       \includegraphics[width=\linewidth]{H2_1e-06_ajac_comp.pdf}
@@ -742,9 +646,6 @@ Similar to the \ce{H2}\slash\ce{CO} case with the smaller time-step, the analyti
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Conclusions}
 \label{S:conclusions}
-\ifmeasure
-\addvspace{10pt}
-\fi
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 The large size and chemical stiffness of chemical kinetic models relevant to fuels for transportation and power generation traditionally requires the use of high-order implicit integrators for efficient solutions.
@@ -768,9 +669,6 @@ Finally, new integration techniques such as hybrid implicit\slash explicit solve
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section*{Acknowledgments}
-\ifmeasure
-\addvspace{10pt}
-\fi
 
 This material is based upon work supported by the National Science Foundation under grants ACI-1534688 and ACI-1535065.
 
@@ -790,9 +688,6 @@ This material is based upon work supported by the National Science Foundation un
 In this section we present the plots of the raw performance data for completeness, as described in Sec.~\ref{S:results}.
 
 \begin{figure}[htb]
-  \ifmeasure
-  \fontsize{8pt}{10pt}\selectfont
-  \fi
   \centering
   \begin{subfigure}{0.49\textwidth}
       \includegraphics[width=\linewidth]{H2_1e-06_cpu_nonorm.pdf}
@@ -817,9 +712,6 @@ In this section we present the plots of the raw performance data for completenes
 \end{figure}
 
 \begin{figure}[htb]
-  \ifmeasure
-  \fontsize{8pt}{10pt}\selectfont
-  \fi
   \centering
   \begin{subfigure}{0.49\textwidth}
       \includegraphics[width=\linewidth]{CH4_1e-06_cpu_nonorm.pdf}
@@ -844,12 +736,7 @@ In this section we present the plots of the raw performance data for completenes
 
 \clearpage
 
-\ifmeasure
-\footnotesize
-\baselineskip 9pt
-\setlength{\bibsep}{0pt plus 0.3ex}
-\fi
 \bibliography{GPU-integrator-paper}
 \bibliographystyle{elsarticle-num}
-\fi
+
 \end{document}
