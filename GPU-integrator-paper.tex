@@ -116,7 +116,7 @@ Finally, future research directions were identified based on the current state-o
 
 The need for accurate chemical kinetic models in predictive reacting-flow simulations has driven the development of detailed oxidation models for hydrocarbon fuels relevant to transportation and energy generation applications.
 At the same time, growing understanding of hydrocarbon oxidation processes resulted in orders of magnitude increases in model size and complexity.
-For instance, a recently developed model for 2-methylalkanes, relevant for jet and diesel fuel surrogates, includes over 7000 species and 30000 reactions~\cite{Sarathy:2011kx} while a recent detailed gasoline surrogate mechanism contains over 1500 species and 6000 reactions~\cite{Mehl:2011jn}.
+For instance, a recently developed model for 2-methylalkanes, relevant for jet and diesel fuel surrogates, includes over \num{7000} species and \num{30000} reactions~\cite{Sarathy:2011kx} while a recent detailed gasoline surrogate mechanism contains over \num{1500} species and \num{6000} reactions~\cite{Mehl:2011jn}.\todo{some of this is pretty close to sentence in the pyJac paper; might want to revise}
 Furthermore, kinetic models for large hydrocarbon fuels tend to exhibit high chemical stiffness that requires implicit integration algorithms for efficient solution.
 The cost of these algorithms scales at best quadratically---and at worst cubically---with the number of species in a model~\cite{Lu:2009gh}.
 Lu and Law~\cite{Lu:2009gh} extensively reviewed techniques to accelerate chemical kinetics integration.
@@ -125,50 +125,51 @@ In addition to the methods discussed in their work, significant effort has also 
 Reactive-flow modeling codes commonly rely on high-order implicit integration techniques to solve the stiff governing equations posed by chemical kinetic models.
 These methods require repeated evaluation and factorization of the chemical kinetic Jacobian matrix in order to solve the associated nonlinear algebraic equations through iterations of linear system solutions---the cost of which scales quadratically and cubically, respectively, with the number of species in a mechanism.
 However, significant cost savings in the Jacobian evaluation can be realized by using an analytical formulation, rather than the typical evaluation via finite difference approximations.
-This approach eliminates numerous chemical source term evaluations, and for a sparse Jacobian (e.g., formulated in terms of species concentrations) the cost of evaluation drops to a linear dependence on the number of species in the mechanism~\cite{Lu:2009gh}.
+This approach eliminates numerous chemical source term evaluations, and for a sparse Jacobian (e.g., formulated in terms of species concentrations) the cost of evaluation can drop to a linear dependence on the number of species in the mechanism~\cite{Lu:2009gh}.
 
-In this work, our efforts to accelerate chemical kinetics focus on improving the integration strategy itself, via development of new algorithms and use of high-performance hardware accelerators such as graphics processing units (GPUs) and other similar single instruction multiple data (SIMD) devices.
+In this work, our efforts to accelerate chemical kinetics focus on improving the integration strategy itself, via development of new algorithms and use of high-performance hardware accelerators such as graphics processing units (GPUs) and similar single-instruction multiple-data (SIMD) devices.
 Central processing unit (CPU) clock speeds increased regularly over the past few decades---commonly known as Moore's Law---however, power consumption and heat dissipation issues slowed this trend recently.
 While multicore parallelism somewhat increased CPU performance, recently SIMD processors gained popularity as a low cost, low power consumption, and massively parallel high-performance computing alternative.
-GPUs were originally developed for graphics\slash video processing applications and consist of hundreds to thousands of separate cores, compared with the tens of cores found on typical CPUs.
+GPUs were originally developed for graphics\slash video processing applications and consist of hundreds to thousands of separate processing cores\todo{is this the best term here?}, compared with the tens of cores found on typical CPUs.
 The SIMD parallelism model differs from a traditional CPU-based multithreading model, with small per-core memory caches and acceleration resulting from executing the same instruction over multiple data.
-Subsequently, the SIMD parallelism model requires extra consideration for efficient use in chemical kinetic acceleration.
+Subsequently, using the SIMD parallelism model to accelerate chemical kinetics integration requires extra consideration.
 
-In this study, the NVIDIA CUDA framework~\cite{Buck:2008aa,NVIDIA:2015aa} was used, hence the following discussion will use CUDA terminology; however the concepts within are widely applicable to SIMD processing.
+This study used the NVIDIA CUDA framework~\cite{Buck:2008aa,NVIDIA:2015aa}, hence the following discussion will use CUDA terminology; however, the concepts within are widely applicable to SIMD processing.
 The basic parallel function call on a GPU, termed a kernel, is broken up into a grid of thread blocks.
-A GPU consists of a number of streaming multiprocessors (SMs), and the thread blocks in the grid are assigned to a SM, typically with multiple blocks assigned to a single SM.
+A GPU consists of a number of streaming multiprocessors (SMs), each of which is assigned one or more thread blocks in the grid.
 The SMs further subdivide the blocks into groups of \num{32} threads called warps, which form the fundamental CUDA processing unit.
 The resources available on a SM (memory, cores, registers, etc.) are split between the warps from all the assigned blocks.
 The threads in a warp are executed in parallel on CUDA cores, with multiple warps typically being executed concurrently on a SM.
 Thread divergence, a key performance concern for SIMD processing, occurs when the threads in a warp follow different execution paths, e.g., due to if\slash then branching.
-In this case, the divergent execution paths must executed serially, causing a slowdown.
-Further, as compared to a typical CPU, GPUs have relatively small memory caches and few registers available per SM.
+In this case, the divergent execution paths must execute in serial, causing a slowdown.
+Furthermore, as compared with a typical CPU, GPUs possess relatively small memory caches and few registers per SM.
 These resources are further split between all the blocks\slash warps running on that SM.
-Overuse of these resources can cause slow global memory accesses for data not stored locally in-cache or can even reduce the number blocks being assigned to each SM.
-The performance trade-offs of various CUDA execution patterns are quite involved and beyond the scope of this work, for more details we refer the interested reader to several works that discussed these topics in depth~\cite{Cruz:2011gc,Brodtkorb:2013hn,Niemeyer:2014hn}.
-Instead we will briefly highlight key considerations for CUDA-based chemical kinetic ODE integration.
+Overuse of these resources can cause slow global memory accesses for data not stored locally in-cache or can even reduce the number of blocks assigned to each SM.
+The performance tradeoffs of various CUDA execution patterns are quite involved and beyond the scope of this work, for more details we refer the interested reader to several works that discussed these topics in depth~\cite{Cruz:2011gc,Brodtkorb:2013hn,Niemeyer:2014hn}.
+Instead, we will briefly highlight key considerations for CUDA-based chemical kinetic ODE integration.
 
 The extent of thread-cooperation within a CUDA-based chemical kinetic ODE integration algorithm is a key point that shapes much of implementation.
 Typically GPU accelerated chemical kinetic solvers follow either a ``per-thread'' pattern~\cite{Niemeyer:2011aa,Stone:2013aa,Niemeyer:2014aa}, in which each individual GPU thread solves a single set of chemical kinetic ODEs, or a ``per-block'' approach~\cite{Stone:2013aa,Sewerin20151375}, in which all the threads in a block cooperate to solve a single set of chemical kinetic ODEs.
-The greatest potential benefit of a per-thread approach is that a much larger number of ODEs can theoretically be solved concurrently; typically the number of blocks that can be executed concurrently on each SM is $\sim$8, whereas typical CUDA launch configurations in this work consist of 64 threads per block, or 512 sets of ODEs solved concurrently per SM.
-The much larger amount of parallelism available in a per-thread approach is not without drawbacks however.
-For instance as the memory available per SM must now be split between many more sets of ODEs, a per-thread approach may encounter more cache-misses, resulting in expensive global memory loads.
-Further, as different threads may follow different execution paths within the ODE integration algorithm itself the performance of a per-thread approach can be greatly impacted by thread divergence~\cite{Stone:2013aa,Niemeyer:2014aa}.
+The greatest potential benefit of a per-thread approach is that a much larger number of ODEs can theoretically be solved concurrently; typically the number of blocks that can be executed concurrently on each SM is around eight, whereas typical CUDA launch configurations in this work consist of 64 threads per block, or 512 sets of ODEs solved concurrently per SM.
+Unfortunately, the larger amount of parallelism offered by a per-thread approach does not come without drawbacks.
+For example, as the memory available per SM must now be split between many more sets of ODEs, a per-thread approach may encounter more cache-misses, resulting in expensive global memory loads.
+The performance of a per-thread approach can also be greatly impacted by thread divergence, because different threads may follow different execution paths within the ODE integration algorithm itself~\cite{Stone:2013aa,Niemeyer:2014aa}.
 For this reason, implicit integration algorithms, which typically have complex branching and evaluation paths, may suffer more from thread divergence when implemented on a per-thread basis than relatively simpler explicit integration techniques~\cite{Stone:2013aa}.
-Conversely, thread divergence is typically less of a concern for integrators following a per-block strategy as the execution path of each thread is planned by design of the algorithm.
-Further, a per-block approach has significantly more local cache memory and registers available for solution of a set of ODEs, and thus memory access speeds and cache size are less of a concern.
-However, in our experience efficient use of these resources requires significant hand-tuning for optimization, making it more difficult to generalize the developed algorithm between different chemical kinetic models (a key feature for potential non-academic applications).
-Finally, past work has shown that in the best-case scenario, elimination of the majority of thread divergence by choice of identical initial conditions, the performance of a per-thread implicit integration algorithm greatly surpassed that of the per-block implementation of the same algorithm~\cite{Stone:2013aa}.
+Thread divergence typically impacts integrators following a per-block strategy less severely, since the execution path of each thread is planned by design of the algorithm.
+A per-block approach also offers significantly more local cache memory and available registers for solving a set of ODEs, and thus memory access speeds and cache size are less of a concern.
+However, in our experience, optimizing use of these resources requires significant manual tuning, making it more difficult to generalize the developed algorithm between different chemical kinetic models (a key feature for potential non-academic applications).
+Finally, past work has shown that in the best-case scenario---elimination of the majority of thread divergence by choice of identical initial conditions---the performance of a per-thread implicit integration algorithm greatly surpasses that of the per-block implementation of the same algorithm~\cite{Stone:2013aa}.
+\todo[inline]{This paragraph had a lot of sentences in a row that started with a single word or phrase and a comma (However, For this reason, Conversely, Further, etc), which I tried to break up}
 
-A number of studies in recent years explored the use high-performance SIMD devices to accelerate (turbulent) reacting-flow simulations.
-Spafford et al.~\cite{Spafford:2010aa} investigated use of GPUs to accelerate a turbulent combustion direct numerical simulation code, demonstrating a sub-order of magnitude speedup in evaluating the species production rates on the GPU.
-Shi et al.~\cite{Shi:2011aa} used a GPU to evaluate species rates and factorize the Jacobian for the integration of independent kinetics systems, showing order-of-magnitude or greater speedups for large kinetic models.
+A number of studies in recent years explored the use of high-performance SIMD devices to accelerate (turbulent) reacting-flow simulations.
+Spafford et al.~\cite{Spafford:2010aa} investigated the use of GPUs to accelerate a turbulent combustion direct numerical simulation code, demonstrating a sub-order of magnitude speedup in evaluating the species production rates on the GPU.
+Shi et al.~\cite{Shi:2011aa} used a GPU to evaluate species rates and factorize the Jacobian for the integration of (single) independent kinetics systems, showing order-of-magnitude or greater speedups for large kinetic models.
 Niemeyer et al.~\cite{Niemeyer:2011aa} implemented an explicit fourth-order Runge--Kutta integrator for the GPU, and found a speedup of nearly two orders of magnitude with a nonstiff hydrogen mechanism.
-Shi et al.~\cite{Shi:2012aa} implemented a stabilized explicit solver for the GPU and paired it with a CPU-based implicit solver that handled integration of the most-stiff chemistry cells in a three-dimensional premixed diesel engine simulation, demonstrating an overall speedup of \numrange{2}{3}$\times$.
-Le et al.~\cite{Le2013596} implemented GPU versions of two high-order shock-capturing reacting flow codes, and found a \numrange{30}{50}$\times$ speedup over the baseline.
+Shi et al.~\cite{Shi:2012aa} implemented a stabilized explicit solver for the GPU and paired it with a CPU-based implicit solver that handled integration of the most-stiff chemistry cells in a three-dimensional premixed diesel engine simulation, demonstrating an overall speedup of two to three times.
+Le et al.~\cite{Le2013596} implemented GPU versions of two high-order shock-capturing reacting flow codes, and found a \numrange{30}{50}$\times$ speedup over the baseline.\todo{single CPU?}
 Stone and Davis~\cite{Stone:2013aa} implemented the implicit VODE~\cite{Brown:1989vl} solver for the GPU and achieved an order of magnitude speed-up over the baseline CPU version.
 Additionally, they showed that the implicit VODE algorithm exhibited significant thread divergence, as expected due to its complicated program flow (compared with an explicit integration scheme).
-Furthermore, Stone and Davis~\cite{Stone:2013aa} showed that for $\sim$\num{e4} independent ODEs or more, a per-thread implementation outperformed a per-block version of the same algorithm; the per-block implementation reached its limit speedup earlier ($\sim$\num{e3} ODEs), however for large scale reacting flow simulations with (typically) millions of cells, this is not a concern.
+Furthermore, Stone and Davis~\cite{Stone:2013aa} showed that for $\sim$\num{e4} independent ODEs or more, a per-thread implementation outperformed a per-block version of the same algorithm; the per-block implementation reached its maximum speedup for a smaller number of ODEs ($\sim$\num{e3}).
 Niemeyer and Sung~\cite{Niemeyer:2014aa} demonstrated an order-of-magnitude speedup for a GPU implementation of a stabilized explicit second-order Runge--Kutta--Chebyshev algorithm over a multicore CPU implementation of VODE for moderately stiff chemical kinetics.
 They also investigated levels of thread divergence due to differing integrator time-step sizes, and found it negatively impacts overall performance for dissimilar ODE initial conditions in a thread-block.
 Sewerin and Rigopoulos~\cite{Sewerin20151375} implemented a three-stage\slash fifth-order implicit Runge--Kutta method~\cite{wanner1991solving} on a one-block per ODE basis on GPU, and found a \num{1.8}$\times$ slowdown at best compared with the same on a single eight-core CPU.
@@ -178,12 +179,13 @@ In this work we will investigate GPU implementations of several explicit and imp
 Several previous works~\cite{Perini20141180,McNenly2015581} suggested so-called matrix-free methods---which do not require direct factorization of the Jacobian, but instead use an iterative process to approximate the action of the factorized Jacobian on a vector---as potential improvements to the expensive linear-system solver required in standard implicit methods.
 Furthermore, Hochbruck and Lubich~\cite{Hochbruck:1997} demonstrated that the action of the matrix exponential on a vector obtained using Krylov subspace approximation converges faster than corresponding Krylov methods for the solution of linear equations.
 Others previously explored these so-called explicit exponential methods for applications in stiff chemical systems~\cite{Bisetti:2012jw,falati2011integration} and found them stable for time-step sizes greatly exceeding the stability bound.
-In addition, their explicit nature makes them potentially much better suited for SIMD acceleration due to an expected reduction of thread divergence (for a per-thread implementation) compared with implicit methods.
-Finally, the three-stage\slash fifth-order implicit Runge--Kutta algorithm~\cite{wanner1991solving} investigated by Sewerin and Rigopoulos~\cite{Sewerin20151375} will be studied to determine the impact of increasing chemical stiffness on the algorithm and the performance benefits of using an analytical Jacobian matrix, such as that developed by Niemeyer et al.~\cite{niemeyer_2016_51139,Niemeyer:2015ws}.
+In addition, their explicit nature makes them potentially better suited for SIMD acceleration due to an expected reduction of thread divergence (for a per-thread implementation) compared with implicit methods.
+Finally, the three-stage\slash fifth-order implicit Runge--Kutta algorithm~\cite{wanner1991solving} investigated by Sewerin and Rigopoulos~\cite{Sewerin20151375} will be studied to determine the impact of increasing chemical stiffness on the algorithm and the performance benefits of using an analytical Jacobian matrix, such as that developed by Niemeyer et al.~\cite{niemeyer_2016_51139,Niemeyer:2015ws,Niemeyer:2016aa}.
 
-In Section~\ref{S:method}, the methods and implementation details of the algorithms used in this paper will be laid out.
-Subsequently, in Sec.~\ref{S:results} the performance of the algorithms run using a database of partially stirred reactor conditions will be presented and discussed, with particular focus on the effects of thread divergence and the potential impacts of current state of the art GPU accelerated chemical kinetic evaluation for large-scale reacting flow simulations.
-Finally in Sec.~\ref{S:conclusions}, the results of this work will be used to identify the most promising future directions for GPU\slash SIMD accelerated chemical kinetic integration.
+The rest of the paper is structured as follows.
+Section~\ref{S:method} lays out the methods and implementation details of the algorithms used here.
+Subsequently, Sec.~\ref{S:results} presents and discusses the performance of the algorithms run using a database of partially stirred reactor thermochemical states, with particular focus on the effects of thread divergence and the potential impacts of current state-of-the-art GPU-accelerated chemical kinetic evaluation for large-scale reacting flow simulations.
+Finally, Sec.~\ref{S:conclusions} uses the results of this work to identify the most promising future directions for GPU\slash SIMD accelerated chemical kinetic integration.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Methodology}
@@ -198,9 +200,9 @@ The generation of testing conditions will be discussed briefly, and the develope
 
 We investigated GPU implementations of three integration methods in this work, comparing them against equivalent CPU versions and a CPU-only implicit algorithm.
 While we describe important details or changes here, full descriptions of all algorithms may be found in the cited sources.
-The \texttt{pyJac} software~\cite{niemeyer_2016_51139,Niemeyer:2015ws,2016arXiv160503262N} provided both chemical source term and analytical Jacobian subroutines for CPU- and GPU-based algorithms.
+The \texttt{pyJac} software~\cite{niemeyer_2016_51139,Niemeyer:2015ws,Niemeyer:2016aa} provided both chemical source term and analytical Jacobian subroutines for CPU- and GPU-based algorithms.
 To evaluate the relative performance impact of use of a finite-difference Jacobian (as compared to an analytical Jacobian) for both platforms, a first-order finite difference method based on that used by \texttt{CVODE} was used; the chemical source term methods used in the finite difference Jacobian were provided by \texttt{pyJac} in all cases.
-For validation and performance assessments of \texttt{pyJac}, we direct readers to our previous work~\cite{Niemeyer:2015ws,2016arXiv160503262N}.
+For validation and performance assessments of \texttt{pyJac}, we direct readers to our previous work~\cite{Niemeyer:2015ws,Niemeyer:2016aa}.
 
 First, we used the \texttt{CVODE} solver~\cite{Hindmarsh:2005hg} to provide the baseline performance of a typical CPU-based (maximum of fifth-order) implicit integration technique.
 In addition, we implemented CPU versions of the methods under investigation for direct comparison to the high-order implicit technique.
@@ -370,7 +372,7 @@ All CPU integrators were compiled using \texttt{gcc 4.8.5} (with the compiler op
 OpenMP was used to parallelize on a per-condition basis, that is each individual OpenMP thread was responsible for integration of a single set of chemical kinetic ODEs, rather than cooperation between OpenMP threads to solve the same.
 A six-core \SI{2.67}{\giga\hertz} Intel Xeon X5650 was used as the host CPU for the GPU integrators, which were compiled using \texttt{nvcc 7.5.17} (with compiler options ``\texttt{-arch=sm\_20 -O3 -maxrregcount 63 -{}-ftz=false -{}-prec-div=true -{}-prec-sqrt=true -{}-fmad=false}'') and run on a single NVIDIA Tesla C2075 with \SI{6}{\giga\byte} of global memory.
 Reported runtimes for the GPU-based algorithms include time needed for CPU--GPU data transfer before and after each global time step; in addition, the function \texttt{cudaSetDevice()} was used to initialize the GPU before timing to hide any device initialization delay.
-The open-source \texttt{pyJac} software~\cite{niemeyer_2016_51139,Niemeyer:2015ws,2016arXiv160503262N} produced CPU and GPU custom source-code functions for the chemical source terms and analytical Jacobian matrix evaluation.
+The open-source \texttt{pyJac} software~\cite{niemeyer_2016_51139,Niemeyer:2015ws,Niemeyer:2016aa} produced CPU and GPU custom source-code functions for the chemical source terms and analytical Jacobian matrix evaluation.
 Finally, the L1\slash shared-memory cache was set to prefer a larger L1 cache using the \texttt{cudaDeviceSetCacheConfig()} function.
 
 \subsection{Performance}
@@ -652,7 +654,7 @@ The large size and chemical stiffness of chemical kinetic models relevant to fue
 Past work showed orders-of-magnitude speedups for solution of nonstiff to moderately stiff chemical kinetic systems using explicit solvers on GPUs.
 In contrast, work on stiff chemical kinetic integration with implicit GPU solvers has been limited to specialized cases, or failed to surpass current CPU-based techniques.
 
-This work demonstrated the performance of GPU-based integration methods, including an implicit fifth-order Runge--Kutta algorithm and two fourth-order exponential integration algorithms, using chemical source term and analytical Jacobian subroutines provided by the \texttt{pyJac} software~\cite{niemeyer_2016_51139,Niemeyer:2015ws,2016arXiv160503262N}.
+This work demonstrated the performance of GPU-based integration methods, including an implicit fifth-order Runge--Kutta algorithm and two fourth-order exponential integration algorithms, using chemical source term and analytical Jacobian subroutines provided by the \texttt{pyJac} software~\cite{niemeyer_2016_51139,Niemeyer:2015ws,Niemeyer:2016aa}.
 For time-step sizes relevant to large eddy simulations, the GPU-based implicit Runge--Kutta method compared favorably with the CPU-based implicit \texttt{CVODE} integrator for both chemical kinetic models studied.
 For longer time-step sizes, the performance of all GPU solvers decreased significantly due to increased levels of thread divergence.
 The exponential solvers were found to be significantly less efficient in all relevant cases.
