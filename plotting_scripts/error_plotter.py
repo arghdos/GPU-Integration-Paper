@@ -17,7 +17,7 @@ smem = None
 timestep = None
 
 lines = []
-files = [f for f in os.listdir(ps.datapath) if f.endswith('logfile') 
+files = [f for f in os.listdir(ps.datapath) if f.endswith('logfile')
             and os.path.isfile(os.path.join(ps.datapath, f))]
 for f in files:
     with open(os.path.join(ps.datapath, f), 'r') as file:
@@ -69,10 +69,10 @@ for f in files:
             continue
         raise Exception(line)
 
-c_params = OptionLoop({'gpu' : False, 
+c_params = OptionLoop({'gpu' : False,
             'opt' : [True, False],
             'same_ics' : [False]}, lambda: False)
-cuda_params = OptionLoop({'gpu' : True, 
+cuda_params = OptionLoop({'gpu' : True,
             'opt' : [True, False],
             'smem' : [True, False],
             'same_ics' : [False]}, lambda: False)
@@ -125,15 +125,15 @@ for state in op:
         plt.text(1e-10, 5e-3, r"``Exact'' Krylov")
         plt.text(1e-10, 3e0, r"Approximate Krylov", rotation=35)
 
-    plt.xlabel(r'$\delta t(s)$')
-    plt.ylabel(r'$\left\lvert\textbf{E}\right\rvert$')
+    plt.xlabel(r'Time step size, $\delta t$ (s)')
+    plt.ylabel(r'Maximum error, $\left\lvert\textbf{E}\right\rvert$')
 
     artists = []
     labels = []
     for name in name_list:
         color = ps.color_dict[name]
         show = ps.pretty_names(name)
-        artist = plt.Line2D((0,1),(0,0), 
+        artist = plt.Line2D((0,1),(0,0),
             markerfacecolor='none', marker=ps.marker_dict[name][0],
             markeredgecolor=color, linestyle='',
             markersize=15)
@@ -147,6 +147,6 @@ for state in op:
     plt.savefig(os.path.join(ps.figpath,
         '{}_{}_{}_error.pdf'.format(
         'c' if not gpu else 'cuda',
-        'co' if opt else 'nco', 
+        'co' if opt else 'nco',
         'smem' if smem else 'nosmem')))
     plt.close()

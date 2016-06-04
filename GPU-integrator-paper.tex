@@ -201,52 +201,35 @@ The generation of testing conditions will be discussed briefly, and the develope
 We investigated GPU implementations of three integration methods in this work, comparing them against equivalent CPU versions and a CPU-only implicit algorithm.
 While we describe important details or changes here, full descriptions of all algorithms may be found in the cited sources.
 The \texttt{pyJac} software~\cite{niemeyer_2016_51139,Niemeyer:2015ws,Niemeyer:2016aa} provided both chemical source term and analytical Jacobian subroutines for CPU- and GPU-based algorithms.
-To evaluate the relative performance impact of use of a finite-difference Jacobian (as compared to an analytical Jacobian) for both platforms, a first-order finite difference method based on that used by \texttt{CVODE} was used; the chemical source term methods used in the finite difference Jacobian were provided by \texttt{pyJac} in all cases.
-For validation and performance assessments of \texttt{pyJac}, we direct readers to our previous work~\cite{Niemeyer:2015ws,Niemeyer:2016aa}.
+We evaluated the relative performance impact of using a finite-difference Jacobian matrix (as compared with an analytical Jacobian) for both platforms with a first-order finite difference method based on that of \texttt{CVODE}~\cite{Hindmarsh:2005hg}.
+The chemical source terms used by the finite-difference Jacobian were provided by \texttt{pyJac} in all cases.
+We direct readers to our previous work~\cite{Niemeyer:2015ws,Niemeyer:2016aa} for validation and performance assessments of \texttt{pyJac} itself.
 
-First, we used the \texttt{CVODE} solver~\cite{Hindmarsh:2005hg} to provide the baseline performance of a typical CPU-based (maximum of fifth-order) implicit integration technique.
+First, the \texttt{CVODE} solver~\cite{Hindmarsh:2005hg} provided the baseline performance of a typical CPU-based (maximum of fifth-order) implicit integration technique.\todo{need to cite the specific version here}
 In addition, we implemented CPU versions of the methods under investigation for direct comparison to the high-order implicit technique.
-These include the three-stage/fifth-order implicit Runge--Kutta algorithm~\cite{wanner1991solving}, called \texttt{Radau-IIA} here; the fourth-order exponential Rosenbrock-like method \texttt{exp4} of Hochbruck et al.~\cite{Hochbruck:1998}; and the newer fourth-order exponential Rosenbrock method~\cite{Hockbruck:2009}, called \texttt{exprb43} here.
-For the exponential methods, we used the method of rational approximants~\cite{gallopoulos:1992} paired with the Carath\'edothy--Fej\'er method~\cite{trefethen:2006} to approximate the action of the matrix exponential on a vector, as suggested by Bisetti~\cite{Bisetti:2012jw}.
-This technique relied on the external \texttt{FFTW3} library~\cite{frigo2005design}.
+These include the three-stage\slash fifth-order implicit Runge--Kutta algorithm~\cite{wanner1991solving} (\texttt{Radau-IIA}), the fourth-order exponential Rosenbrock-like method of Hochbruck et al.~\cite{Hochbruck:1998} (\texttt{exp4}), and the newer fourth-order exponential Rosenbrock method~\cite{Hockbruck:2009} (\texttt{exprb43}).
+For the exponential methods, we used the method of rational approximants~\cite{gallopoulos:1992} paired with the Carath\'edothy--Fej\'er method~\cite{trefethen:2006}\todo{cite Kyle's code} to approximate the action of the matrix exponential on a vector, as suggested by Bisetti~\cite{Bisetti:2012jw}.
+This technique relied on the external \texttt{FFTW3} library~\cite{frigo2005design}.\todo{need to cite specific FFTW3 version too}
 However, unlike the approach of Bisetti~\cite{Bisetti:2012jw}, we developed a custom routine based on the algorithm presented by Stewart~\cite{stewart:1998} to perform LU decomposition of the Hessenberg matrix resulting from the Arnoldi iteration.
 Convergence of the Arnoldi iteration algorithm was computed using the second term of the exponential matrix\slash vector product infinite series, as suggested in several works~\cite{Bisetti:2012jw,saad:1992}.
 The exponential integrators used a rational approximant type of $\left(10,10\right)$ as suggested by Bisetti~\cite{Bisetti:2012jw}.
 To ensure high performance of CPU-based methods, the Intel \texttt{MKL} library version 11.3.2 handled linear algebra (i.e., BLAS/LAPACK) operations.
-Next, we implemented GPU versions of the \texttt{Radau-IIA}, \texttt{exp4}, and \texttt{exprb43} methods; these follow the same descriptions as the CPU versions, but required specialized implementations of several BLAS and LAPACK methods, mostly related to LU factorization of the Jacobian or Hessenberg matrices.
+Next, we implemented GPU versions of the \texttt{Radau-IIA}, \texttt{exp4}, and \texttt{exprb43} methods.
+These follow the same descriptions as the CPU versions, but require specialized implementations of several BLAS and LAPACK methods, mostly related to LU factorization of the Jacobian or Hessenberg matrices.
 All GPU routines were developed using the NVIDIA CUDA framework~\cite{Buck:2008aa,NVIDIA:2015aa}.
-The \texttt{Radau-IIA} solver as developed by Hairer and Wanner~\cite{wanner1991solving} contains an adaptive time-stepping technique, the exponential methods used a standard adaptive time-stepping technique~\cite{wanner1991solving} (pages 28--31); adaptive time-stepping was handled internally by the \texttt{CVODE} solver.
+The \texttt{Radau-IIA} solver as developed by Hairer and Wanner~\cite{wanner1991solving} contains an adaptive time-stepping technique, the exponential methods used a standard adaptive time-stepping technique~\cite{wanner1991solving}; adaptive time-stepping was handled internally by the \texttt{CVODE} solver.\todo{not quite sure what's going on with this sentence, but it's definitely confusing}
 Finally, the adaptive time stepping procedures of all integrators used absolute and relative tolerances of \SI{e-10} and \SI{e-6}, respectively, throughout the work.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Testing conditions}
 \label{S:pasr_conditions}
 
-In order to measure the performance of the integrators for realistic conditions, a database of thermochemical states covering a wide range of temperatures and species mass fractions was generated using a previously developed constant-pressure stochastic partially stirred reactor (PaSR) code~\cite{Niemeyer:2015ws}.
+In order to measure the performance of the integrators for realistic conditions, a database of thermochemical states covering a wide range of temperatures and species mass fractions was generated using a previously developed constant-pressure stochastic partially stirred reactor (PaSR) code~\cite{Niemeyer:2016aa,niemeyer_2016_51139}.
 We selected two chemical kinetic models to span the range of model sizes typically used in high-fidelity simulations: the \ce{H2}\slash\ce{CO} model of Burke et al.~\cite{Burke:2011fh} with 13 species and 27 reactions, and the GRI-Mech 3.0 model with 53 species and 325 reactions~\cite{smith_gri-mech_30}.
-The PaSR simulations were performed at the conditions listed in Table~\ref{T:pasr_parameters} for 10 residence times to reach a statistical steady state; Niemeyer et al.~\cite{Niemeyer:2015ws} described the PaSR simulation process in greater detail, which follows approaches used by others~\cite{Chen:1997ta,Pope:1997wu,Ren:2014cd}.
-The PaSR particles were initialized using the equilibrium state, and gradually move away from equilibrium conditions due to mixing\slash inflow\slash outflow.
-In order to reduce the influence of the equilibrium condition on the solution runtime trends for small numbers of ODEs, the first \num{1000} conditions, were removed from each database.
-This corresponded to a single $\tau_\text{pair}$; at this point in the simulation, $\sim\SI{20}{\percent}$ of the conditions were no longer near-equilibrium temperature, and by the \num{5000}th condition $\sim\SI{80}{\percent}$ of the states were no longer near-equilibrium.
-
-%
-%\label{S:pasr}
-%\begin{table}[htb]
-%\centering
-%\fontsize{8pt}{10pt}\selectfont
-%\begin{tabular}{@{}l l l l@{}}
-%\toprule
-%Fuel species & \# of species & \# of reactions & Reference \\
-%\midrule
-%\ce{H2}\slash \ce{CO} & 13 & 27 &~\cite{Burke:2011fh} \\
-%\ce{CH4} & 53 & 325 &~\cite{smith_gri-mech_30} \\
-%\bottomrule
-%\end{tabular}
-%\caption{
-%Summary of chemical kinetic models used as benchmark test cases.
-%}
-%\label{T:mechanisms}
-%\end{table}
+The PaSR simulations were performed at the conditions listed in Table~\ref{T:pasr_parameters} for 10 residence times to reach a statistical steady state; Niemeyer et al.~\cite{Niemeyer:2016aa} describe the PaSR simulation process in greater detail, which follows approaches used by others~\cite{Chen:1997ta,Pope:1997wu,Ren:2014cd}.
+The PaSR particles were initialized using the equilibrium state, and gradually move away from equilibrium conditions due to mixing, inflow, and outflow.
+In order to reduce the influence of the equilibrium condition on the solution runtime trends for small numbers of ODEs, the first \num{1000} datapoints (corresponding to a single $\tau_\text{pair}$ time interval) were removed from each database.
+At this point in the simulation, $\sim\SI{80}{\percent}$ of the particles were at or near an equilibrium state, and by the \num{5000}th datapoint only $\sim\SI{20}{\percent}$ of the particles were near equilibrium.\todo{Reworded this a bit, check it out. Also might be informative to give the total number of datapoints to give some context}
 
 \begin{table}[htb]
 \centering
@@ -256,7 +239,7 @@ Parameter & \ce{H2}\slash air & \ce{CH4}\slash air \\
 \midrule
 $\phi$ & \multicolumn{2}{c}{1} \\
 $T_{\text{in}}$ & \multicolumn{2}{c}{\SIlist{400;600;800}{\kelvin}} \\
-$p_0$ & \multicolumn{2}{c}{\SIlist{1;10;25}{\atm}} \\
+$p$ & \multicolumn{2}{c}{\SIlist{1;10;25}{\atm}} \\
 $N_p$ & \multicolumn{2}{c}{100} \\
 $\tau_{\text{res}}$ & \SI{10}{\milli\second} & \SI{5}{\milli\second} \\
 $\tau_{\text{mix}}$ & \SI{1}{\milli\second} & \SI{1}{\milli\second} \\
@@ -264,7 +247,7 @@ $\tau_{\text{pair}}$ & \SI{1}{\milli\second} & \SI{1}{\milli\second} \\
 \bottomrule
 \end{tabular}
 \caption{
-PaSR parameters used for hydrogen\slash air and methane\slash air premixed combustion cases, where $\phi$ indicates equivalence ratio, $T_{\text{in}}$ is the temperature of the inflowing particles, $p_0$ is the pressure, $N_p$ is the number of particles, $\tau_{\text{res}}$ is the residence time, $\tau_{\text{mix}}$ is the mixing time, and $\tau_{\text{pair}}$ is the pairing time.
+PaSR parameters used for hydrogen\slash air and methane\slash air premixed combustion cases, where $\phi$ indicates equivalence ratio, $T_{\text{in}}$ is the temperature of the inflowing particles, $p$ is the pressure, $N_p$ is the number of particles, $\tau_{\text{res}}$ is the residence time, $\tau_{\text{mix}}$ is the mixing time, and $\tau_{\text{pair}}$ is the pairing time.
 }
 \label{T:pasr_parameters}
 \end{table}
@@ -320,39 +303,41 @@ PaSR parameters used for hydrogen\slash air and methane\slash air premixed combu
 % As this algorithm runs during generation of the source code for the various subroutines, it introduces no computational or memory overhead related to determining the caching structure during runtime.
 % Although this represents a relatively simple improvement, its use can achieve reasonable performance benefits, as will be seen in Sec.~\ref{S:smem}.
 
-\subsection{Solver Validation}
+\subsection{Solver validation}
+
 \begin{figure}[htb]
   \centering
-  \includegraphics[width=0.5\linewidth]{c_nco_nosmem_error.pdf}
-  \caption{Error of the various CPU solvers as a function of global integrator step-size $\delta t$.}
+  \includegraphics[width=0.7\linewidth]{c_nco_nosmem_error.pdf}
+  \caption{Maximum error of the various CPU solvers as a function of global integrator time-step size $\delta t$.}
   \label{F:convergence}
+  \todo[inline]{any additional points at larger time step size, to help indicate the order for Radau? or, can you indicate an order line based on the last two points? Without that, this figure seems incomplete}
 \end{figure}
 
 To investigate the correctness of the developed solvers, the first \num{10000} conditions in the \ce{H2}\slash\ce{CO} database were integrated by each solver for \SI{e-6}{\second}.
-The error for condition $i$ was then determined using the weighted root mean square error:
+The error for condition $i$ was then determined using the weighted root-mean-square error
 \begin{equation}
- E_i(t) = \left\lVert\frac{y_i(t) - \hat{y}_i(t)}{\text{atol} + \hat{y}_i(t) \cdot \text{rtol}}\right\rVert_2
+ E_i(t) = \left\lVert\frac{y_i(t) - \hat{y}_i(t)}{\text{atol} + \hat{y}_i(t) \cdot \text{rtol}}\right\rVert_2 \;,
 \end{equation}
 where the $y_i(t)$ is the solution obtained from the various solvers, and $\hat{y}_i(t)$ is the ``true'' solution obtained via \texttt{CVODE} using a global time-step of $\delta t = \SI{e-10}{\second}$ and absolute\slash relative tolerances of \num{e-20} and \num{e-15} respectively.
-The maximum error over all conditions:
+The maximum error over all conditions
 \begin{equation}
  \left\lvert\textbf{E}\right\rvert = \max_{i= 1, \dots, \num{10000}}\{E_i(t)\}
 \end{equation}
-was then used to measure convergence.
-The solvers used the same tolerances as for the performance testing (absolute\slash relative tolerances of \num{e-10} and \num{e-6} respectively).
-Adaptive time-stepping was used in all cases, and Krylov subspace approximation was enabled for the exponential integrators thus evaluating the accuracy of the solvers, in identical form as used for performance testing.
+was then used to measure convergence.\todo{not sure what you mean by convergence here}
+The solvers used the same tolerances as for the performance testing (absolute and relative tolerances of \num{e-10} and \num{e-6}, respectively).
+Adaptive time-stepping was used in all cases, and Krylov subspace approximation was enabled for the exponential integrators thus evaluating the accuracy of the solvers, in identical form as used for performance testing.\todo{I think this sentence is incomplete, or needs editing for clarity}
 The global integrator time-step was varied from \SI{e-6}{\second} to \SI{e-11}{\second} to examine convergence to the true solution.
 
 Figure~\ref{F:convergence} shows the convergence plot for the CPU solvers.
-The error of the \texttt{Radau-IIA} integrator is far below the specified integration tolerances (which are ideally achieved for $\left\lvert\textbf{E}\right\rvert = 1$) for all cases.
+The error of the \texttt{Radau-IIA} integrator is far below the specified integration tolerances (which normally select a time-step size to achieve $\left\lvert\textbf{E}\right\rvert \leq 1$) for all cases.
 The exponential solvers exhibit much larger levels of error for the larger global time-step, with $\left\lvert\textbf{E}\right\rvert \sim \mathcal{O}(1)$ for the largest global time-step.
-As the time-step size is decreased two factors affect the overall error.
-First, the internal integration step-size was not held constant but instead allowed to vary adaptively, hence this is only a ``true'' convergence plot for the smaller time-steps where the global integrator time-step is smaller than any step-size taken by the adaptive scheme.
-In conjunction, the convergence of the Arnoldi algorithm is affected by the internal integration step-size (the matrix exponentials and error estimates are scaled by the internal step-size).
+As the time-step size is decreased, two factors affect the overall error.
+First, the internal integration time-step size was not held constant but instead allowed to vary adaptively, hence this is only a ``true'' convergence plot for the smaller time-step sizes where the global integrator step size is smaller than any taken by the adaptive scheme.
+In conjunction, the convergence of the Arnoldi algorithm is affected by the internal integration time-step size (the matrix exponentials and error estimates are scaled by the internal step size).
 To study the effect of the Arnoldi algorithm on the overall error, Fig.~\ref{F:convergence} also presents the convergence of the exponential integrators with the Krylov approximation error reduced far below the error of the overall method.
 Practically, this is accomplished by detecting when the $n$th Krylov subspace vector approaches zero, a condition known as the ``happy breakdown'' in literature~\cite{datta2010numerical}.
 In this limit, the approximate exponential matrix\slash vector product approaches the exact value and thus the error induced by the Krylov approximation is negligible.
-In Fig.~\ref{F:convergence} is it seen that with the approximate Krylov subspace, the exponential methods achieve only first order convergence to the true solution, however with the ``exact'' Krylov subspace both methods are closer to second-order convergence.
+In Fig.~\ref{F:convergence} is it seen that with the approximate Krylov subspace, the exponential methods achieve only first-order convergence to the true solution, but with the ``exact'' Krylov subspace both methods approach second-order convergence.
 Although both methods are nominally fourth order, the combination of chemical stiffness and adaptive time-stepping reduces the apparent convergence to order two.
 Furthermore, the error of Krylov subspace approximation dominates the error measurement $\lvert\textbf{E}\rvert$.
 From Fig.~\ref{F:convergence} we may conclude that all solvers produce reasonably accurate solutions as compared to \texttt{CVODE}.
@@ -364,7 +349,7 @@ Additionally, although not shown, the results for the GPU solvers are nearly ide
 \label{S:results}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-We studied the performance of the integrators by testing each on the PaSR conditions described in Sec.~\ref{S:pasr_conditions} for two different global integration time-step sizes representative of those used in large eddy and Reynolds-averaged Navier--Stokes simulations: $\delta t = \SI{e-6}{\s}$ and $\delta t = \SI{e-4}{\s}$, respectively.
+We studied the performance of the integrators by testing each on the PaSR conditions described in Sec.~\ref{S:pasr_conditions} for two different global integration time-step sizes: $\delta t = \SI{e-6}{\s}$ and $\delta t = \SI{e-4}{\s}$, representative of those used in large eddy and Reynolds-averaged Navier--Stokes simulations, respectively.\todo{may be good to add citations for these numbers, so that they don't look like we pulled them out of midair}
 Furthermore, the use of a larger global time step induces additional stiffness for a given model and enables evaluation of integrator performance at varying stiffness levels.
 Runtimes are reported as the average over five runs, where each run started from the same set of PaSR conditions.
 %While the computed runtimes exhibited some variations, we chose to omit error bars from the plots for clarity; in general, the implicit methods exhibited variations within \SI{\pm3}{\percent} and the exponential methods within \SI{\pm1}{\percent}.\todo{recheck}

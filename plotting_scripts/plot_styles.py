@@ -17,7 +17,7 @@ datapath = os.path.join(
 #setup latex
 plt.rc('text', usetex=True)
 plt.rc('font', family='serif')
-plt.rc('text.latex', 
+plt.rc('text.latex',
     preamble=r'\usepackage{amsmath},\usepackage{siunitx}')
 plt.rc('font', family='serif')
 
