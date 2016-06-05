@@ -47,7 +47,10 @@ data_list = []
 solver_list = []
 mech_list = []
 dt_list = []
-for f in glob('divergence/*/*/*.txt'):
+files = [f for f in glob(os.path.join(ps.datapath, 'divergence', '*', '*', '*.txt'))
+            if f.endswith('div.txt') and os.path.isfile(os.path.join(f))]
+
+for f in files:
     if not f.endswith('div.txt'):
         continue
     args = f.split('/')
