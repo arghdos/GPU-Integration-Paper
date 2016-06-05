@@ -676,57 +676,62 @@ This material is based upon work supported by the National Science Foundation un
 \renewcommand*{\thesection}{\appendixname~\Alph{section}}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Raw Performance Data Plots}
+\section{Raw performance plots}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \label{S:raw}
 
-In this section we present the plots of the raw performance data for completeness, as described in Sec.~\ref{S:results}.
+In this section we present the plots of the raw, unnormalized performance data for completeness, as described in Sec.~\ref{S:results}.
+Figures~\ref{F:raw_perf_H2CO} and \ref{F:raw_perf_CH4} show performance for the \ce{H2}\slash\ce{CO} and GRI-Mech 3.0 models, respectively.
 
 \begin{figure}[htb]
   \centering
   \begin{subfigure}{0.49\textwidth}
       \includegraphics[width=\linewidth]{H2_1e-06_cpu_nonorm.pdf}
-      \caption{CPU performance for $\delta t = \SI{e-6}{\sec}$}
+      \caption{CPU performance for $\delta t = \SI{e-6}{\second}$}
   \end{subfigure}
   %\hfill
   \begin{subfigure}{0.49\textwidth}
       \includegraphics[width=\linewidth]{H2_1e-04_cpu_nonorm.pdf}
-      \caption{CPU performance for $\delta t = \SI{e-4}{\sec}$}
+      \caption{CPU performance for $\delta t = \SI{e-4}{\second}$}
  
   \end{subfigure}\\
   \begin{subfigure}{0.49\textwidth}
       \includegraphics[width=\linewidth]{H2_1e-06_gpu_nonorm.pdf}
-      \caption{GPU performance results for $\delta t = \SI{e-6}{\sec}$}
+      \caption{GPU performance results for $\delta t = \SI{e-6}{\second}$}
   \end{subfigure}
   %\hfill
   \begin{subfigure}{0.49\textwidth}
       \includegraphics[width=\linewidth]{H2_1e-04_gpu_nonorm.pdf}
-      \caption{GPU performance results for $\delta t = \SI{e-4}{\sec}$}
+      \caption{GPU performance results for $\delta t = \SI{e-4}{\second}$}
   \end{subfigure}
-  \caption{Average (unnormalized) runtimes of the integrators on the CPU\slash GPU for the \ce{H2}\slash\ce{CO} model at two different global time-step sizes.}
+  \caption{Average (unnormalized) runtimes of the integrators on the CPU and GPU for the \ce{H2}\slash\ce{CO} model at two different global time-step sizes.
+  Error bars indicate standard deviation.}
+  \label{F:raw_perf_H2CO}
 \end{figure}
 
 \begin{figure}[htb]
   \centering
   \begin{subfigure}{0.49\textwidth}
       \includegraphics[width=\linewidth]{CH4_1e-06_cpu_nonorm.pdf}
-      \caption{CPU performance for $\delta t = \SI{e-6}{\sec}$}
+      \caption{CPU performance for $\delta t = \SI{e-6}{\second}$}
   \end{subfigure}
   %\hfill
   \begin{subfigure}{0.49\textwidth}
       \includegraphics[width=\linewidth]{CH4_1e-04_cpu_nonorm.pdf}
-      \caption{CPU performance for $\delta t = \SI{e-4}{\sec}$}
+      \caption{CPU performance for $\delta t = \SI{e-4}{\second}$}
   \end{subfigure}\\
   \begin{subfigure}{0.49\textwidth}
       \includegraphics[width=\linewidth]{CH4_1e-06_gpu_nonorm.pdf}
-      \caption{GPU performance results for $\delta t = \SI{e-6}{\sec}$}
+      \caption{GPU performance results for $\delta t = \SI{e-6}{\second}$}
   \end{subfigure}
   %\hfill
   \begin{subfigure}{0.49\textwidth}
       \includegraphics[width=\linewidth]{CH4_1e-04_gpu_nonorm.pdf}
-      \caption{GPU performance results for $\delta t = \SI{e-4}{\sec}$}
+      \caption{GPU performance results for $\delta t = \SI{e-4}{\second}$}
   \end{subfigure}
-  \caption{Average (unnormalized) runtimes of the integrators on the CPU\slash GPU for the GRI-Mech 3.0 model at two different global time-step sizes.}
+  \caption{Average (unnormalized) runtimes of the integrators on the CPU\slash GPU for the GRI-Mech 3.0 model at two different global time-step sizes.
+  Error bars indicate standard deviation.}
+  \label{F:raw_perf_CH4}
 \end{figure}
 
 \clearpage
