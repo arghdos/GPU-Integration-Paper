@@ -76,7 +76,7 @@ for solver in solver_list:
         fig = plt.figure()
         ax = fig.add_subplot(1,1,1)
         for dt in dt_list:
-            solver_data = [x for x in data_list if x.solver == solver and 
+            solver_data = [x for x in data_list if x.solver == solver and
                             x.mech == mech and
                             x.dt == dt]
 
@@ -99,17 +99,17 @@ for solver in solver_list:
 
                 power = int(np.log10(float(dt)))
                 if dt_list.index(dt):
-                    plt.plot(x, y, 
-                        label=r'$\delta t = 1 \times 10^{{{}}}$'.format(power), 
-                        linestyle='', 
+                    plt.plot(x, y,
+                        label=r'$\delta t = 1 \times 10^{{{}}}$'.format(power),
+                        linestyle='',
                         marker=dt_dict[dt],
                         markerfacecolor=mech_dict[data.dt],
                         markeredgewidth=0,
                         markersize=12)
                 else:
-                    plt.plot(x, y, 
-                        label=r'$\delta t = 1 \times 10^{{{}}}$'.format(power), 
-                        linestyle='', 
+                    plt.plot(x, y,
+                        label=r'$\delta t = 1 \times 10^{{{}}}$'.format(power),
+                        linestyle='',
                         marker=dt_dict[dt],
                         markerfacecolor='None',
                         markeredgecolor=mech_dict[data.dt],
@@ -119,11 +119,11 @@ for solver in solver_list:
         ps.legend_style['fontsize']=22
         ps.legend_style['loc']= 'upper left'
         plt.legend(**ps.legend_style)
-        plt.xlabel('Divergence Measure $D$')
-        plt.ylabel('Percent of Total Warps')
+        plt.xlabel('Divergence measure $D$')
+        plt.ylabel('Percent of total warps')
         ax.set_ylim((0, 105))
         plt.gca().yaxis.set_major_formatter(formatter)
         ps.finalize()
-        plt.savefig(os.path.join(ps.figpath, 
+        plt.savefig(os.path.join(ps.figpath,
             '{}_{}_div.pdf'.format(mech, solver)))
         plt.close()

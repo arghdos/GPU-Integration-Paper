@@ -1,4 +1,5 @@
 #! /usr/bin/env python
+from __future__ import print_function
 
 import data_parser as parser
 import plot_styles as ps
@@ -28,19 +29,19 @@ for state in oploop:
     ax.set_xscale("log", nonposx='clip')
     ax.set_yscale("log", nonposy='clip')
 
-    series = [s for s in data[mech] if 
+    series = [s for s in data[mech] if
                 s.gpu == gpu and
                 s.dt == dt and
                 (not s.gpu or (s.gpu and s.smem == smem))
                 and s.finite_difference == False
                 and s.cache_opt == False]
     series = sorted(series, key=lambda x: x.name)
-    print mech, 'gpu' if gpu else 'cpu'
+    print(mech, 'gpu' if gpu else 'cpu')
 
     names = set()
     # print mech
     for i, s in enumerate(sorted(series, key=lambda x:x.name)):
-        print s
+        print(s)
         assert s.name in ps.marker_dict
         marker, hollow = ps.marker_dict[s.name]
         color = ps.color_dict[s.name]
@@ -57,10 +58,11 @@ for state in oploop:
         names = names.union([s.name])
 
     #draw threshold
-    
+
     if normalize:
         x_t = get_threshold(mech, gpu, dt)
         plt.axvline(x_t, color='k')
+        ps.legend_style['loc'] = 1
     #make legend
     plt.legend(**ps.legend_style)
 
@@ -71,9 +73,10 @@ for state in oploop:
         plt.ylabel('Runtime (s)')
     #final stylings
     ps.finalize()
-    print os.path.join(ps.figpath,
-        '{}_{:.0e}_{}{}.pdf'.format(mech, dt,
-        'gpu' if gpu else 'cpu', '' if normalize else '_nonorm'))
+    print(os.path.join(ps.figpath,
+          '{}_{:.0e}_{}{}.pdf'.format(mech, dt,
+          'gpu' if gpu else 'cpu', '' if normalize else '_nonorm'))
+          )
     plt.savefig(os.path.join(ps.figpath,
         '{}_{:.0e}_{}{}.pdf'.format(mech, dt,
         'gpu' if gpu else 'cpu', '' if normalize else '_nonorm')))
