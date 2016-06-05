@@ -54,6 +54,7 @@ for f in files:
     if not f.endswith('div.txt'):
         continue
     args = f.split('/')
+    args = args[args.index('divergence'):]
     mech = args[1].strip()
     dt = float(args[2].strip())
     solver = args[3][:args[3].index('-int')]
