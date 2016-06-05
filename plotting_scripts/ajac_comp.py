@@ -51,7 +51,7 @@ for dt in dt_list:
         ax.set_xscale("log", nonposx='clip')
         ax.set_yscale("log", nonposy='clip')
 
-        series = [s for s in data[mech] if 
+        series = [s for s in data[mech] if
                     (s.gpu == False or (s.gpu and s.smem == False)) and s.dt == dt
                     and s.cache_opt == False]
         series = sorted(series, key=lambda x: 0 if x.gpu else 1)
@@ -113,8 +113,8 @@ for dt in dt_list:
         make_comp_legend([], patch_names=['GPU', 'CPU'])
 
         plt.xlabel('Number of ODEs')
-        plt.ylabel(r'$\lvert \textbf{R}_{FD}\rvert\slash\lvert \textbf{R}_{AJ}\rvert$')
+        plt.ylabel(r'$\lvert \textbf{R}_{\text{FD}}\rvert\slash\lvert \textbf{R}_{\text{AJ}}\rvert$')
         ps.finalize()
-        plt.savefig(os.path.join(ps.figpath, 
+        plt.savefig(os.path.join(ps.figpath,
             '{}_{:.0e}_ajac_comp.pdf'.format(mech, dt)))
         plt.close()

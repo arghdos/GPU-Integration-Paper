@@ -587,7 +587,7 @@ This is expected as the explicit solvers are less efficient at dealing with stif
 
 \subsection{Effect of using a finite-difference-based chemical kinetic Jacobian}
 
-While it is well established that using an analytical Jacobian matrix can significantly accelerate chemical kinetic integration on the CPU~(e.g., \cite{Lu:2009gh,stone2014comparison,Schwer2002270}), to our knowledge no work using an analytical Jacobian for GPU-based chemical kinetic integration has been published.\cite{what about Dijkmans et al. paper?}
+While it is well established that using an analytical Jacobian matrix can significantly accelerate chemical kinetic integration on the CPU~(e.g., \cite{Lu:2009gh,stone2014comparison,Schwer2002270}), to our knowledge no work using an analytical Jacobian for GPU-based chemical kinetic integration has been published.\todo{what about Dijkmans et al. paper?}
 To this end, in this section we explore using a first-order finite-difference-based Jacobian matrix on the GPU and compare the relative performance benefits of the analytical Jacobian with those achieved on the CPU.\todo{this sentence is confusing, needs some work}
 The exponential methods require an exact Jacobian matrix (rather than an approximation as given by finite-difference methods), so we did not consider their performance in this section.
 
@@ -606,22 +606,23 @@ Similar to the \ce{H2}\slash\ce{CO} case with the smaller time-step, the analyti
   \centering
   \begin{subfigure}{0.49\textwidth}
       \includegraphics[width=\linewidth]{H2_1e-06_ajac_comp.pdf}
-      \caption{\ce{H2}\slash\ce{CO} model with $\delta t = \SI{1e-6}{\sec}$}   
+      \caption{\ce{H2}\slash\ce{CO} model with $\delta t = \SI{1e-6}{\second}$}   
       \label{F:AJ_h2_small}
   \end{subfigure}
   %\hfill
   \begin{subfigure}{0.49\textwidth}
       \includegraphics[width=\linewidth]{H2_1e-04_ajac_comp.pdf}
-      \caption{\ce{H2}\slash\ce{CO} model with $\delta t = \SI{1e-4}{\sec}$}
+      \caption{\ce{H2}\slash\ce{CO} model with $\delta t = \SI{1e-4}{\second}$}
       \label{F:AJ_h2_large}
   \end{subfigure}
   \\
   \begin{subfigure}{0.49\textwidth}
       \includegraphics[width=\linewidth]{CH4_1e-06_ajac_comp.pdf}
-      \caption{GRI-Mech 3.0 model with $\delta t = \SI{1e-6}{\sec}$}
+      \caption{GRI-Mech 3.0 model with $\delta t = \SI{1e-6}{\second}$}
       \label{F:AJ_ch4_small}
   \end{subfigure}
-  \caption{Ratio of the average finite-difference Jacobian based integrator runtime $\lvert\textbf{R}_{FD}\rvert$ to that of the analytical Jacobian runtime $\lvert\textbf{R}_{AJ}\rvert$ for the \texttt{Radau-IIA} (CPU\slash GPU) solvers}
+  \caption{Ratio of the average finite-difference Jacobian based integrator runtime $\lvert\textbf{R}_{\text{FD}}\rvert$ to that of the analytical Jacobian runtime $\lvert\textbf{R}_{\text{AJ}}\rvert$ for the \texttt{Radau-IIA} (CPU\slash GPU) solvers.
+  Error bars indicate standard deviation, and the horizontal lines show a ratio of one.}
   \label{F:AJ_comp}
 \end{figure}
 
@@ -640,22 +641,24 @@ Similar to the \ce{H2}\slash\ce{CO} case with the smaller time-step, the analyti
 \label{S:conclusions}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-The large size and chemical stiffness of chemical kinetic models relevant to fuels for transportation and power generation traditionally requires the use of high-order implicit integrators for efficient solutions.
-Past work showed orders-of-magnitude speedups for solution of nonstiff to moderately stiff chemical kinetic systems using explicit solvers on GPUs.
+The large size and chemical stiffness of chemical kinetic models for fuels relevant to transportation and power generation applications traditionally requires the use of high-order implicit integrators for efficient solutions.
+Past work showed orders-of-magnitude speedups for solution of nonstiff to moderately stiff chemical kinetic systems using explicit solvers on GPUs.\todo{add refs}
 In contrast, work on stiff chemical kinetic integration with implicit GPU solvers has been limited to specialized cases, or failed to surpass current CPU-based techniques.
 
-This work demonstrated the performance of GPU-based integration methods, including an implicit fifth-order Runge--Kutta algorithm and two fourth-order exponential integration algorithms, using chemical source term and analytical Jacobian subroutines provided by the \texttt{pyJac} software~\cite{niemeyer_2016_51139,Niemeyer:2015ws,Niemeyer:2016aa}.
-For time-step sizes relevant to large eddy simulations, the GPU-based implicit Runge--Kutta method compared favorably with the CPU-based implicit \texttt{CVODE} integrator for both chemical kinetic models studied.
+This work demonstrated the performance of GPU-based integration methods capable of handling greater stiffness, including an implicit fifth-order Runge--Kutta algorithm and two fourth-order exponential integration algorithms, using chemical source term and analytical Jacobian subroutines provided by the \texttt{pyJac} software~\cite{niemeyer_2016_51139,Niemeyer:2015ws,Niemeyer:2016aa}.
+For time-step sizes relevant to large-eddy simulations of turbulent combustion, the GPU-based implicit Runge--Kutta method compared favorably with the CPU-based implicit \texttt{CVODE} integrator for both chemical kinetic models studied.
 For longer time-step sizes, the performance of all GPU solvers decreased significantly due to increased levels of thread divergence.
-The exponential solvers were found to be significantly less efficient in all relevant cases.
-It is our opinion that the higher levels of thread divergence present for the exponential solvers combined with the relatively high cost of integration steps due to Arnoldi iteration (as compared to other explicit integration techniques) make them a poor fit for SIMD acceleration.
-Instead further focus on stiff explicit solvers should be directed towards (non-exponential) Rosenbrock solvers and inexact Jacobian W-methods, as explored for the CPU by Stone and Bisetti~\cite{stone2014comparison}.
-The use of an analytical Jacobian on the GPU was found to be critical to efficient chemical kinetic integration, with the performance benefits thereof greatly surpassing those achieved by use of an analytical Jacobian on the CPU.
+The exponential solvers performed significantly worse than \todo{than what? Radau, cvode, both?} in all relevant cases.
+Based on these results, we conclude that the higher levels of thread divergence present for the exponential solvers combined with the relatively high cost of integration steps due to Arnoldi iteration (as compared to other explicit integration techniques) make them a poor fit for SIMD acceleration.
+Instead, further focus on stiff explicit solvers should be directed towards (non-exponential) Rosenbrock solvers and inexact Jacobian W-methods, as explored for the CPU by Stone and Bisetti~\cite{stone2014comparison}.
+We found that using an analytical Jacobian matrix on the GPU is critical to efficient chemical kinetic integration, with the performance benefits thereof greatly surpassing those achieved by using an analytical Jacobian on the CPU.
 Finally, thread divergence and memory traffic were identified as key performance concerns for GPU chemical kinetic integration algorithms.
+\todo[inline]{maybe lay out our main conclusions and contributions as a bulleted list, instead of paragraph form? That helps people grab the main takeaways.}
+\todo[inline]{also, may be good to add some specific numbers here}
 
-Further improvements to the analytical Jacobian code, e.g., by use of a chemical kinetic system based on species concentrations to increase Jacobian sparsity, are likely to further increase performance of the developed algorithms.
+Further improvements to the analytical Jacobian code, e.g., by using a chemical kinetic system based on species concentrations to increase Jacobian sparsity, are likely to further increase performance of the developed algorithms.
 However, this work clearly showed that thread divergence poses a large challenge to high performance of GPU-based integration techniques on a per-thread basis.
-Therefore, our future work will focus on a more comprehensive study of thread divergence, as well as developing methods to mitigate or eliminate the negative performance impact.
+Our future work will therefore focus on a more comprehensive study of thread divergence, as well as developing methods to mitigate or eliminate its negative performance impact.
 Finally, new integration techniques such as hybrid implicit\slash explicit solvers and explicit non-exponential Rosenbrock algorithms will be investigated and paired with work studying the selection of appropriate solvers based on estimated chemical stiffness.
 
 
