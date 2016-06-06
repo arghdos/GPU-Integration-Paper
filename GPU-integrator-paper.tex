@@ -130,7 +130,7 @@ This approach eliminates numerous chemical source term evaluations, and for a sp
 In this work, our efforts to accelerate chemical kinetics focus on improving the integration strategy itself, via development of new algorithms and use of high-performance hardware accelerators such as graphics processing units (GPUs) and similar single-instruction multiple-data (SIMD) devices.
 Central processing unit (CPU) clock speeds increased regularly over the past few decades---commonly known as Moore's Law---however, power consumption and heat dissipation issues slowed this trend recently.
 While multicore parallelism somewhat increased CPU performance, recently SIMD processors gained popularity as a low cost, low power consumption, and massively parallel high-performance computing alternative.
-GPUs were originally developed for graphics\slash video processing applications and consist of hundreds to thousands of separate processing cores\todo{is this the best term here?}, compared with the tens of cores found on typical CPUs.
+GPUs were originally developed for graphics\slash video processing applications and consist of hundreds to thousands of separate processing units, compared with the tens of cores found on typical CPUs.
 The SIMD parallelism model differs from a traditional CPU-based multithreading model, with small per-core memory caches and acceleration resulting from executing the same instruction over multiple data.
 Subsequently, using the SIMD parallelism model to accelerate chemical kinetics integration requires extra consideration.
 
