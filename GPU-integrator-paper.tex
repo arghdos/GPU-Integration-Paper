@@ -137,7 +137,7 @@ Subsequently, using the SIMD parallelism model to accelerate chemical kinetics i
 This study used the NVIDIA CUDA framework~\cite{Buck:2008aa,NVIDIA:2015aa}, hence the following discussion will use CUDA terminology; however, the concepts within are widely applicable to SIMD processing.
 The basic parallel function call on a GPU, termed a kernel, is broken up into a grid of thread blocks.
 A GPU consists of a number of streaming multiprocessors (SMs), each of which is assigned one or more thread blocks in the grid.
-The SMs further subdivide the blocks into groups of \num{32} threads called warps, which form the fundamental CUDA processing unit.
+The SMs further subdivide the blocks into groups of \num{32} threads called warps, which form the fundamental CUDA processing entity.
 The resources available on a SM (memory, cores, registers, etc.) are split between the warps from all the assigned blocks.
 The threads in a warp are executed in parallel on CUDA cores, with multiple warps typically being executed concurrently on a SM.
 Thread divergence, a key performance concern for SIMD processing, occurs when the threads in a warp follow different execution paths, e.g., due to if\slash then branching.
