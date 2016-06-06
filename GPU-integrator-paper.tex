@@ -228,7 +228,8 @@ We selected two chemical kinetic models to span the range of model sizes typical
 The PaSR simulations were performed at the conditions listed in Table~\ref{T:pasr_parameters} for 10 residence times to reach a statistical steady state; Niemeyer et al.~\cite{Niemeyer:2016aa} describe the PaSR simulation process in greater detail, which follows approaches used by others~\cite{Chen:1997ta,Pope:1997wu,Ren:2014cd}.
 The PaSR particles were initialized using the equilibrium state, and gradually move away from equilibrium conditions due to mixing, inflow, and outflow.
 In order to reduce the influence of the equilibrium condition on the solution runtime trends for small numbers of ODEs, the first \num{1000} datapoints (corresponding to a single $\tau_\text{pair}$ time interval) were removed from each database.
-At this point in the simulation, $\sim\SI{80}{\percent}$ of the particles were at or near an equilibrium state, and by the \num{5000}th datapoint only $\sim\SI{20}{\percent}$ of the particles were near equilibrium.\todo{Reworded this a bit, check it out. Also might be informative to give the total number of datapoints to give some context}
+At this point in the simulation, $\sim\SI{80}{\percent}$ of the particles were at or near an equilibrium state, and by the \num{5000}th datapoint only $\sim\SI{20}{\percent}$ of the particles were near equilibrium.
+The \ce{H2}\slash\ce{CO} and GRI-Mech 3.0 databases consisted of \num{899900} and \num{449900} total conditions respectively.
 
 \begin{table}[htb]
 \centering
