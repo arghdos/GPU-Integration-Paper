@@ -400,7 +400,7 @@ Figure~\ref{F:H2_perf} shows the runtimes of the CPU and GPU integrators for the
 In Fig.~\ref{F:h2_cpu_perf_small} the runtimes per ODE for the CPU integrators with a global time-step of $\delta t= \SI{e-6}{\second}$ decrease approximately linearly with the number of ODEs for small numbers of initial conditions (shown here on a log-log plot).
 For small numbers of ODEs, the exponential integrators outperform the implicit integration techniques due to the modest stiffness of the \ce{H2}\slash\ce{CO} model; even with many near-equilibrium states removed from the beginning of the PaSR database, the model is not particularly stiff for this small time-step.
 Larger numbers of ODEs begin to saturate the CPU resources, and the runtime per ODE levels off to a more constant value.
-Eventually, relatively more stiff conditions are encountered and the performance of the implicit integration techniques catches up and then surpasses that of the exponential integrators; \texttt{CVODE} is the most efficient solver on the CPU when solving more than \num{e4} ODEs; however, the other solvers are of relatively similar efficiency in this case.\todo{replace the last bit of this sentence with numbers}{}
+Eventually, relatively more stiff conditions are encountered and the performance of the implicit integration techniques catches up and then surpasses that of the exponential integrators; \texttt{CVODE} is the most efficient solver on the CPU when solving more than \num{e4} ODEs; however, \texttt{CVODE} is only $\sim$\num{5.5}$\times$ faster than the slowest solver (\texttt{exprb43}) in this case.
 Fig.~\ref{F:h2_gpu_perf_small} shows the performance of the GPU integrators for the smaller global time-step, which exhibit similar trends as the CPU solvers: a linearly decreasing solution cost that reaches a roughly constant value between \numrange{e3}{e4} ODEs.
 Unlike for the CPU solvers, the GPU-based \texttt{Radau-IIA} performs faster than the exponential solvers for all numbers of ODEs.
 As will be seen in Section~\ref{S:divergence}, both solver classes experience minimal thread divergence due to differing internal integration time-step size in this case.
@@ -411,7 +411,7 @@ The performances of the CPU integration algorithms show similar trends to those 
 The larger time-step induces additional stiffness, and the implicit solvers are more efficient for most numbers of ODEs; \texttt{CVODE} is again the most efficient CPU solver.
 Fig.~\ref{F:h2_gpu_perf_large} shows the performance of the GPU solvers for the larger time-step.
 The exponential solvers exhibit significant spikes in computational cost for 4 and 32 ODE systems, with the latter mimicked somewhat by the implicit \texttt{Radau-IIA} solver.
-The CPU solvers also show a performance decrease at four ODEs, indicating chemical stiffness as the primary cause.\todo{I don't actually see that at 4 ODEs, although I see a gap between CVODE\slash Radau and the exponential solvers at 2}
+The CPU exponential integrators show a jump in solution cost between two and four ODEs, indicating chemical stiffness as the primary cause.
 On the other hand, at 32 ODEs the CPU exponential solvers exhibit little-to-no performance decrease, while the GPU-based \texttt{Radau-IIA} also shows a decrease in performance at the same point---a trend completely absent in the CPU version.
 These factors indicate that thread divergence is also playing a key role in the performance trend here, and will be investigated further in Section~\ref{S:divergence}.
 As in the smaller global time-step case, the \texttt{Radua-IIA} solver is the most efficient GPU algorithm in all cases.
@@ -506,8 +506,8 @@ For the time-step size of \SI{e-4}{\second}, corresponding to Reynolds-averaged 
 \multirow{2}{*}{Time-step size} & \multicolumn{2}{c}{\# equivalent CPU cores} \\ \cmidrule{2-3}
  & \ce{H2}\slash\ce{CO} & \ce{CH4} \\
 \midrule
-\SI{e-6}{\second} & 35.3 & 10.5 \\
-\SI{e-4}{\second} & 14.1 & 2.6 \\
+\SI{e-6}{\second} & 35.4 & 10.4 \\
+\SI{e-4}{\second} & 14.0 & 2.6 \\
 \bottomrule
 \end{tabular}
 \caption{The number of CPU cores (roughly) required for equivalent performance to a single GPU for the combinations of chemical kinetic models and time-step sizes studied.}

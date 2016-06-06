@@ -14,7 +14,7 @@ oploop = op({'dt' : [1e-6, 1e-4],
             'gpu' : [True, False],
             'mech' : data.keys()})
 
-smem = True
+smem = False
 normalize=True
 CPU_CORE_COUNT = 40.
 num_odes = 1e7
@@ -63,6 +63,11 @@ for state in oploop:
     to_calc = next((s for s in series if s.name == "radau2a" and s.gpu), None)
     if to_calc is None:
         to_calc = next((s for s in series if s.name == "cvodes"), None)
+
+    if not gpu and dt == 1e-4 and mech == 'H2':
+        #stats
+        exprb43 = next((s for s in series if s.name == "exprb43" and not s.gpu), None)
+        print 'h2 ratio', exprb43.y[-1] / to_calc.y[-1]
 
     last_value = s.y[-1] * 1.1
 
