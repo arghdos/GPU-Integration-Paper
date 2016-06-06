@@ -216,7 +216,7 @@ To ensure high performance of CPU-based methods, the Intel \texttt{MKL} library 
 Next, we implemented GPU versions of the \texttt{Radau-IIA}, \texttt{exp4}, and \texttt{exprb43} methods.
 These follow the same descriptions as the CPU versions, but require specialized implementations of several BLAS and LAPACK methods, mostly related to LU factorization of the Jacobian or Hessenberg matrices.
 All GPU routines were developed using the NVIDIA CUDA framework~\cite{Buck:2008aa,NVIDIA:2015aa}.
-The \texttt{Radau-IIA} solver as developed by Hairer and Wanner~\cite{wanner1991solving} contains an adaptive time-stepping technique, the exponential methods used a standard adaptive time-stepping technique~\cite{wanner1991solving}; adaptive time-stepping was handled internally by the \texttt{CVODE} solver.\todo{not quite sure what's going on with this sentence, but it's definitely confusing}
+Adaptive time-stepping techniques were utilized by all solvers; the \texttt{Radau-IIA} and \texttt{CVODE} integrators have built in adaptive time-stepping, while the exponential methods used a standard adaptive time-stepping technique~\cite{wanner1991solving}.
 Finally, the adaptive time stepping procedures of all integrators used absolute and relative tolerances of \SI{e-10} and \SI{e-6}, respectively, throughout the work.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
