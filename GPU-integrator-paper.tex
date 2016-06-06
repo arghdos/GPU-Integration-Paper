@@ -410,9 +410,9 @@ Figures~\ref{F:h2_cpu_perf_large} and \ref{F:h2_gpu_perf_large} show the perform
 The performances of the CPU integration algorithms show similar trends to those of the smaller time-step case: decreasing cost per ODE before reaching a more constant performance for higher numbers of ODEs.
 The larger time-step induces additional stiffness, and the implicit solvers are more efficient for most numbers of ODEs; \texttt{CVODE} is again the most efficient CPU solver.
 Fig.~\ref{F:h2_gpu_perf_large} shows the performance of the GPU solvers for the larger time-step.
-The exponential solvers exhibit significant spikes in computational cost for 4 and 32 ODE systems, with the latter mimicked somewhat by the implicit \texttt{Radau-IIA} solver.
-The CPU exponential integrators show a jump in solution cost between two and four ODEs, indicating chemical stiffness as the primary cause.
-On the other hand, at 32 ODEs the CPU exponential solvers exhibit little-to-no performance decrease, while the GPU-based \texttt{Radau-IIA} also shows a decrease in performance at the same point---a trend completely absent in the CPU version.
+The exponential solvers exhibit significant spikes in computational cost when changing from 2--4 and 16--32 ODEs, with the latter mimicked somewhat by the implicit \texttt{Radau-IIA} solver.
+A jump in solution cost between 2--4 ODEs is present for the CPU exponential integrators, indicating chemical stiffness as the primary cause.
+On the other hand, between 16--32 ODEs the CPU exponential solvers exhibit only a very minor performance decrease, while the GPU-based \texttt{Radau-IIA} also shows a decrease in performance at the same point---a trend completely absent in the CPU version.
 These factors indicate that thread divergence is also playing a key role in the performance trend here, and will be investigated further in Section~\ref{S:divergence}.
 As in the smaller global time-step case, the \texttt{Radua-IIA} solver is the most efficient GPU algorithm in all cases.
 
