@@ -323,9 +323,9 @@ The maximum error over all conditions
 \begin{equation}
  \left\lvert\textbf{E}\right\rvert = \max_{i= 1, \dots, \num{10000}}\{E_i(t)\}
 \end{equation}
-was then used to measure convergence.\todo{not sure what you mean by convergence here}
+was then used to measure the error of each solver.
 The solvers used the same tolerances as for the performance testing (absolute and relative tolerances of \num{e-10} and \num{e-6}, respectively).
-Adaptive time-stepping was used in all cases, and Krylov subspace approximation was enabled for the exponential integrators thus evaluating the accuracy of the solvers, in identical form as used for performance testing.\todo{I think this sentence is incomplete, or needs editing for clarity}
+Adaptive time-stepping was used in all cases, and Krylov subspace approximation was enabled for the exponential integrators.
 The global integrator time-step was varied from \SI{e-6}{\second} to \SI{e-11}{\second} to examine convergence to the true solution.
 
 Figure~\ref{F:convergence} shows the convergence plot for the CPU solvers.
