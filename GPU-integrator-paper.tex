@@ -116,7 +116,7 @@ Finally, future research directions were identified based on the current state-o
 
 The need for accurate chemical kinetic models in predictive reacting-flow simulations has driven the development of detailed oxidation models for hydrocarbon fuels relevant to transportation and energy generation applications.
 At the same time, growing understanding of hydrocarbon oxidation processes resulted in orders of magnitude increases in model size and complexity.
-For instance, a recently developed model for 2-methylalkanes, relevant for jet and diesel fuel surrogates, includes over \num{7000} species and \num{30000} reactions~\cite{Sarathy:2011kx} while a recent detailed gasoline surrogate mechanism contains over \num{1500} species and \num{6000} reactions~\cite{Mehl:2011jn}.\todo{some of this is pretty close to sentence in the pyJac paper; might want to revise}
+Contemporary detailed chemical kinetic models relevant to jet fuel, diesel~\cite{Sarathy:2011kx}, gasoline~\cite{Mehl:2011jn}, and biodiesel~\cite{Herbinet:2010gu} surrogates consist of thousands of species with potentially tens of thousands of reactions.
 Furthermore, kinetic models for large hydrocarbon fuels tend to exhibit high chemical stiffness that requires implicit integration algorithms for efficient solution.
 The cost of these algorithms scales at best quadratically---and at worst cubically---with the number of species in a model~\cite{Lu:2009gh}.
 Lu and Law~\cite{Lu:2009gh} extensively reviewed techniques to accelerate chemical kinetics integration.
