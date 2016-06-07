@@ -63,7 +63,7 @@ for f in files:
             if series is None:
                 series_list.append(test)
                 series = test
-            series.add_x_y(timestep, yval)
+            series.add_x_y(1e-6 / timestep, yval)
             continue
         if 'Linf' in line:
             continue
@@ -116,16 +116,22 @@ for state in op:
 
     #draw order lines
     if not gpu and not opt:
-        plt.plot([1e-8, 1e-9], [2, 0.2], 'k')
-        plt.text(3.5e-9, 0.3, r"Order--1")
+        plt.plot([1e2, 1e3], [1.7, 0.17], 'k')
+        plt.text(7e1, 0.35, r"Order--1")
 
-        plt.plot([2e-7, 2e-8], [0.2, 0.002], 'k')
-        plt.text(8e-8, 0.011, r"Order--2")
+        plt.plot([1.5e1, 1.5e2], [0.06, 0.0006], 'k')
+        plt.text(4.5e1, 0.0075, r"Order--2")
 
-        plt.text(1e-10, 5e-3, r"``Exact'' Krylov")
-        plt.text(1e-10, 3e0, r"Approximate Krylov", rotation=35)
+        plt.plot([1.8, 1.8e1], [1.5e-1, 1.5e-4], 'k')
+        plt.text(6, 4e-3, r"Order--3")
 
-    plt.xlabel(r'Time step size, $\delta t$ (s)')
+        plt.plot([0.5, 5], [2e-1, 2e-5], 'k')
+        plt.text(2.5e-1, 1e-3, r"Order--4")
+
+        plt.text(1e3, 4e-4, r"``Exact'' Krylov")
+        plt.text(1e3, 2e0, r"Approximate Krylov", rotation=-40)
+
+    plt.xlabel(r'Steps taken')
     plt.ylabel(r'Maximum error, $\left\lvert\textbf{E}\right\rvert$')
 
     artists = []
@@ -141,7 +147,7 @@ for state in op:
         labels.append(show)
 
     plt.legend(artists, labels, **ps.legend_style)
-    ax.set_xlim((5e-12, 3e-6))
+    ax.set_xlim((1.5e-1, 5e6))
     ps.finalize()
 
     plt.savefig(os.path.join(ps.figpath,
