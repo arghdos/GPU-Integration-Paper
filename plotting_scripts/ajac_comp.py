@@ -100,6 +100,7 @@ for dt in dt_list:
             else:
                 dummy.set_marker(marker=marker, color=color, **ps.marker_style)
             dummy.plot(ax, name_fun, show_dev=True)
+            print mech, dt, dummy.name, dummy.gpu, np.max(dummy.y), dummy.y[-1]
             names = names.union([dummy.name])
 
         max_x = ax.get_xlim()[1]
