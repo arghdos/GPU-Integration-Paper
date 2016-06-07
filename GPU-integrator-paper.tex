@@ -595,10 +595,9 @@ For the larger time-step the \texttt{exprb43} divergence measure increases signi
 The divergence measure distribution is fairly similar to that of the \texttt{Radau-IIA} solver for the GRI-Mech 3.0 model, however the peak divergence measure is shifted towards \num{0.2} for the \ce{H2}\slash\ce{CO} model (versus $\sim$\num{0.4} for the \texttt{Radau-IIA} solver).
 The explicit solvers are less efficient at dealing with stiffness, and end up using a greater range of time-step sizes between stiff and non-stiff conditions resulting in an increase in thread divergence levels due to differing internal time-steps.
 
-The expected order reduction of the \texttt{exp4} method is also apparent in Figs~\ref{F:exp4_div_h2} and \ref{F:exp4_div_ch4}, in which exhibits significantly thread divergence than either of the other solvers for most cases.
+The expected order reduction of the \texttt{exp4} method is also apparent in Figs~\ref{F:exp4_div_h2} and \ref{F:exp4_div_ch4}, in which exhibits significantly more thread divergence than either of the other solvers for most cases.
 The \texttt{exp4} algorithm is the only solver to show significant thread divergence for the \ce{H2}\slash\ce{CO} model for the smaller time-step, and the peak \texttt{exp4} divergence measure occurs near \num{0.8} as opposed to \num{1.0} for the \texttt{exprb43} solver for the GRI-Mech 3.0 model.
 Further, the peak \texttt{exp4} divergence measures are at lower values than the \texttt{exprb43} solver for both models with the larger time-step.
-\todo{finish revising}
 
 \subsection{Effect of using a finite-difference-based chemical kinetic Jacobian}
 
