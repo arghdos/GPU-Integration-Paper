@@ -308,10 +308,9 @@ PaSR parameters used for hydrogen\slash air and methane\slash air premixed combu
 \begin{figure}[htb]
   \centering
   \includegraphics[width=0.7\linewidth]{c_nco_nosmem_error.pdf}
-  \caption{Maximum error of the various CPU solvers as a function of global integrator time-step size $\delta t$.}
+  \caption{Maximum error of the various CPU solvers as a function of the total number of integration steps taken.}
   \label{F:convergence}
-  \todo[inline]{any additional points at larger time step size, to help indicate the order for Radau? or, can you indicate an order line based on the last two points? Without that, this figure seems incomplete}
-\end{figure}
+ \end{figure}
 
 To investigate the correctness of the developed solvers, the first \num{10000} conditions in the \ce{H2}\slash\ce{CO} database were integrated by each solver for \SI{e-6}{\second}.
 The error for condition $i$ was then determined using the weighted root-mean-square error
@@ -324,21 +323,20 @@ The maximum error over all conditions
  \left\lvert\textbf{E}\right\rvert = \max_{i= 1, \dots, \num{10000}}\{E_i(t)\}
 \end{equation}
 was then used to measure the error of each solver.
-The solvers used the same tolerances as for the performance testing (absolute and relative tolerances of \num{e-10} and \num{e-6}, respectively).
-Adaptive time-stepping was used in all cases, and Krylov subspace approximation was enabled for the exponential integrators.
-The global integrator time-step was varied from \SI{e-6}{\second} to \SI{e-11}{\second} to examine convergence to the true solution.
+The error measurement used the same tolerances as for the performance testing (absolute and relative tolerances of \num{e-10} and \num{e-6}, respectively).
+The integration step-size was then varied from \SIrange{e-6}{e-11}{\second} to measure the convergence rates of the various solvers; adaptive time-stepping was turned off in this section.
 
 Figure~\ref{F:convergence} shows the convergence plot for the CPU solvers.
-The error of the \texttt{Radau-IIA} integrator is far below the specified integration tolerances (which normally select a time-step size to achieve $\left\lvert\textbf{E}\right\rvert \leq 1$) for all cases.
-The exponential solvers exhibit much larger levels of error for the larger global time-step, with $\left\lvert\textbf{E}\right\rvert \sim \mathcal{O}(1)$ for the largest global time-step.
-As the time-step size is decreased, two factors affect the overall error.
-First, the internal integration time-step size was not held constant but instead allowed to vary adaptively, hence this is only a ``true'' convergence plot for the smaller time-step sizes where the global integrator step size is smaller than any taken by the adaptive scheme.
-In conjunction, the convergence of the Arnoldi algorithm is affected by the internal integration time-step size (the matrix exponentials and error estimates are scaled by the internal step size).
+The error of the \texttt{Radau-IIA} integrator is only consequential for the largest integration time-step size (\SI{e-6}{\second}), reducing the time-step size to \SI{e-7}{\second} results in a reduction in error roughly four orders in magnitude, nearing the nominal fourth order of the method.
+Further decrease of the time-step does not result in further decreases in error, due to numerical precision effects.
+The exponential solvers exhibit much larger levels of error in general, with $\left\lvert\textbf{E}\right\rvert \sim \mathcal{O}(1)\text{--}\mathcal{O}(10)$ for the largest global time-step.
+As the time-step size is decreased, the convergence of the Arnoldi algorithm is affected by the internal integration time-step size (the matrix exponentials and error estimates are scaled by the internal step size).
 To study the effect of the Arnoldi algorithm on the overall error, Fig.~\ref{F:convergence} also presents the convergence of the exponential integrators with the Krylov approximation error reduced far below the error of the overall method.
 Practically, this is accomplished by detecting when the $n$th Krylov subspace vector approaches zero, a condition known as the ``happy breakdown'' in literature~\cite{datta2010numerical}.
 In this limit, the approximate exponential matrix\slash vector product approaches the exact value and thus the error induced by the Krylov approximation is negligible.
-In Fig.~\ref{F:convergence} is it seen that with the approximate Krylov subspace, the exponential methods achieve only first-order convergence to the true solution, but with the ``exact'' Krylov subspace both methods approach second-order convergence.
-Although both methods are nominally fourth order, the combination of chemical stiffness and adaptive time-stepping reduces the apparent convergence to order two.
+In Fig.~\ref{F:convergence} is it seen that with the approximate Krylov subspace, the exponential methods achieve only first-order convergence to the true solution, but with the ``exact'' Krylov subspace both methods have higher convergence rates.
+The nominal fourth-order convergence of the \texttt{exp4} algorithm is a classical nonstiff order, and thus order reduction is expected for stiff problems~\cite{ANU:7701740,Bisetti:2012jw}; with the ``exact'' Krylov subspace the \texttt{exp4} solver reaches roughly second order convergence.
+The \texttt{exprb43} solver exhibits roughly third order convergence with the ``exact'' Krylov subspace; it is unclear whether an order-reduction has occurred or this is due to numerical precision effects.
 Furthermore, the error of Krylov subspace approximation dominates the error measurement $\lvert\textbf{E}\rvert$.
 From Fig.~\ref{F:convergence} we may conclude that all solvers produce reasonably accurate solutions as compared to \texttt{CVODE}.
 Additionally, although not shown, the results for the GPU solvers are nearly identical.
@@ -459,8 +457,7 @@ As will be examined in Section~\ref{S:divergence}, this dramatic decrease likely
 Unlike for the \ce{H2}\slash\ce{CO} model, the \texttt{exprb43} solver outperforms \texttt{exp4} for the GRI-Mech 3.0 model in all cases for the larger time-step size.
 Although the \texttt{exprb43} and \texttt{exp4} algorithms each only require three exponential matrix function approximations per step, a single time step of \texttt{exprb43} is more expensive due to the extra chemical source term evaluations, matrix multiplications, and higher-order exponential matrix function requirement.
 As such, the relatively simpler CPU \texttt{exp4} integrator outperforms the CPU \texttt{exprb43} integrator for the \ce{H2}\slash\ce{CO} model where there is relatively less chemical stiffness.
-However, the nominal fourth-order convergence of the \texttt{exp4} algorithm is a classical nonstiff order, and thus order reduction is expected for stiff problems~\cite{ANU:7701740,Bisetti:2012jw}.
-Correspondingly, for the larger time-step GRI-Mech 3.0 case, \texttt{exprb43} typically outperforms \texttt{exp4} on both the CPU and GPU.
+However, as previously discussed the \texttt{exp4} algorithm may experience order reduction for stiff problems, and the \texttt{exprb43} algorithm typically outperforms \texttt{exp4} on both the CPU and GPU in the larger time-step GRI-Mech 3.0 case as a result.
 
 
 % The GPU \texttt{Radau-IIA} integrator outperformed \texttt{CVODE} for the smaller time-step size; at best, it ran \SI{31.5}{\percent} faster than \texttt{CVODE} (\num{131072} ODEs), and at worst was \SI{10}{\percent} faster (\num{16384} ODEs).

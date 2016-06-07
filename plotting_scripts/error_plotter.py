@@ -117,7 +117,7 @@ for state in op:
     #draw order lines
     if not gpu and not opt:
         plt.plot([1e2, 1e3], [1.7, 0.17], 'k')
-        plt.text(7e1, 0.35, r"Order--1")
+        plt.text(6.5e1, 0.35, r"Order--1")
 
         plt.plot([1.5e1, 1.5e2], [0.06, 0.0006], 'k')
         plt.text(4.5e1, 0.0075, r"Order--2")
