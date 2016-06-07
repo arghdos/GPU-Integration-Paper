@@ -336,10 +336,10 @@ Practically, this is accomplished by detecting when the $n$th Krylov subspace ve
 In this limit, the approximate exponential matrix\slash vector product approaches the exact value and thus the error induced by the Krylov approximation is negligible.
 In Fig.~\ref{F:convergence} is it seen that with the approximate Krylov subspace, the exponential methods achieve only first-order convergence to the true solution, but with the ``exact'' Krylov subspace both methods have higher convergence rates.
 The nominal fourth-order convergence of the \texttt{exp4} algorithm is a classical nonstiff order, and thus order reduction is expected for stiff problems~\cite{ANU:7701740,Bisetti:2012jw}; with the ``exact'' Krylov subspace the \texttt{exp4} solver reaches roughly second order convergence.
-The \texttt{exprb43} solver exhibits roughly third order convergence with the ``exact'' Krylov subspace; it is unclear whether an order-reduction has occurred or this is due to numerical precision effects.
+The \texttt{exprb43} solver reaches third order convergence with the ``exact'' Krylov subspace; it is unclear whether an order-reduction has occurred or this is due to numerical precision effects.
 Furthermore, the error of Krylov subspace approximation dominates the error measurement $\lvert\textbf{E}\rvert$.
 From Fig.~\ref{F:convergence} we may conclude that all solvers produce reasonably accurate solutions as compared to \texttt{CVODE}.
-Additionally, although not shown, the results for the GPU solvers are nearly identical.
+Additionally, although not shown, the results for the GPU solvers are identical.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -454,7 +454,7 @@ This phenomena, due largely to the increase in model size, is mostly mirrored by
 However, for the larger time-step size, the GPU-based \texttt{Radau-IIA} solver performs roughly two orders of magnitude slower compared with the \ce{H2}\slash\ce{CO} case.
 As will be examined in Section~\ref{S:divergence}, this dramatic decrease likely results from increased thread divergence in the \texttt{Radau-IIA} solver, as well as the increased memory traffic inherent in the larger model.
 
-Unlike for the \ce{H2}\slash\ce{CO} model, the \texttt{exprb43} solver outperforms \texttt{exp4} for the GRI-Mech 3.0 model in all cases for the larger time-step size.
+Unlike for the \ce{H2}\slash\ce{CO} model, the \texttt{exprb43} solver outperforms \texttt{exp4} for the GRI-Mech 3.0 model in almost all cases for the larger time-step size for both the CPU and GPU.
 Although the \texttt{exprb43} and \texttt{exp4} algorithms each only require three exponential matrix function approximations per step, a single time step of \texttt{exprb43} is more expensive due to the extra chemical source term evaluations, matrix multiplications, and higher-order exponential matrix function requirement.
 As such, the relatively simpler CPU \texttt{exp4} integrator outperforms the CPU \texttt{exprb43} integrator for the \ce{H2}\slash\ce{CO} model where there is relatively less chemical stiffness.
 However, as previously discussed the \texttt{exp4} algorithm may experience order reduction for stiff problems, and the \texttt{exprb43} algorithm typically outperforms \texttt{exp4} on both the CPU and GPU in the larger time-step GRI-Mech 3.0 case as a result.
