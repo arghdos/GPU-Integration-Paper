@@ -581,8 +581,8 @@ Investigation of thread divergence for such operations within a internal integra
 
 Figures~\ref{F:Rad_div_h2} and~\ref{F:Rad_div_gri} show the distribution of the divergence measure $D$ for the \texttt{Radau-IIA} solver with both time-step sizes and kinetic models when run on \num{262144} ODEs, spread across \num{8192} warps.
 For both kinetic models, increasing the global integration time-step size resulted in a sharp increase in the number of warps with high levels of thread divergence (i.e., $D < 0.5$).
-The approximate equivalent CPU core-count (Table~\ref{T:cpu_equiv}) correspondingly drops to \SIrange{2.5}{4}{$\times$}.
-Furthermore, the GRI-Mech 3.0 model experiences higher levels of thread divergence for the larger time-step size, and subsequently exhibits a larger drop in performance compared with the \ce{H2}\slash\ce{CO} model.
+The approximate equivalent CPU core-count (Table~\ref{T:cpu_equiv}) correspondingly drops by \SIrange{2.5}{4}{$\times$}.
+Furthermore, the GRI-Mech 3.0 model experiences higher levels of thread divergence for the larger time-step size, and subsequently experiences a larger drop in performance compared with the \ce{H2}\slash\ce{CO} model.
 This observation motivates future work aimed at developing strategies to reduce thread divergence.
 Potential solutions include adopting an ODE per-block approach~\cite{Stone:2013aa}, reordering ODEs to increase similarity of stiffness inside a warp, or synchronizing time-step sizes between threads in a warp.
 However, Figs.~\ref{F:Rad_div_h2} and \ref{F:Rad_div_gri} do not explain the drop in equivalent core count between the \ce{H2}\slash\ce{CO} model and the GRI-Mech 3.0 model for the smaller time-step size.
@@ -591,11 +591,11 @@ This likely results from a combination of thread divergence inside the internal 
 Figures~\ref{F:exprb43_div_h2} and \ref{F:exprb43_div_ch4} show the divergence levels of the \texttt{exprb43} GPU solver.
 Similar to the \texttt{Radau-IIA} solver, the \texttt{exprb43} solver shows only minor levels of thread divergence due to differing internal integration step sizes for the \ce{H2}\slash\ce{CO} model.
 The \texttt{exprb43} thread divergence levels increase somewhat for the GRI-Mech 3.0 model with the small time-step; the peak divergence measure is still at unity, however non-negligible percentages of the warps have divergence measures between \numrange{0.8}{0.1}.
-For the larger time-step the \texttt{exprb43} divergence measure increases significantly for both models.
+With the larger time-step, the \texttt{exprb43} solver experiences significantly more thread divergence for both models.
 The divergence measure distribution is fairly similar to that of the \texttt{Radau-IIA} solver for the GRI-Mech 3.0 model, however the peak divergence measure is shifted towards \num{0.2} for the \ce{H2}\slash\ce{CO} model (versus $\sim$\num{0.4} for the \texttt{Radau-IIA} solver).
 The explicit solvers are less efficient at dealing with stiffness, and end up using a greater range of time-step sizes between stiff and non-stiff conditions resulting in an increase in thread divergence levels due to differing internal time-steps.
 
-The expected order reduction of the \texttt{exp4} method is also apparent in Figs~\ref{F:exp4_div_h2} and \ref{F:exp4_div_ch4}, in which exhibits significantly more thread divergence than either of the other solvers for most cases.
+The relatively worse stiffness handling of the \texttt{exp4} method is also apparent in Figs~\ref{F:exp4_div_h2} and \ref{F:exp4_div_ch4}, where significantly more thread divergence is seen for most cases than for either of the other solvers.
 The \texttt{exp4} algorithm is the only solver to show significant thread divergence for the \ce{H2}\slash\ce{CO} model for the smaller time-step, and the peak \texttt{exp4} divergence measure occurs near \num{0.8} as opposed to \num{1.0} for the \texttt{exprb43} solver for the GRI-Mech 3.0 model.
 Further, the peak \texttt{exp4} divergence measures are at lower values than the \texttt{exprb43} solver for both models with the larger time-step.
 
