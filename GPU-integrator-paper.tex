@@ -662,16 +662,16 @@ Past work showed orders-of-magnitude speedups for solution of nonstiff to modera
 In contrast, work on stiff chemical kinetic integration with implicit GPU solvers has been limited to specialized cases, or failed to surpass current CPU-based techniques.
 
 This work demonstrated the performance of GPU-based integration methods capable of handling greater stiffness, including an implicit fifth-order Runge--Kutta algorithm and two fourth-order exponential integration algorithms, using chemical source term and analytical Jacobian subroutines provided by the \texttt{pyJac} software~\cite{niemeyer_2016_51139,Niemeyer:2015ws,Niemeyer:2016aa}.
-For time-step sizes relevant to large-eddy simulations of turbulent combustion, the GPU-based implicit Runge--Kutta method compared favorably with the CPU-based implicit \texttt{CVODE} integrator for both chemical kinetic models studied.
-For longer time-step sizes, the performance of all GPU solvers decreased significantly due to increased levels of thread divergence.
-The exponential solvers performed significantly worse than the implicit integrators on the CPU and GPU in all relevant cases.
+\begin{itemize}
+ \item For time-step sizes relevant to large-eddy simulations, the GPU-based implicit Runge--Kutta method was roughly equivalent to the CPU-based implicit \texttt{CVODE} integrator running on \numrange{10}{35} CPU cores
+ \item At longer time-step sizes, the performance of all GPU-based integrators decreased significantly due to thread divergence
+ \item For the \ce{H2}\slash\ce{CO} model with a time-step size relevant to Reynolds Averaged Navier Stokes simulations, the GPU-based Runga--Kutta solver was approximately equivalent to \texttt{CVODE} running on \num{14} cores; for the GRI-Mech 3.0 model, the Runge--Kutta solver performance was only equal to \texttt{CVODE} on \num{2} cores.
+ \item The exponential solvers were significantly less efficient than the implicit integrators on the CPU and GPU for all relevant cases
+ \item The use of an analytical Jacobian matrix on the GPU is critical for efficient chemical kinetic integration due to thread divergence; speedups of \SIrange{8.09}{241.08}{$\times$} were reached on the GPU, far surpassing the corresponding CPU speedup of \SIrange{1.58}{2.51}{$\times$}
+ \item Thread divergence and memory traffic were identified as key performance concerns for per-thread based GPU chemical kinetic integration algorithms.
+ \end{itemize}
 Based on these results, we conclude that the higher levels of thread divergence present for the exponential solvers combined with the relatively high cost of integration steps due to Arnoldi iteration (as compared to other explicit integration techniques) make them a poor fit for SIMD acceleration.
-Instead, further focus on stiff explicit solvers should be directed towards (non-exponential) Rosenbrock solvers and inexact Jacobian W-methods, as explored for the CPU by Stone and Bisetti~\cite{stone2014comparison}.
-We found that using an analytical Jacobian matrix on the GPU is critical to efficient chemical kinetic integration, with the performance benefits thereof greatly surpassing those achieved by using an analytical Jacobian on the CPU.
-Finally, thread divergence and memory traffic were identified as key performance concerns for GPU chemical kinetic integration algorithms.
-\todo[inline]{maybe lay out our main conclusions and contributions as a bulleted list, instead of paragraph form? That helps people grab the main takeaways.}
-\todo[inline]{also, may be good to add some specific numbers here}
-
+Instead, further focus on stiff explicit solvers should be directed towards (non-exponential) Rosenbrock solvers, as explored for the CPU by Stone and Bisetti~\cite{stone2014comparison}, and inexact Jacobian W-methods~\cite{Schmitt2004,steihaug1979attempt}.
 Further improvements to the analytical Jacobian code, e.g., by using a chemical kinetic system based on species concentrations to increase Jacobian sparsity, are likely to further increase performance of the developed algorithms.
 However, this work clearly showed that thread divergence poses a large challenge to high performance of GPU-based integration techniques on a per-thread basis.
 Our future work will therefore focus on a more comprehensive study of thread divergence, as well as developing methods to mitigate or eliminate its negative performance impact.
