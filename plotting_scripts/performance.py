@@ -55,7 +55,19 @@ for state in oploop:
                 s.data[i] = (s.data[i][0], s.data[i][1] / s.data[i][0], s.data[i][2] / s.data[i][0])
 
         s.plot(ax, ps.pretty_names, show_dev=True)
+
         names = names.union([s.name])
+    
+    if not gpu:
+        exprb43 = next(s for s in series if s.name == 'exprb43')
+        cv = next(s for s in series if s.name == 'cvodes')
+        exp4 = next(s for s in series if s.name == 'exp4')
+        d1 = exp4.y[-1] / cv.y[-1]
+        d2 = exprb43.y[-1] / cv.y[-1]
+        d = np.maximum(d1, d2)
+        name = 'exp4' if d1 == d else 'exprb43'
+        print(mech, dt, name, d)
+        
 
     #draw threshold
 
