@@ -324,7 +324,7 @@ The maximum error over all conditions
 \end{equation}
 was then used to measure the error of each solver.
 The error measurement used the same tolerances as for the performance testing (absolute and relative tolerances of \num{e-10} and \num{e-6}, respectively).
-The integration step-size was then varied from \SIrange{e-6}{e-11}{\second} to measure the convergence rates of the various solvers; adaptive time-stepping was turned off in this section.
+The time step-size was then varied from \SIrange{e-6}{e-11}{\second} and the integrators used constant internal time-step sizes to measure the convergence rates of the various solvers.
 
 Figure~\ref{F:convergence} shows the convergence plot for the CPU solvers.
 The error of the \texttt{Radau-IIA} integrator is only consequential for the largest integration time-step size (\SI{e-6}{\second}), reducing the time-step size to \SI{e-7}{\second} results in a reduction in error roughly four orders in magnitude.
