@@ -358,6 +358,7 @@ The open-source \texttt{pyJac} software~\cite{niemeyer_2016_51139,Niemeyer:2015w
 Finally, the L1\slash shared-memory cache was set to prefer a larger L1 cache using the \texttt{cudaDeviceSetCacheConfig()} function.
 
 \subsection{Performance}
+\label{S:perf}
 
 The integrator runtimes presented in this section were normalized by the number of ODEs solved for all cases.
 The reasoning behind this presentation is two-fold.
@@ -531,7 +532,7 @@ $D$ represents the similarity of internal time step counts across threads in a w
 If all threads in a warp use identical internal integration time steps and thus the warp experiences no thread divergence from this source, then $D = 1$; however, if a warp experiences an unbalanced number of internal integration time steps, then $D \to 0$.
 Differing time-step sizes is not the only source of thread divergence for the GPU integration algorithms.
 For instance, threads in a warp may use different Krylov subspace sizes for the exponential integrators or different numbers of Newton iterations for the \texttt{Radau-IIA} solver.
-Indeed, Section~\ref{S:results} notes that we suspect thread divergence from differing Krylov subspace sizes as the reason the exponential solvers are less efficient for small numbers of ODEs for the \ce{H2}\slash\ce{CO} model with the small time-step size.
+Indeed, Section~\ref{S:perf} notes that we suspect thread divergence from differing Krylov subspace sizes as the reason the exponential solvers are less efficient for small numbers of ODEs for the \ce{H2}\slash\ce{CO} model with the small time-step size.
 However, the cost of these operations are clearly less than that of an entire internal integration step (in which they are embedded) and thus we look only at the thread divergence of internal integration time steps.
 Investigation of thread divergence for such operations within a internal integration step is an important consideration and will be explored in our future work.
 
