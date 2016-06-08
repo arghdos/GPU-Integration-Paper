@@ -603,7 +603,8 @@ Further, the peak \texttt{exp4} divergence measures are at lower values than the
 \subsection{Effect of using a finite-difference-based chemical kinetic Jacobian}
 
 While it is well established that using an analytical Jacobian matrix can significantly accelerate chemical kinetic integration on the CPU~(e.g., \cite{Lu:2009gh,stone2014comparison,Schwer2002270}), relatively little study has been directed at use of a GPU-based analytical Jacobian.
-Dijkmans et al.~\cite{Dijkmans:2014bb} used a GPU-based analytical Jacobian code to accelerate various CPU-based chemical kinetic integration schemes, and our own previous works~\cite{Niemeyer:2016aa,Niemeyer:2015ws} have detailed the performance of \texttt{pyJac}, however to our knowledge no work using an analytical Jacobian for GPU-based chemical kinetic integration has been published.
+Dijkmans et al.~\cite{Dijkmans:2014bb} used a GPU-based analytical Jacobian code to accelerate various CPU-based chemical kinetic integration schemes, and our own previous works~\cite{Niemeyer:2016aa,Niemeyer:2015ws} have detailed the performance of \texttt{pyJac}.
+However, to our knowledge no work using an analytical Jacobian for GPU-based chemical kinetic integration has been published.
 In this section, we explore the relative performance benefits of the analytical Jacobian compared to a first-order finite-difference-based Jacobian on both the CPU and GPU.
 The exponential methods require an exact Jacobian matrix (rather than an approximation as given by finite-difference methods), so their performance was not considered in this section.
 
