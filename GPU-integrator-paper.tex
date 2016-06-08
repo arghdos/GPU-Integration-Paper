@@ -611,11 +611,10 @@ For the \ce{H2}\slash\ce{CO} model (Figs.~\ref{F:AJ_h2_small} and~\ref{F:AJ_h2_l
 This results from both the relatively small size of the model (and resulting modest chemical source-term evaluation costs), as well as the lower chemical stiffness that requires only a few Jacobian evaluations for the \texttt{Radau-IIA} solver.
 In some cases the finite-difference Jacobian solver is faster than the analytical Jacobian solver; although difficult to explain the exact cause of this phenomena, it is likely that differences in the finite-difference Jacobian caused the integrator to follow a slightly different path (e.g., with fewer Jacobian updates\slash chemical source term evaluations) changing the integration cost.
 However, for large numbers of conditions, the analytical-Jacobian-based solver indeed performs faster than the finite-difference counterpart; for the full PaSR database, the analytical Jacobian results in speedups of \SI{1.58}{$\times$} and \SI{1.36}{$\times$} for the small and large time-steps respectively.
-In contrast, the analytical-Jacobian-based GPU solver performs significantly faster than the finite-difference GPU solver in all cases for the \ce{H2}\slash\ce{CO} model, reaching a maximum speed up of \SI{11.72}{$\times$}.
+In contrast, the analytical-Jacobian-based GPU solver performs significantly faster than the finite-difference GPU solver in all cases for the \ce{H2}\slash\ce{CO} model, reaching a maximum speed up of \SI{11.72}{$\times$} for the smaller time-step.
 As discussed in Section~\ref{S:divergence}, significantly higher levels of thread divergence are expected for the larger time-step size.
 Correspondingly, the maximum speedup of the GPU solver increases to \SI{241.08}{$\times$} for the larger time-step.
-Figure~\ref{F:AJ_ch4_small} shows that the speedup for the CPU solver reaches \SI{2.52}{$\times$} for the larger GRI-Mech 3.0 model at the smaller time-step size.
-Similar to the \ce{H2}\slash\ce{CO} case with the smaller time-step, the analytical-Jacobian-based GPU \texttt{Radau-IIA} solver reaches a maximum speedup of \SI{8.09}{$\times$} faster for the GRI-Mech 3.0 Model.
+Figure~\ref{F:AJ_ch4_small} shows that the speedup for the CPU solver reaches \SI{2.52}{$\times$} for the larger GRI-Mech 3.0 model at the smaller time-step size, while the GPU solver achieves a maximum speedup of \SI{8.09}{$\times$}.
 It is clear that for a per-thread based GPU integrator, use of an analytical Jacobian is essential for efficient integration due to thread-divergence concerns.
 
 \begin{figure}[htb]
