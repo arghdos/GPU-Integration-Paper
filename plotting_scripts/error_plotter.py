@@ -104,10 +104,10 @@ for state in op:
 
         name_list = set(name_list).union([name])
         marker, dummy = ps.marker_dict[name]
-        if nk and 'exp4' in name:
-            marker = '.'
         color = ps.color_dict[name]
         marker_style = ps.clear_marker_style if not nk else ps.marker_style
+        if nk:
+            marker_style['size'] = 12
         s.set_clear_marker(marker=marker, color=color, **marker_style)
         #else:
         #    s.set_marker(marker=marker, color=color, **ps.marker_style)
@@ -129,7 +129,7 @@ for state in op:
         plt.text(2.5e-1, 1e-3, r"Order--4")
 
         plt.text(1e3, 4e-4, r"``Exact'' Krylov")
-        plt.text(1e3, 2e0, r"Approximate Krylov", rotation=-40)
+        plt.text(1e3, 2e0, r"Approximate Krylov", rotation=-37)
 
     plt.xlabel(r'Steps taken')
     plt.ylabel(r'Maximum error, $\left\lvert\textbf{E}\right\rvert$')
@@ -147,7 +147,7 @@ for state in op:
         labels.append(show)
 
     plt.legend(artists, labels, **ps.legend_style)
-    ax.set_xlim((1.5e-1, 5e6))
+    ax.set_xlim((1.5e-1, 5e5))
     ps.finalize()
 
     plt.savefig(os.path.join(ps.figpath,
