@@ -94,7 +94,7 @@
 \begin{abstract}
 A fifth-order implicit Runge--Kutta method and two fourth-order exponential integration methods equipped with Krylov subspace approximations were implemented for the GPU and paired with the analytical chemical kinetic Jacobian software \texttt{pyJac}.
 The performance of each was evaluated by integrating thermochemical state data sampled from stochastic partially stirred reactor simulations and compared with the commonly used CPU-based implicit integrator \texttt{CVODE}.
-We estimate that the implicit Runge--Kutta method running on a single GPU is equivalent to \texttt{CVODE} running on \num{10} or more CPU cores (up to $\sim$\num{35}) for all but the most stiff case studied, where thread divergence significantly decreased performance to only$\sim$\num{2} cores.
+We estimate that the implicit Runge--Kutta method running on a single GPU is equivalent to \texttt{CVODE} running on \num{10} or more CPU cores (up to $\sim$\num{35}) for all but the most stiff case studied, where thread divergence significantly decreased performance to only $\sim$\num{2} cores.
 The exponential integration techniques performed more slowly than the implicit integrators on both the CPU and GPU.
 Thread divergence and memory traffic were identified as the main limiters of GPU integrator performance, and techniques to mitigate these issues were discussed.
 Use of an analytical Jacobian on the GPU was found to be critical for efficient integration resulting in speedups of \SIrange{10}{100}{$\times$}, far surpassing the benefits of analytical Jacobian use on the CPU for identical problems.
