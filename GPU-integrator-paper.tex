@@ -347,7 +347,7 @@ Additionally, although not shown, the results for the GPU solvers are identical.
 \label{S:results}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-We studied the performance of the integrators by testing each on the PaSR conditions described in Section~\ref{S:pasr_conditions} for two different global integration time-step sizes: $\delta t = \SI{e-6}{\s}$ and $\delta t = \SI{e-4}{\s}$, representative of those used in large eddy~\cite{Wang20111319,Bulat20133155} and Reynolds-averaged Navier--Stokes simulations~\cite{Ramirez2010}, respectively.\todo{may be good to add citations for these numbers, so that they don't look like we pulled them out of midair}
+We studied the performance of the integrators by testing each on the PaSR conditions described in Section~\ref{S:pasr_conditions} for two different global integration time-step sizes: $\delta t = \SI{e-6}{\s}$ and $\delta t = \SI{e-4}{\s}$, representative of those used in large eddy~\cite{Wang20111319,Bulat20133155} and the coarser time-resolution requirements of Reynolds-averaged Navier--Stokes simulations~\cite{Ramirez2010,Galloni20091131}, respectively.
 Furthermore, the use of a larger global time step induces additional stiffness for a given model and enables evaluation of integrator performance at varying stiffness levels.
 Runtimes are reported as the average over five runs, where each run started from the same set of PaSR conditions.
 All CPU integrators were compiled using \texttt{gcc 4.8.5} (with the compiler options ``\texttt{-O3 -funroll-loops -mtune=native}''), and were executed in parallel via OpenMP on four ten-core \SI{2.2}{\giga\hertz} Intel Xeon E5-4640 v2 CPUs with \SI{20}{\mega\byte} of L3 cache memory.
