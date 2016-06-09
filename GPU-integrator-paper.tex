@@ -158,7 +158,7 @@ For this reason, implicit integration algorithms, which typically have complex b
 The impact of thread divergence on integrators following a per-block strategy is typically less severe, since the execution path of each thread is planned by design of the algorithm.
 A per-block approach also offers significantly more local cache memory and available registers for solving a set of ODEs, and thus memory access speeds and cache size are less of a concern.
 However, in our experience, optimizing use of these resources requires significant manual tuning, making it more difficult to generalize the developed algorithm between different chemical kinetic models (a key feature for potential non-academic applications).
-Finally, past work has shown that in the best-case scenario---elimination of the majority of thread divergence by choice of identical initial conditions---the performance of a per-thread implicit integration algorithm greatly surpasses that of the per-block implementation of the same algorithm~\cite{Stone:2013aa}.
+Finally, past work has shown that in the best-case scenario---elimination of thread divergence by choice of identical initial conditions---the performance of a per-thread implicit integration algorithm greatly surpasses that of the per-block implementation of the same algorithm~\cite{Stone:2013aa}.
 
 A number of studies in recent years explored the use of high-performance SIMD devices to accelerate (turbulent) reacting-flow simulations.
 Spafford et al.~\cite{Spafford:2010aa} investigated the use of GPUs to accelerate a turbulent combustion direct numerical simulation code, demonstrating a sub-order of magnitude speedup in evaluating the species production rates on the GPU.
