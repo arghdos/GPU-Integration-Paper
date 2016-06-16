@@ -206,11 +206,11 @@ We evaluated the relative performance impact of using a finite-difference Jacobi
 \texttt{pyJac} also provided the chemical source terms used by the finite-difference Jacobian in all cases.
 We direct readers to our previous work~\cite{Niemeyer:2015ws,Niemeyer:2016aa} for verification and performance assessments of \texttt{pyJac} itself.
 
-First, version 2.6.2 of the \texttt{CVODE} solver~\cite{Hindmarsh:2005hg} provided the baseline performance of a typical CPU-based (maximum of fifth-order) implicit integration technique.\todo{replace in-text version with direct citation to software}{}
+First, the \texttt{CVODE} solver~\cite{Hindmarsh:2005hg,cvode:2.8.2} (part of the \texttt{SUNDIALS} suite~\cite{sundials:2.6.2}) provided the baseline performance of a typical CPU-based (maximum of fifth-order) implicit integration technique.
 In addition, we developed CPU versions of the methods under investigation for direct comparison to the high-order implicit technique.
 These include the three-stage\slash fifth-order implicit Runge--Kutta algorithm~\cite{wanner1991solving} (\texttt{Radau-IIA}), the fourth-order exponential Rosenbrock-like method of Hochbruck et al.~\cite{Hochbruck:1998} (\texttt{exp4}), and the newer fourth-order exponential Rosenbrock method~\cite{Hockbruck:2009} (\texttt{exprb43}).
 For the exponential methods, we used the method of rational approximants~\cite{gallopoulos:1992} paired with the Carath\'edothy--Fej\'er method~\cite{trefethen:2006,kyle_niemeyer_2016_44291} to approximate the action of the matrix exponential on a vector, as suggested by Bisetti~\cite{Bisetti:2012jw}.
-This technique relied on the external \texttt{FFTW3} library (version 3.3.4)~\cite{frigo2005design}.\todo{replace with direct citation to software}{}
+This technique relied on the external \texttt{FFTW3} library~\cite{frigo2005design,fftw:3.3.4}.
 However, unlike the approach of Bisetti~\cite{Bisetti:2012jw}, we developed a custom routine based on the algorithm presented by Stewart~\cite{stewart:1998} to perform LU decomposition of the Hessenberg matrix resulting from the Arnoldi iteration.
 Convergence of the Arnoldi iteration algorithm was computed using the second term of the exponential matrix\slash vector product infinite series, as suggested in several works~\cite{Bisetti:2012jw,saad:1992}.
 The exponential integrators used a rational approximant of type $\left(10,10\right)$ as suggested by Bisetti~\cite{Bisetti:2012jw}.
