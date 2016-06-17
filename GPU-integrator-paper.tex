@@ -595,7 +595,7 @@ This likely results from a combination of thread divergence inside the internal 
 Figures~\ref{F:exprb43_div_h2} and \ref{F:exprb43_div_ch4} show the divergence levels of the \texttt{exprb43} GPU solver.
 Similar to the \texttt{Radau-IIA} solver, the \texttt{exprb43} solver shows only minor levels of thread divergence due to differing internal integration step sizes for the \ce{H2}\slash\ce{CO} model.
 The \texttt{exprb43} thread divergence levels increase somewhat for the GRI-Mech 3.0 model with the smaller time-step size.
-The divergence measure still peaks at unity, but non-negligible percentages of the warps have divergence measures between \numrange{0.8}{0.1}.
+The divergence measure still peaks at unity, but non-negligible percentages of the warps have divergence measures between \numrange{0.8}{1.0}.
 With the larger time-step size, the \texttt{exprb43} solver experiences significantly more thread divergence for both models.
 The divergence measure distribution is fairly similar to that of the \texttt{Radau-IIA} solver for the GRI-Mech 3.0 model, but the peak divergence measure is shifted towards \num{0.2} for the \ce{H2}\slash\ce{CO} model (versus $\sim$\num{0.4} for the \texttt{Radau-IIA} solver).
 The explicit solvers deal with stiffness less efficiently, and end up using a greater range of time-step sizes between conditions of varying stiffness.
