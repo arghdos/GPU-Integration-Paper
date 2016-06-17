@@ -62,6 +62,7 @@ for f in files:
     div = []
     with open(f) as file:
         div = [float(d.strip()) for d in file.readlines()]
+    div = 1. - np.array(div)
 
     data_list.append(data(mech, solver, dt, div))
 
@@ -121,7 +122,7 @@ for solver in solver_list:
                         markersize=15)
 
         ps.legend_style['fontsize']=22
-        ps.legend_style['loc']= 'upper left'
+        ps.legend_style['loc']= 'upper right'
         plt.legend(**ps.legend_style)
         plt.xlabel('Divergence measure $D$')
         plt.ylabel('Percent of total warps')
