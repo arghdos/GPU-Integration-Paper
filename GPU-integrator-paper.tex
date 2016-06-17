@@ -352,7 +352,7 @@ Additionally, although not shown, the GPU solvers produce identical results.
 
 We studied the performance of the three integrators by testing each on the PaSR conditions described in Section~\ref{S:pasr_conditions} for two different global integration time-step sizes: $\delta t = \SI{e-6}{\s}$ and $\delta t = \SI{e-4}{\s}$.
 Using a larger global time step induces additional stiffness and allows evaluation of the performance of the developed solvers on the same chemical kinetic models with varying levels of stiffness.
-In reacting flow simulations, the chemical integration time-step is typically determined by the flow field and may range from \SIrange{e-6}{e-1}{\s}~\cite{Yang:2013ip}.\todo{instead of ``flow field'', perhaps say something about stability based on the CFL number?}{}
+In reacting flow simulations, the chemical integration time-step is typically determined by the flow time-scale and stability requirements determined by the Courant--Friedrichs--Lewy number; typical time-step values range from \SIrange{e-6}{e-1}{\s}~\cite{Yang:2013ip}.
 Although the time-step size used in a given simulation depends highly on the problem and numerical methods, large-eddy simulations usually require higher time resolution than Reynolds-averaged Navier--Stokes simulations~\cite{Iaccarino:2003147}.
 Hence, the time-steps chosen for study are representative of realistic values used in large-eddy~\cite{Wang20111319,Bulat20133155} and Reynolds-averaged Navier--Stokes simulations~\cite{Ramirez2010,Galloni20091131}.
 Runtimes are reported as the average over five runs, where each run started from the same set of PaSR conditions.
