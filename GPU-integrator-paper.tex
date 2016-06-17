@@ -97,7 +97,7 @@ The performance of each algorithm was evaluated by integrating thermochemical st
 We estimate that the implicit Runge--Kutta method running on a single GPU is equivalent to \texttt{CVODE} running on \num{10} or more (and up to $\sim$\num{35}) CPU cores for all but the most stiff case studied, where thread divergence significantly decreased performance to the equivalent of only approximately two CPU cores.
 The exponential integration algorithms performed more slowly than the implicit integrators on both the CPU and GPU.
 Thread divergence and memory traffic were identified as the main limiters of GPU integrator performance, and techniques to mitigate these issues were discussed.
-Using an analytical Jacobian on the GPU was found to be critical for efficient integration, resulting in speedups of \SIrange{8}{241}{$\times$}, far surpassing the benefits of analytical Jacobian use on the CPU for identical problems.\todo[inline]{what was the CPU number?}
+Using an analytical Jacobian on the GPU was found to be critical for efficient integration, resulting in maximum speedups of \SIrange{8}{241}{$\times$}, far surpassing the \SIrange{1.5}{2.5}{$\times$} speedup achieved with the analytical Jacobian CPU for identical problems.
 Finally, future research directions were identified based on the current state-of-the-art of stiff chemical kinetics integration on the GPU.
 \end{abstract}
 
