@@ -328,14 +328,14 @@ The maximum error over all conditions
 \end{equation}
 was then used to measure the error of each solver.
 The error measurement used the same tolerances as for the performance testing ($\text{atol} = \num{e-10}$ and $\text{rtol} = \num{e-6}$, respectively).
-The time-step size was then varied from \SIrange{e-6}{e-11}{\second}, using constant internal time-step sizes to measure the convergence rates of the various solvers.
+The time-step size was then varied from \SIrange{e-6}{e-11}{\second}, using constant internal time-step sizes---corresponding to \numrange[retain-zero-exponent]{e0}{e5} time steps---to measure the convergence rates of the various solvers.
 
 Figure~\ref{F:convergence} shows the convergence of error for the CPU solvers with decreasing time-step size, shown as increasing number of integration steps taken.
-The error of the \texttt{Radau-IIA} integrator drops over four orders of magnitude when reducing the time-step size from \SI{e-6}{\second} to \SI{e-7}{\second}.
-Decreasing the time-step size past this point does not reduce error further, due to numerical precision effects; this likely causes the apparent order reduction of the \texttt{Radau-IIA} solver, which is nominally fifth order.
-The exponential solvers exhibit larger levels of error in general, with $\left\lvert\textbf{E}\right\rvert \sim \mathcal{O}(1)\text{--}\mathcal{O}(10)$ for the largest global time-step size.
+The error of the \texttt{Radau-IIA} integrator drops over four orders of magnitude when changing from a single time step of \SI{e-6}{\second} to ten time steps of \SI{e-7}{\second}, i.e., fourth order convergence.
+Increasing the number of integration steps---by further reducing the time-step size---past this point does not reduce error further, due to numerical precision effects; this likely causes the apparent order reduction of the \texttt{Radau-IIA} solver, which is nominally fifth order.
+The exponential solvers utilizing an approximate Krylov subspace exhibit larger levels of error in general, with $\left\lvert\textbf{E}\right\rvert \sim \mathcal{O}(1)\text{--}\mathcal{O}(10)$ for a single integration step of $\delta t = \SI{e-6}{\second}$.
 As the time-step size is decreased, the convergence of the Arnoldi algorithm is affected by the internal integration time-step size (the matrix exponentials and error estimates are scaled by the internal time-step).
-Figure~\ref{F:convergence} also presents the error convergence of the exponential integrators with the Krylov approximation error reduced far below the error of the overall method, to study the effect of the Arnoldi algorithm on error.
+To study the effect of the Arnoldi algorithm on error, Fig.~\ref{F:convergence} also presents the error convergence of the exponential integrators with the Krylov approximation error reduced far below the error of the overall method.
 Practically, this was accomplished by detecting when the $n$th Krylov subspace vector approaches zero, a condition known as the ``happy breakdown'' in literature~\cite{datta2010numerical}.
 At this limit, the approximate exponential matrix\slash vector product approaches the exact value and thus the Krylov approximation induces negligible error.
 Figure~\ref{F:convergence} shows that the exponential methods achieve only first-order convergence to the true solution with the approximate Krylov subspace, but both methods converge at higher rates with the ``exact'' Krylov subspace.
