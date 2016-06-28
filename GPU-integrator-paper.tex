@@ -187,7 +187,8 @@ Finally, we will study the three-stage\slash fifth-order implicit Runge--Kutta a
 The rest of the paper is structured as follows.
 Section~\ref{S:method} lays out the methods and implementation details of the algorithms used here.
 Subsequently, Section~\ref{S:results} presents and discusses the performance of the algorithms run using a database of partially stirred reactor thermochemical states, with particular focus on the effects of thread divergence and the potential impacts of current state-of-the-art GPU-accelerated chemical kinetic evaluation for large-scale reactive-flow simulations.
-Finally, Section~\ref{S:conclusions} uses the results of this work to identify the most promising future directions for GPU\slash SIMD accelerated chemical kinetic integration.
+Section~\ref{S:conclusions} uses the results of this work to identify the most promising future directions for GPU\slash SIMD accelerated chemical kinetic integration.
+Finally~\ref{S:supp} and \ref{S:raw} present supplementary data, including the raw performance and validation data, scripts and \LaTeX\ source used in this work.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Methodology}
@@ -701,6 +702,7 @@ This material is based upon work supported by the National Science Foundation un
 \renewcommand*{\thesection}{\appendixname~\Alph{section}}
 
 \section{Supplementary material}
+\label{S:supp}
 
 The full \LaTeX\ source for this paper is available via a GitHub repository at \url{https://github.com/arghdos/GPU-Integration-Paper}, including the data and scripts needed to reproduce the figures here.
 
