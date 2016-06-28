@@ -368,7 +368,7 @@ Finally, the L1\slash shared-memory cache was set to prefer a larger L1 cache us
 \subsection{Performance}
 \label{S:perf}
 
-The integrator runtimes presented in this section were normalized by the number of ODEs solved for all cases, for two reasons.
+For all cases in this section, the integrator runtimes are presented as the runtime per ODE solved, for two reasons.
 First, saturation of the available computational resources becomes visually apparent (transition from a nearly linear decrease to a flat trend), and second, it allows certain other performance trends (e.g., the effects of thread divergence) to be easily highlighted.
 The presentation of the performance data in raw form is also available in \ref{S:raw} for completeness.
 
@@ -404,10 +404,10 @@ The presentation of the performance data in raw form is also available in \ref{S
 
 Figure~\ref{F:H2_perf} shows the runtimes of the CPU and GPU integrators for the \ce{H2}\slash\ce{CO} model.
 In Fig.~\ref{F:h2_cpu_perf_small} the runtimes per ODE for the CPU integrators with a global time-step of $\delta t= \SI{e-6}{\second}$ decrease approximately linearly with the number of ODEs for small numbers of initial conditions (shown here on a log-log plot).
-For small numbers of ODEs, the exponential integrators outperform the implicit integration techniques due to the modest stiffness of the \ce{H2}\slash\ce{CO} model; even with many near-equilibrium states removed from the beginning of the PaSR database, the model is not particularly stiff for this small time-step size.
+For small numbers of ODEs, the exponential integrators are faster than the implicit integration techniques due to the modest stiffness of the \ce{H2}\slash\ce{CO} model; even with many near-equilibrium states removed from the beginning of the PaSR database, the model is not particularly stiff for this small time-step size.
 Larger numbers of ODEs begin to saturate the CPU resources, and the runtime per ODE levels off to a more constant value.
 Eventually, relatively more stiff conditions are encountered and the performance of the implicit integration techniques catches up and then surpasses that of the exponential integrators; \texttt{CVODE} is the most efficient solver on the CPU when solving more than \num{e4} ODEs; however, \texttt{CVODE} is only $\sim$\num{1.85}$\times$ faster than the slowest solver (\texttt{exprb43}) on the whole database.
-Figure~\ref{F:h2_gpu_perf_small} shows the performance of the GPU integrators for the smaller global time-step size, which exhibit similar trends as the CPU solvers: a linearly decreasing solution cost that reaches a roughly constant value between \numrange{e3}{e4} ODEs.
+Figure~\ref{F:h2_gpu_perf_small} shows the performance of the GPU integrators for the smaller global time-step size, which exhibit similar trends as the CPU solvers: a linearly decreasing solution cost that reaches a roughly constant value beyond \numrange{e3}{e4} ODEs.
 Unlike for the CPU solvers, the GPU-based \texttt{Radau-IIA} performs faster than the exponential solvers for all numbers of ODEs.
 As will be seen in Section~\ref{S:divergence}, both solver classes experience minimal thread divergence due to differing internal integration time-step size in this case.
 Therefore, we conclude that this difference results from thread divergence in the Arnoldi iteration---caused by varying Krylov subspace sizes between threads---for the exponential algorithms.
