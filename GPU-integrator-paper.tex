@@ -114,7 +114,7 @@ Finally, future research directions were identified based on the current state-o
 \label{sec:Intro}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-The need for accurate chemical kinetic models in predictive reacting-flow simulations has driven the development of detailed oxidation models for hydrocarbon fuels relevant to transportation and energy generation applications.
+The need for accurate chemical kinetic models in predictive reactive-flow simulations has driven the development of detailed oxidation models for hydrocarbon fuels relevant to transportation and energy generation applications.
 At the same time, growing understanding of hydrocarbon oxidation processes resulted in orders of magnitude increases in model size and complexity.
 Contemporary detailed chemical kinetic models relevant to jet fuel, diesel~\cite{Sarathy:2011kx}, gasoline~\cite{Mehl:2011jn}, and biodiesel~\cite{Herbinet:2010gu} surrogates consist of thousands of species with potentially tens of thousands of reactions.
 Furthermore, kinetic models for large hydrocarbon fuels tend to exhibit high chemical stiffness that requires implicit integration algorithms for practical solution.
@@ -161,12 +161,12 @@ A per-block approach also offers significantly more local cache memory and avail
 However, in our experience, optimizing use of these resources requires significant manual tuning and makes it more difficult to generalize the developed algorithm between different chemical kinetic models---a key feature for potential non-academic applications.
 In addition, Stone and Davis~\cite{Stone:2013aa} showed that a per-thread implicit integration algorithm outperforms the per-block implementation of the same algorithm in the best-case scenario (elimination of thread divergence by choice of identical initial conditions).
 
-Various studies in recent years explored the use of high-performance SIMD devices to accelerate (turbulent) reacting-flow simulations.
+Various studies in recent years explored the use of high-performance SIMD devices to accelerate (turbulent) reactive-flow simulations.
 Spafford et al.~\cite{Spafford:2010aa} investigated GPUs for accelerating a direct numerical simulation code for turbulent combustion, demonstrating a sub-order of magnitude speedup in evaluating the species production rates on the GPU.
 Shi et al.~\cite{Shi:2011aa} used a GPU to evaluate species rates and factorize the Jacobian for the integration of (single) independent kinetics systems, showing order-of-magnitude or greater speedups for large kinetic models.
 Niemeyer et al.~\cite{Niemeyer:2011aa} implemented an explicit fourth-order Runge--Kutta integrator for the GPU, and found a speedup of nearly two orders of magnitude with a nonstiff hydrogen model.
 In a related work, Shi et al.~\cite{Shi:2012aa} developed a GPU-based stabilized explicit solver and paired it with a CPU-based implicit solver that handled integration of the most-stiff chemistry cells in a three-dimensional premixed diesel engine simulation, demonstrating an overall speedup of two to three times.
-Le et al.~\cite{Le2013596} implemented GPU versions of two high-order shock-capturing reacting flow codes, and found a \numrange{30}{50}$\times$ speedup over the baseline single-core CPU version.
+Le et al.~\cite{Le2013596} implemented GPU versions of two high-order shock-capturing reactive-flow codes, and found a \numrange{30}{50}$\times$ speedup over the baseline single-core CPU version.
 Stone and Davis~\cite{Stone:2013aa} implemented the implicit VODE~\cite{Brown:1989vl} solver for the GPU and achieved an order of magnitude speed-up over the baseline CPU version.
 They also showed that GPU-based VODE exhibits significant thread divergence, as expected due to its complicated program flow compared with an explicit integration scheme.
 Furthermore, Stone and Davis~\cite{Stone:2013aa} found that a per-thread implementation outperforms a per-block version of the same algorithm for $\sim$\num{e4} independent ODEs or more; the per-block implementation reached its maximum speedup for a smaller number of ODEs ($\sim$\num{e3}).
@@ -185,7 +185,7 @@ Finally, we will study the three-stage\slash fifth-order implicit Runge--Kutta a
 
 The rest of the paper is structured as follows.
 Section~\ref{S:method} lays out the methods and implementation details of the algorithms used here.
-Subsequently, Section~\ref{S:results} presents and discusses the performance of the algorithms run using a database of partially stirred reactor thermochemical states, with particular focus on the effects of thread divergence and the potential impacts of current state-of-the-art GPU-accelerated chemical kinetic evaluation for large-scale reacting flow simulations.
+Subsequently, Section~\ref{S:results} presents and discusses the performance of the algorithms run using a database of partially stirred reactor thermochemical states, with particular focus on the effects of thread divergence and the potential impacts of current state-of-the-art GPU-accelerated chemical kinetic evaluation for large-scale reactive-flow simulations.
 Finally, Section~\ref{S:conclusions} uses the results of this work to identify the most promising future directions for GPU\slash SIMD accelerated chemical kinetic integration.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -352,7 +352,7 @@ Additionally, although not shown, the GPU solvers produce identical results.
 
 We studied the performance of the three integrators by testing each on the PaSR conditions described in Section~\ref{S:pasr_conditions} for two different global integration time-step sizes: $\delta t = \SI{e-6}{\s}$ and $\delta t = \SI{e-4}{\s}$.
 Using a larger global time step induces additional stiffness and allows evaluation of the performance of the developed solvers on the same chemical kinetic models with varying levels of stiffness.
-In reacting flow simulations, the chemical integration time-step is typically determined by the flow time-scale and stability requirements determined by the Courant--Friedrichs--Lewy number; typical time-step values range from \SIrange{e-6}{e-1}{\s}~\cite{Yang:2013ip}.
+In reactive-flow simulations, the chemical integration time-step is typically determined by the flow time-scale and stability requirements determined by the Courant--Friedrichs--Lewy number; typical time-step values range from \SIrange{e-6}{e-1}{\s}~\cite{Yang:2013ip}.
 Although the time-step size used in a given simulation depends highly on the problem and numerical methods, large-eddy simulations usually require higher time resolution than Reynolds-averaged Navier--Stokes simulations~\cite{Iaccarino:2003147}.
 Hence, the time-steps chosen for study are representative of realistic values used in large-eddy~\cite{Wang20111319,Bulat20133155} and Reynolds-averaged Navier--Stokes simulations~\cite{Ramirez2010,Galloni20091131}.
 Runtimes are reported as the average over five runs, where each run started from the same set of PaSR conditions.
@@ -482,7 +482,7 @@ Although the runtimes of the GPU integration algorithms can be directly compared
 For instance, if a GPU algorithm performs $\SI{10}{\times}$ faster than its equivalent on two six-core CPUs, how does this compare to two eight-core CPUs, etc.?
 
 For researchers in numerical combustion, two issues stand out as particularly important for performance evaluation: runtime and cost.
-As established in Section~\ref{sec:Intro}, large-scale reacting flow simulations with realistic chemical kinetic models are extremely computationally expensive, and remain outside of the capabilities of most in the field.
+As established in Section~\ref{sec:Intro}, large-scale reactive-flow simulations with realistic chemical kinetic models are extremely computationally expensive, and remain outside of the capabilities of most in the field.
 With this in mind, we ask, for a given simulation, what is the effect on the overall runtime of adding more CPU cores compared with adding GPU accelerators?
 In addition, if a budget is allocated to expand available computational resources, how might these funds be best allocated?
 To answer these questions, we attempt to derive a rough estimate of the number of CPU cores required for equivalent performance on the GPU.
