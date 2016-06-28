@@ -415,10 +415,10 @@ Therefore, we conclude that the relatively slower runtimes per ODE for the expon
 Figures~\ref{F:h2_cpu_perf_large} and \ref{F:h2_gpu_perf_large} show the performance of the integration algorithms on both platforms for the \ce{H2}\slash\ce{CO} model with the larger global time-step size ($\delta t=\SI{e-4}{\second}$).
 The performances of the CPU integration algorithms show similar trends to those of the smaller time-step size case: decreasing cost per ODE before reaching a more constant performance for higher numbers of ODEs.
 The larger time-step size induces additional stiffness, and the implicit solvers are more efficient for most numbers of ODEs; \texttt{CVODE} is again the most efficient CPU solver.
-Fig.~\ref{F:h2_gpu_perf_large} shows the performance of the GPU solvers for the larger time-step size.
+Fig.~\ref{F:h2_gpu_perf_large} shows the performance of the GPU solvers for the larger global time-step size.
 The exponential solvers exhibit significant spikes in computational cost when changing from 2--4 and 16--32 ODEs, with the latter mimicked somewhat by the implicit \texttt{Radau-IIA} solver.
-A jump in solution cost between 2--4 ODEs is present for the CPU exponential integrators, indicating chemical stiffness as the primary cause.
-On the other hand, between 16--32 ODEs the CPU exponential solvers exhibit only a very minor performance decrease, while the GPU-based \texttt{Radau-IIA} also shows a decrease in performance at the same point---a trend completely absent in the CPU version.
+A jump in solution cost between 2--4 ODEs is also present for the CPU exponential integrators, indicating chemical stiffness as the primary cause.
+On the other hand, between 16--32 ODEs the CPU exponential solvers exhibit only a very minor performance decrease, while the GPU-based \texttt{Radau-IIA} also shows a decrease in performance at the same point---a trend completely absent in the CPU \texttt{Radau-IIA} version.
 These factors indicate that thread divergence also plays a key role in the performance trend here, and will be investigated further in Section~\ref{S:divergence}.
 As in case of the smaller global time-step size, the \texttt{Radua-IIA} solver is the most efficient GPU algorithm in all cases.
 
@@ -453,19 +453,19 @@ As in case of the smaller global time-step size, the \texttt{Radua-IIA} solver i
 \end{figure}
 
 Figure~\ref{F:CH4_perf} shows the runtime of the integrators for the GRI-Mech 3.0 model.
-Similar to the \ce{H2}\slash\ce{CO} case for the smaller time-step size, the CPU exponential integrators are more efficient (Fig.~\ref{F:ch4_cpu_perf_small}) for the near-equilibrium conditions at the beginning of the database.
+Similar to the \ce{H2}\slash\ce{CO} case for the smaller global time-step size, the CPU exponential integrators are more efficient (Fig.~\ref{F:ch4_cpu_perf_small}) for the near-equilibrium conditions at the beginning of the database.
 For larger numbers of conditions, the implicit integrators are more efficient, and \texttt{CVODE} again performs the fastest.
-Compared to the \ce{H2}\slash\ce{CO} model (Fig.~\ref{F:h2_cpu_perf_small}), the \texttt{CVODE} performs better than the exponential algorithms for the GRI-Mech 3.0 model with the small time-step size (Fig.~\ref{F:ch4_cpu_perf_small}), reaching a speedup of \SI{2.3}{$\times$} over \texttt{exprb43} on the whole database; this results from the higher stiffness present in the model.
-This performance gap between the CPU implicit\slash exponential integrators increases for the larger time-step size (Fig.~\ref{F:ch4_cpu_perf_large}); \texttt{CVODE} is \SI{9.5}{$\times$} faster than \texttt{exp4} on the whole database.
-Comparing the performance of the CPU implicit solvers between models shows roughly an order-of-magnitude performance decrease for both time-step sizes.
-This phenomena, due largely to the increase in model size, is mostly mirrored by the \texttt{Radau-IIA} GPU solver for the smaller time-step size; the performance of which decreases by just over an order of magnitude.
-However, for the larger time-step size, the GPU-based \texttt{Radau-IIA} solver performs roughly two orders-of-magnitude slower compared with the \ce{H2}\slash\ce{CO} case.
+Compared to the \ce{H2}\slash\ce{CO} model (Fig.~\ref{F:h2_cpu_perf_small}), the \texttt{CVODE} performs better than the exponential algorithms for the GRI-Mech 3.0 model with the small global time-step size (Fig.~\ref{F:ch4_cpu_perf_small}), reaching a speedup of \SI{2.3}{$\times$} over \texttt{exprb43} on the whole database; this results from the higher stiffness present in the model.
+This performance gap between the CPU implicit\slash exponential integrators increases for the larger global time-step size (Fig.~\ref{F:ch4_cpu_perf_large}); \texttt{CVODE} is \SI{9.5}{$\times$} faster than \texttt{exp4} on the whole database.
+Comparing the performance of the CPU implicit solvers between the two kinetic models shows roughly an order-of-magnitude performance decrease for both time-step sizes.
+This phenomena, due largely to the increase in model size, is mostly mirrored by the \texttt{Radau-IIA} GPU solver for the smaller global time-step size; the performance of which decreases by just over an order of magnitude.
+However, for the larger global time-step size, the GPU-based \texttt{Radau-IIA} solver performs roughly two orders-of-magnitude slower compared with the \ce{H2}\slash\ce{CO} case.
 As will be examined in Section~\ref{S:divergence}, this dramatic decrease likely results from increased thread divergence in the \texttt{Radau-IIA} solver, as well as the increased memory traffic inherent in the larger model.
 
 Unlike for the \ce{H2}\slash\ce{CO} model, the \texttt{exprb43} solver outperforms \texttt{exp4} with the GRI-Mech 3.0 model in almost all cases for the larger time-step size for both the CPU and GPU.
-Although the \texttt{exprb43} and \texttt{exp4} algorithms each only require three exponential matrix function approximations per step, a single time step of \texttt{exprb43} is more expensive due to the extra chemical source term evaluations, matrix multiplications, and higher-order exponential matrix function requirement.
+Although the \texttt{exprb43} and \texttt{exp4} algorithms each require three exponential matrix function approximations per step, a single time step of \texttt{exprb43} is more expensive due to the extra chemical source term evaluations, matrix multiplications, and higher-order exponential matrix function requirement.
 As such, the relatively simpler CPU \texttt{exp4} integrator outperforms the CPU \texttt{exprb43} integrator for the \ce{H2}\slash\ce{CO} model where there is relatively less chemical stiffness.
-However, as previously discussed the \texttt{exp4} algorithm may experience order reduction for stiff problems, and the \texttt{exprb43} algorithm typically outperforms \texttt{exp4} on both the CPU and GPU in the larger time-step GRI-Mech 3.0 case as a result.
+However, as previously discussed the \texttt{exp4} algorithm may experience order reduction for stiff problems, and the \texttt{exprb43} algorithm typically outperforms \texttt{exp4} on both the CPU and GPU in the larger global time-step GRI-Mech 3.0 case as a result.
 
 
 % The GPU \texttt{Radau-IIA} integrator outperformed \texttt{CVODE} for the smaller time-step size; at best, it ran \SI{31.5}{\percent} faster than \texttt{CVODE} (\num{131072} ODEs), and at worst was \SI{10}{\percent} faster (\num{16384} ODEs).
