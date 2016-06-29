@@ -1,20 +1,20 @@
 # threads: 32 	 block size: 64
-Time: 1.744200e-02 sec
-Time per step: 1.744200e-02 (s)	5.450625e-04 (s/thread)
+Time: 1.715200000000000e-02 sec
+Time per step: 1.715200e-02 (s)	5.360000000000000e-04 (s/thread)
 TFinal: 2.438261e+03
 # threads: 32 	 block size: 64
-Time: 1.739100e-02 sec
-Time per step: 1.739100e-02 (s)	5.434687e-04 (s/thread)
+Time: 1.717100000000000e-02 sec
+Time per step: 1.717100e-02 (s)	5.365937500000000e-04 (s/thread)
 TFinal: 2.438261e+03
 # threads: 32 	 block size: 64
-Time: 1.741400e-02 sec
-Time per step: 1.741400e-02 (s)	5.441875e-04 (s/thread)
+Time: 1.717800000000000e-02 sec
+Time per step: 1.717800e-02 (s)	5.368125000000001e-04 (s/thread)
 TFinal: 2.438261e+03
 # threads: 32 	 block size: 64
-Time: 1.742000e-02 sec
-Time per step: 1.742000e-02 (s)	5.443750e-04 (s/thread)
+Time: 1.717800000000000e-02 sec
+Time per step: 1.717800e-02 (s)	5.368125000000001e-04 (s/thread)
 TFinal: 2.438261e+03
 # threads: 32 	 block size: 64
-Time: 1.740300e-02 sec
-Time per step: 1.740300e-02 (s)	5.438437e-04 (s/thread)
+Time: 1.716900000000000e-02 sec
+Time per step: 1.716900e-02 (s)	5.365312500000000e-04 (s/thread)
 TFinal: 2.438261e+03

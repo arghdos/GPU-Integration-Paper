@@ -492,7 +492,7 @@ To answer these questions, we attempt to derive a rough estimate of the number o
 A nominal performance metric for both the CPU- and GPU-based integration algorithms must first be obtained.
 As the most efficient solvers in all cases with large numbers of ODEs are \texttt{CVODE} for the CPU and \texttt{Radau-IIA} for the GPU, these algorithms will be considered the performance benchmarks.
 Furthermore, most large-scale simulations consist of millions of cells (or more), and therefore we only consider the performance limit of each algorithm (i.e., the cost per ODE of each algorithm in the region where this cost reaches an approximately constant value).
-To this end, Figs.~\ref{F:H2_perf} and \ref{F:CH4_perf} show vertical lines where the runtime per ODE is first within \SI{10}{\percent} of its value when simulating the entire database (based on \texttt{CVODE}\slash\texttt{Radau-IIA} for the CPU\slash GPU accordingly).
+To this end, Figs.~\ref{F:H2_perf} and \ref{F:CH4_perf} show vertical lines where the relative change in runtime per ODE between successive data-points is first smaller than \SI{15}{\percent} (based on \texttt{CVODE}\slash\texttt{Radau-IIA} for the CPU\slash GPU accordingly).
 The cost per ODE above and including these thresholds was averaged and forms our nominal performance measure.
 The CPU performance measure must also be normalized by the total number of cores used: \num{40}.
 Table~\ref{T:cpu_equiv} presents the ratios of these performance measures, which give rough estimates for the number of CPU cores required to equal the GPU performance for the cases studied.

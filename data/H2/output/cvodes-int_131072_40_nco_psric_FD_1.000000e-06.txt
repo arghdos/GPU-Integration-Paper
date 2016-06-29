@@ -1,25 +1,25 @@
 # ODEs: 131072
 # threads: 40
-Time: 5.551230e-01 sec
-Time per step: 5.551230e-01 (s)	4.235252e-06 (s/thread)
+Time: 5.513940000000001e-01 sec
+Time per step: 5.513940e-01 (s)	4.206802368164063e-06 (s/thread)
 TFinal: 2.438261e+03
 # ODEs: 131072
 # threads: 40
-Time: 5.744800e-01 sec
-Time per step: 5.744800e-01 (s)	4.382935e-06 (s/thread)
+Time: 5.487750000000000e-01 sec
+Time per step: 5.487750e-01 (s)	4.186820983886719e-06 (s/thread)
 TFinal: 2.438261e+03
 # ODEs: 131072
 # threads: 40
-Time: 5.548800e-01 sec
-Time per step: 5.548800e-01 (s)	4.233398e-06 (s/thread)
+Time: 5.592870000000001e-01 sec
+Time per step: 5.592870e-01 (s)	4.267021179199219e-06 (s/thread)
 TFinal: 2.438261e+03
 # ODEs: 131072
 # threads: 40
-Time: 5.637420e-01 sec
-Time per step: 5.637420e-01 (s)	4.301010e-06 (s/thread)
+Time: 5.866209999999999e-01 sec
+Time per step: 5.866210e-01 (s)	4.475563049316406e-06 (s/thread)
 TFinal: 2.438261e+03
 # ODEs: 131072
 # threads: 40
-Time: 5.669300e-01 sec
-Time per step: 5.669300e-01 (s)	4.325333e-06 (s/thread)
+Time: 5.525549999999999e-01 sec
+Time per step: 5.525550e-01 (s)	4.215660095214843e-06 (s/thread)
 TFinal: 2.438261e+03
