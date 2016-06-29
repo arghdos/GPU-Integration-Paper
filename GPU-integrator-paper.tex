@@ -98,7 +98,7 @@ We estimated that the implicit Runge--Kutta method running on a single GPU is eq
 In the stiffest case studied---methane\slash air with a global integration time step of \SI{e-4}{\second}---thread divergence significantly decreased GPU performance to the equivalent of \texttt{CVODE} running on approximately two CPU cores.
 The exponential integration algorithms performed more slowly than the implicit integrators on both the CPU and GPU.
 Thread divergence and memory traffic were identified as the main limiters of GPU integrator performance, and techniques to mitigate these issues were discussed.
-Use of a finite-difference Jacobian on the GPU---in place of the analytical Jacobian provided by \texttt{pyJac}---greatly decreased integrator performance due to thread divergence, resulting in maximum slowdowns of \SIrange{8}{241}{$\times$}; in comparison, the corresponding slowdown on the CPU was just \SIrange{1.5}{2.5}{$\times$}, underscoring the importance of use of an analytical Jacobian for efficient GPU integration.
+Use of a finite-difference Jacobian on the GPU---in place of the analytical Jacobian provided by \texttt{pyJac}---greatly decreased integrator performance due to thread divergence, resulting in maximum slowdowns of \SIrange{7.11}{240.96}{$\times$}; in comparison, the corresponding slowdown on the CPU was just \SIrange{1.39}{2.61}{$\times$}, underscoring the importance of use of an analytical Jacobian for efficient GPU integration.
 Finally, future research directions were identified based on the current state-of-the-art of stiff chemical kinetics integration on the GPU.
 \end{abstract}
 
@@ -675,9 +675,9 @@ By comparing the performance of these algorithms using two chemical kinetics mod
 \begin{itemize}
  \item For global time-step sizes relevant to large-eddy simulations, the GPU-based implicit Runge--Kutta method was roughly equivalent to the CPU-based implicit \texttt{CVODE} integrator running on \numrange{11}{38} CPU cores.
  \item At longer time-step sizes, the performance of all GPU-based integrators decreased significantly due to thread divergence.
- \item For the \ce{H2}\slash\ce{CO} model with a time-step size relevant to Reynolds-averaged Navier--Stokes simulations, the GPU-based Runga--Kutta solver performed nearly equivalent to \texttt{CVODE} running on \num{14} cores; for the GRI-Mech 3.0 model, the Runge--Kutta solver performance was only equal to \texttt{CVODE} on \num{2} cores.
+ \item For the \ce{H2}\slash\ce{CO} model with a time-step size relevant to Reynolds-averaged Navier--Stokes simulations, the GPU-based Runga--Kutta solver performed equivalent to \texttt{CVODE} running on \num{14} cores; for the GRI-Mech 3.0 model, the Runge--Kutta solver performance was only equal to \texttt{CVODE} on $\sim$\num{3} cores.
  \item The exponential solvers were significantly less efficient than the implicit integrators on the CPU and GPU for all relevant cases.
- \item Using an analytical Jacobian matrix on the GPU is critical for efficient chemical kinetic integration due to thread divergence; speedups of \SIrange{8.09}{241.08}{$\times$} over a finite-difference-approximation were reached on the GPU, far surpassing the corresponding CPU speedup of \SIrange{1.58}{2.51}{$\times$}.
+ \item Using an analytical Jacobian matrix on the GPU is critical for efficient chemical kinetic integration due to thread divergence; speedups of \SIrange{7.11}{240.96}{$\times$} over a finite-difference-approximation were reached on the GPU, far surpassing the corresponding CPU speedup of \SIrange{1.58}{2.51}{$\times$}.
  \item Thread divergence and memory traffic were identified as key performance concerns for per-thread based GPU chemical kinetic integration algorithms.
 \end{itemize}
 
