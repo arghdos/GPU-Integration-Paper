@@ -15,6 +15,7 @@ oploop = op({'dt' : [1e-6, 1e-4],
             'mech' : data.keys()})
 
 smem = False
+threshold = 0.15
 normalize=True
 CPU_CORE_COUNT = 40.
 num_odes = 1e7
@@ -69,11 +70,9 @@ for state in oploop:
         exprb43 = next((s for s in series if s.name == "exprb43" and not s.gpu), None)
         print 'h2 ratio', exprb43.y[-1] / to_calc.y[-1]
 
-    last_value = s.y[-1] * 1.1
-
     #draw threshold
-    
-    x_index = np.where(to_calc.y <= last_value)[0][0]
+    x_index = np.where(np.abs(to_calc.y[1:] - to_calc.y[:-1]) / to_calc.y[:-1] < threshold)[0]
+    x_index = x_index[np.where(to_calc.x[x_index] >= 1e3)[0][0]]
     x_t = to_calc.x[x_index]
 
     with open(os.path.join(ps.scriptpath, 'thresholds.txt'), 'a') as file:

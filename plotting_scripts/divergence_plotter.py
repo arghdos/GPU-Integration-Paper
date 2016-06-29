@@ -98,6 +98,8 @@ for solver in solver_list:
 
                 x = (edges[:-1] + edges[1:]) / 2
                 y = 100. * bins / float(np.sum(bins))
+
+                print zip(x, y)
                 zeros = np.where(y==0)
                 if zeros:
                     y[zeros[0]] = -1000
