@@ -538,9 +538,9 @@ To investigate the effects of thread divergence further, we adopted a modified v
 where $d_i$ is the number of internal integrator time steps taken to reach the global time step by thread $i$ in a warp (which consists of 32 threads).
 $D$ represents the similarity of internal time step counts across threads in a warp---a significant source of thread divergence.
 If all threads in a warp use identical internal integration time steps and thus the warp experiences no thread divergence from this source, then $D = 0$; however, if a warp experiences an unbalanced number of internal integration time steps, then $D \to 1$.
-Differing time-step sizes is not the only source of thread divergence for the GPU integration algorithms.
+Differing internal time-step sizes is not the only source of thread divergence for the GPU integration algorithms.
 For instance, threads in a warp may use different Krylov subspace sizes for the exponential integrators or different numbers of Newton iterations for the \texttt{Radau-IIA} solver.
-Indeed, Section~\ref{S:perf} notes that we suspect thread divergence from differing Krylov subspace sizes as the reason the exponential solvers are less efficient for small numbers of ODEs for the \ce{H2}\slash\ce{CO} model with the small time-step size.
+Indeed, Section~\ref{S:perf} notes that we suspect thread divergence from differing Krylov subspace sizes as the reason the exponential solvers are less efficient for small numbers of ODEs for the \ce{H2}\slash\ce{CO} model with the small global time-step size.
 However, these operations clearly cost less than an entire internal integration step (in which they are embedded) and thus we look only at the thread divergence of internal integration time steps.
 Investigation of thread divergence for such operations within a internal integration step is an important consideration and will be explored in our future work.
 
@@ -585,27 +585,28 @@ Investigation of thread divergence for such operations within a internal integra
   \label{F:divergence}
 \end{figure}
 
-Figures~\ref{F:Rad_div_h2} and~\ref{F:Rad_div_gri} show the distribution of the divergence measure $D$ for the \texttt{Radau-IIA} solver with both time-step sizes and kinetic models when run on \num{262144} ODEs, spread across \num{8192} warps.
-For both kinetic models, increasing the global integration time-step size sharply increased the number of warps with high levels of thread divergence (i.e., $D > 0.5$).
-The approximate equivalent CPU core-count (Table~\ref{T:cpu_equiv}) correspondingly drops by \SIrange{2.5}{4}{$\times$}.
-Furthermore, the GRI-Mech 3.0 model experiences higher levels of thread divergence for the larger time-step size, and subsequently experiences a larger drop in performance compared with the \ce{H2}\slash\ce{CO} model.
+Figures~\ref{F:Rad_div_h2} and~\ref{F:Rad_div_gri} show the distribution of the divergence measure $D$ for the \texttt{Radau-IIA} solver with both global time-step sizes and kinetic models when run on \num{262144} ODEs, spread across \num{8192} warps.
+For both kinetic models with the small global time-step size, nearly \SI{100}{\percent} of the warps had a divergence measure near zero.
+Increasing the global time-step size causes the number of warps with high levels of thread divergence (e.g. $D > 0.5$) to increase for both models.
+For the \ce{H2}\slash\ce{CO} model, over \SI{40}{\percent} of warps were between $D=0.55$ and $D=0.65$, while over \SI{75}{\percent} of warps were between $D=0.6$ and $D=0.8$ for the GRI-Mech 3.0 model.
+Correspondingly, the approximate equivalent CPU core-count (Table~\ref{T:cpu_equiv}) dropped by \SI{2.5}{$\times$} for the \ce{H2}\slash\ce{CO} model at the larger global time-step sizes.
+Furthermore, the GRI-Mech 3.0 model experiences higher levels of thread divergence for the larger global time-step size, and subsequently experienced a higher drop in performance of \SI{4}{$\times$}.
 This observation motivates future work aimed at developing strategies to reduce thread divergence.
-Potential solutions include adopting an ODE per-block approach~\cite{Stone:2013aa}, reordering ODEs to increase similarity of stiffness inside a warp, or synchronizing time-step sizes between threads in a warp.
-However, Figs.~\ref{F:Rad_div_h2} and \ref{F:Rad_div_gri} do not explain the drop in equivalent core count between the \ce{H2}\slash\ce{CO} model and the GRI-Mech 3.0 model for the smaller time-step size.
+Potential solutions include adopting an ODE per-block approach~\cite{Stone:2013aa}, reordering ODEs to increase similarity of stiffness inside a warp, or synchronizing internal time-step sizes between threads in a warp.
+However, Figs.~\ref{F:Rad_div_h2} and \ref{F:Rad_div_gri} do not explain the drop in equivalent core count between the \ce{H2}\slash\ce{CO} model and the GRI-Mech 3.0 model for the smaller global time-step size.
 This likely results from a combination of thread divergence inside the internal integration step and the increased memory traffic of the larger model; this further motivates development of a sparse version of the \texttt{pyJac} software.
 
 Figures~\ref{F:exprb43_div_h2} and \ref{F:exprb43_div_ch4} show the divergence levels of the \texttt{exprb43} GPU solver.
-Similar to the \texttt{Radau-IIA} solver, the \texttt{exprb43} solver shows only minor levels of thread divergence due to differing internal integration step sizes for the \ce{H2}\slash\ce{CO} model.
-The \texttt{exprb43} thread divergence levels increase somewhat for the GRI-Mech 3.0 model with the smaller time-step size.
-The divergence measure still peaks at unity, but non-negligible percentages of the warps have divergence measures between \numrange{0}{0.2}.
+Similar to the \texttt{Radau-IIA} solver, nearly \SI{100}{\percent} of warps for the \texttt{exprb43} solver have no thread divergence due to differing internal integration step sizes for the \ce{H2}\slash\ce{CO} model.
+The \texttt{exprb43} thread divergence levels increase somewhat for the GRI-Mech 3.0 model with the smaller time-step size; \SI{27}{\percent} of warps still had a divergence measure of $D=0$, but over \SI{63}{\percent} of the warps had divergence measures between \numrange{0.05}{0.2}.
 With the larger time-step size, the \texttt{exprb43} solver experiences significantly more thread divergence for both models.
-The divergence measure distribution is fairly similar to that of the \texttt{Radau-IIA} solver for the GRI-Mech 3.0 model, but the peak divergence measure is shifted towards \num{0.8} for the \ce{H2}\slash\ce{CO} model (versus $\sim$\num{0.6} for the \texttt{Radau-IIA} solver).
-The explicit solvers deal with stiffness less efficiently, and end up using a greater range of time-step sizes between conditions of varying stiffness.
+The divergence measure distribution is fairly similar to that of the \texttt{Radau-IIA} solver for the GRI-Mech 3.0 model, but most warps experience a divergence measure of $D \sim 0.8$ for the \ce{H2}\slash\ce{CO} model (versus $D \sim 0.6$ for the \texttt{Radau-IIA} solver).
+The explicit solvers deal with stiffness less efficiently, and end up using a greater range of internal time-step sizes between conditions of varying stiffness.
 This results in an increase in thread divergence levels due to differing internal time-step sizes.
 
 The relatively worse stiffness handling of the \texttt{exp4} method is also apparent in Figs~\ref{F:exp4_div_h2} and \ref{F:exp4_div_ch4}; in most cases, significantly more thread divergence is seen for \texttt{exp4} than for either of the other solvers.
-The \texttt{exp4} algorithm is the only solver to show significant thread divergence for the \ce{H2}\slash\ce{CO} model for the smaller time-step size, and the peak \texttt{exp4} divergence measure occurs near \num{0.8} as opposed to \num{0.7} for the \texttt{exprb43} solver for the GRI-Mech 3.0 model.
-Further, the peak \texttt{exp4} divergence measures are at lower values than the \texttt{exprb43} solver for both models with the larger time-step size.
+The \texttt{exp4} algorithm is the only solver to show significant thread divergence even for the \ce{H2}\slash\ce{CO} model for the smaller global time-step size.
+Further, the \texttt{exp4} algorithm experiences more thread divergence than the \texttt{exprb43} for both models at the larger global time-step size.
 
 \subsection{Effect of using a finite-difference-based chemical kinetic Jacobian}
 
