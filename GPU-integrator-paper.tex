@@ -458,7 +458,7 @@ For larger numbers of conditions, the implicit integrators are more efficient, a
 Compared to the \ce{H2}\slash\ce{CO} model (Fig.~\ref{F:h2_cpu_perf_small}), the \texttt{CVODE} performs better than the exponential algorithms for the GRI-Mech 3.0 model with the small global time-step size (Fig.~\ref{F:ch4_cpu_perf_small}), reaching a speedup of \SI{2.3}{$\times$} over \texttt{exprb43} on the whole database; this results from the higher stiffness present in the model.
 This performance gap between the CPU implicit\slash exponential integrators increases for the larger global time-step size (Fig.~\ref{F:ch4_cpu_perf_large}); \texttt{CVODE} is \SI{9.5}{$\times$} faster than \texttt{exp4} on the whole database.
 Comparing the performance of the CPU implicit solvers between the two kinetic models shows roughly an order-of-magnitude performance decrease for both time-step sizes.
-This phenomena, due largely to the increase in model size, is mostly mirrored by the \texttt{Radau-IIA} GPU solver for the smaller global time-step size; the performance of which decreases by just over an order of magnitude.
+This phenomena, due largely to the increase in model size, is also seen for the \texttt{Radau-IIA} GPU solver for the smaller global time-step size; the performance of which decreases by just over an order of magnitude.
 However, for the larger global time-step size, the GPU-based \texttt{Radau-IIA} solver performs roughly two orders-of-magnitude slower compared with the \ce{H2}\slash\ce{CO} case.
 As will be examined in Section~\ref{S:divergence}, this dramatic decrease likely results from increased thread divergence in the \texttt{Radau-IIA} solver, as well as the increased memory traffic inherent in the larger model.
 
@@ -490,7 +490,7 @@ In addition, if a budget is allocated to expand available computational resource
 To answer these questions, we attempt to derive a rough estimate of the number of CPU cores required for equivalent performance on the GPU.
 
 A nominal performance metric for both the CPU- and GPU-based integration algorithms must first be obtained.
-As the most efficient solvers in all cases here are \texttt{CVODE} for the CPU and \texttt{Radau-IIA} for the GPU, these algorithms will be considered the performance benchmarks.
+As the most efficient solvers in all cases with large numbers of ODEs are \texttt{CVODE} for the CPU and \texttt{Radau-IIA} for the GPU, these algorithms will be considered the performance benchmarks.
 Furthermore, most large-scale simulations consist of millions of cells (or more), and therefore we only consider the performance limit of each algorithm (i.e., the cost per ODE of each algorithm in the region where this cost reaches an approximately constant value).
 To this end, Figs.~\ref{F:H2_perf} and \ref{F:CH4_perf} show vertical lines where the runtime per ODE is first within \SI{10}{\percent} of its value when simulating the entire database (based on \texttt{CVODE}\slash\texttt{Radau-IIA} for the CPU\slash GPU accordingly).
 The cost per ODE above and including these thresholds was averaged and forms our nominal performance measure.
@@ -502,14 +502,14 @@ The GPU is roughly equivalent to \num{10} or more CPU cores for all cases except
 \centering
 \begin{tabular}{@{}l S[table-format=2.1] S[table-format=2.1] @{}}
 \toprule
-\multirow{2}{*}{Time-step size} & \multicolumn{2}{c}{\# equivalent CPU cores} \\ \cmidrule{2-3}
- & \ce{H2}\slash\ce{CO} & \ce{CH4} \\
+\multirow{2}{*}{Global time-step size} & \multicolumn{2}{c}{\# equivalent CPU cores} \\ \cmidrule{2-3}
+ & \ce{H2}\slash\ce{CO} & \ce{GRI-Mech 3.0} \\
 \midrule
 \SI{e-6}{\second} & 35.4 & 10.4 \\
 \SI{e-4}{\second} & 14.0 & 2.6 \\
 \bottomrule
 \end{tabular}
-\caption{The number of CPU cores (roughly) required for equivalent performance to a single GPU for the combinations of chemical kinetic models and time-step sizes studied.}
+\caption{The number of CPU cores (roughly) required for equivalent performance to a single GPU for the combinations of chemical kinetic models and global time-step sizes studied.}
 \label{T:cpu_equiv}
 \end{table}
 
@@ -517,8 +517,8 @@ Finally, at the time of writing, the ten-core Intel Xeon E5-4640 v2 CPU used in 
 These prices are only rough estimates of the actual cost of these devices, since the actual price for the Intel CPU may be significantly less in a configured server node, while the Tesla C2075 is no longer sold directly by NVIDIA---thus the prices are variable.
 Furthermore, the performance decrease using an older, cheaper CPU (e.g., the Intel Xeon X5650 used as host processor for the GPU simulations in this work) may not be that large.
 However, combined with the equivalent core counts in Table~\ref{T:cpu_equiv}, this information suggests that the Tesla C2075 is a reasonable investment to supplement computing power for chemical-kinetic integration in large-eddy simulations.
-For the time-step size of \SI{e-4}{\second}, corresponding to Reynolds-averaged simulations, the benefit is less clear for the stiffer GRI-Mech 3.0 model.
-More work is required in thread divergence avoidance and memory traffic reduction to improve the performance in this case.
+For the global time-step size of \SI{e-4}{\second}, corresponding to Reynolds-averaged simulations, the benefit is less clear for the stiffer GRI-Mech 3.0 model.
+More work is required in thread divergence avoidance and memory traffic reduction to improve the GPU performance in this case.
 
 
 \subsection{Effect of thread divergence}
