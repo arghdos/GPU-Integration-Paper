@@ -94,7 +94,7 @@
 \begin{abstract}
 A fifth-order implicit Runge--Kutta method and two fourth-order exponential integration methods equipped with Krylov subspace approximations were implemented for the GPU and paired with the analytical chemical kinetic Jacobian software \texttt{pyJac}.
 The performance of each algorithm was evaluated by integrating thermochemical state data sampled from stochastic partially stirred reactor simulations and compared with the commonly used CPU-based implicit integrator \texttt{CVODE}.
-We estimated that the implicit Runge--Kutta method running on a single GPU is equivalent to \texttt{CVODE} running on \numrange{10}{35} CPU cores for integration of a single global integration time step of \SI{e-6}{\second} with hydrogen\slash air and methane\slash air models.
+We estimated that the implicit Runge--Kutta method running on a single GPU is equivalent to \texttt{CVODE} running on \numrange{11}{38} CPU cores for integration of a single global integration time step of \SI{e-6}{\second} with hydrogen\slash air and methane\slash air models.
 In the stiffest case studied---methane\slash air with a global integration time step of \SI{e-4}{\second}---thread divergence significantly decreased GPU performance to the equivalent of \texttt{CVODE} running on approximately two CPU cores.
 The exponential integration algorithms performed more slowly than the implicit integrators on both the CPU and GPU.
 Thread divergence and memory traffic were identified as the main limiters of GPU integrator performance, and techniques to mitigate these issues were discussed.
@@ -496,7 +496,7 @@ To this end, Figs.~\ref{F:H2_perf} and \ref{F:CH4_perf} show vertical lines wher
 The cost per ODE above and including these thresholds was averaged and forms our nominal performance measure.
 The CPU performance measure must also be normalized by the total number of cores used: \num{40}.
 Table~\ref{T:cpu_equiv} presents the ratios of these performance measures, which give rough estimates for the number of CPU cores required to equal the GPU performance for the cases studied.
-The GPU is roughly equivalent to \num{10} or more CPU cores for all cases except GRI-Mech 3.0 with the larger time-step size, and equivalent to at most $\sim$\num{35} cores for the \ce{H2}\slash\ce{CO} case with the smaller time-step size.
+The GPU is roughly equivalent to \num{11} or more CPU cores for all cases except GRI-Mech 3.0 with the larger time-step size, and equivalent to at most $\sim$\num{38} cores for the \ce{H2}\slash\ce{CO} case with the smaller time-step size.
 
 \begin{table}[htb]
 \centering
@@ -505,8 +505,8 @@ The GPU is roughly equivalent to \num{10} or more CPU cores for all cases except
 \multirow{2}{*}{Global time-step size} & \multicolumn{2}{c}{\# equivalent CPU cores} \\ \cmidrule{2-3}
  & \ce{H2}\slash\ce{CO} & \ce{GRI-Mech 3.0} \\
 \midrule
-\SI{e-6}{\second} & 35.4 & 10.4 \\
-\SI{e-4}{\second} & 14.0 & 2.6 \\
+\SI{e-6}{\second} & 38.30 & 11.69 \\
+\SI{e-4}{\second} & 14.66 & 2.96 \\
 \bottomrule
 \end{tabular}
 \caption{The number of CPU cores (roughly) required for equivalent performance to a single GPU for the combinations of chemical kinetic models and global time-step sizes studied.}
@@ -666,14 +666,14 @@ It is clear that for a per-thread-based GPU integrator, using an analytical Jaco
 \label{S:conclusions}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-The large size and chemical stiffness of chemical kinetic models for fuels relevant to transportation and power generation applications traditionally requires the use of high-order implicit integrators for efficient solutions.
+The large size and chemical stiffness of chemical kinetic models for fuels traditionally requires the use of high-order implicit integrators for efficient solutions.
 Past work showed orders-of-magnitude speedups for solution of nonstiff to moderately stiff chemical kinetic systems using explicit solvers on GPUs~\cite{Niemeyer:2011aa,Le2013596,Niemeyer:2014aa}.
 In contrast, work on stiff chemical kinetic integration with implicit GPU solvers has been limited to specialized cases, or failed to surpass current CPU-based techniques~\cite{Stone:2013aa}.
 
 This work demonstrated the performance of CPU- and GPU-based integration methods capable of handling greater stiffness, including an implicit fifth-order Runge--Kutta algorithm and two fourth-order exponential integration algorithms, using chemical source term and analytical Jacobian subroutines provided by the \texttt{pyJac} software~\cite{niemeyer_2016_51139,Niemeyer:2015ws,Niemeyer:2016aa}.
-By comparing the performance of these algorithms using two chemical kinetics models, including hydrogen\slash carbon monoxide with 13 species and 54 elementary reactions~\cite{Burke:2011fh} and methane with 53 species and 325 reactions~\cite{smith_gri-mech_30}, and using two time-step sizes (\SI{e-6}{\second} and \SI{e-4}{\second}), we drew the following conclusions:
+By comparing the performance of these algorithms using two chemical kinetics models, including hydrogen\slash carbon monoxide with 13 species and 54 reactions~\cite{Burke:2011fh} and methane with 53 species and 325 reactions~\cite{smith_gri-mech_30}, and using two global time-step sizes (\SI{e-6}{\second} and \SI{e-4}{\second}), we drew the following conclusions:
 \begin{itemize}
- \item For time-step sizes relevant to large-eddy simulations, the GPU-based implicit Runge--Kutta method was roughly equivalent to the CPU-based implicit \texttt{CVODE} integrator running on \numrange{10}{35} CPU cores.
+ \item For global time-step sizes relevant to large-eddy simulations, the GPU-based implicit Runge--Kutta method was roughly equivalent to the CPU-based implicit \texttt{CVODE} integrator running on \numrange{11}{38} CPU cores.
  \item At longer time-step sizes, the performance of all GPU-based integrators decreased significantly due to thread divergence.
  \item For the \ce{H2}\slash\ce{CO} model with a time-step size relevant to Reynolds-averaged Navier--Stokes simulations, the GPU-based Runga--Kutta solver performed nearly equivalent to \texttt{CVODE} running on \num{14} cores; for the GRI-Mech 3.0 model, the Runge--Kutta solver performance was only equal to \texttt{CVODE} on \num{2} cores.
  \item The exponential solvers were significantly less efficient than the implicit integrators on the CPU and GPU for all relevant cases.
