@@ -114,6 +114,7 @@ for state in op:
         #s.set_clear_marker(marker=marker, color=color, **ps.clear_marker_style)
         s.plot(ax, ps.pretty_names, zorder=10 if nk and 'exp4' in name else None)
 
+
     #draw order lines
     if not gpu and not opt:
         plt.plot([1e2, 1e3], [1.7, 0.17], 'k')
@@ -128,8 +129,8 @@ for state in op:
         plt.plot([0.5, 5], [2e-1, 2e-5], 'k')
         plt.text(2.5e-1, 1e-3, r"Order--4")
 
-        plt.text(1e3, 4e-4, r"``Exact'' Krylov")
-        plt.text(1e3, 2e0, r"Approximate Krylov", rotation=-37)
+        #plt.text(1e3, 4e-4, r"``Exact'' Krylov")
+        #plt.text(1e3, 2e0, r"Approximate Krylov", rotation=-37)
 
     plt.xlabel(r'Steps taken')
     plt.ylabel(r'Maximum error, $\left\lvert\textbf{E}\right\rvert$')
