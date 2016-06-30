@@ -317,23 +317,23 @@ PaSR parameters used for hydrogen\slash air and methane\slash air premixed combu
   \label{F:convergence}
  \end{figure}
 
-To investigate the correctness of the developed solvers, the first \num{10000} conditions in the \ce{H2}\slash\ce{CO} database were integrated by each solver for \SI{e-6}{\second}.
+To investigate the correctness of the developed solvers, the first \num{10000} conditions in the \ce{H2}\slash\ce{CO} database were integrated by each solver using a global time-step size of \SI{e-6}{\second}.
 The error for condition $i$ was then determined using the weighted root-mean-square error
 \begin{equation}
  E_i(t) = \left\lVert\frac{y_i(t) - \hat{y}_i(t)}{\text{atol} + \hat{y}_i(t) \times \text{rtol}}\right\rVert_2 \;,
 \end{equation}
-where the $y_i(t)$ is the solution obtained from the various solvers, atol\slash rtol are the absolute\slash relative tolerances, and $\hat{y}_i(t)$ is the ``true'' solution obtained via \texttt{CVODE} using a global time-step of $\delta t = \SI{e-10}{\second}$ and absolute\slash relative tolerances of \num{e-20} and \num{e-15}, respectively.
+where the $y_i(t)$ is the solution obtained from the various solvers, atol\slash rtol are the absolute\slash relative tolerances, and $\hat{y}_i(t)$ is the ``true'' solution obtained via \texttt{CVODE} using an internal time-step of $\delta t = \SI{e-10}{\second}$ and absolute\slash relative tolerances of \num{e-20} and \num{e-15}, respectively.
 The maximum error over all conditions
 \begin{equation}
  \left\lvert\textbf{E}\right\rvert = \max_{i= 1, \dots, \num{10000}}\{E_i(t)\}
 \end{equation}
 was then used to measure the error of each solver.
 The error measurement used the same tolerances as for the performance testing ($\text{atol} = \num{e-10}$ and $\text{rtol} = \num{e-6}$, respectively).
-The time-step size was then varied from \SIrange{e-6}{e-11}{\second}, using constant internal time-step sizes---corresponding to \numrange[retain-zero-exponent]{e0}{e5} time steps---to measure the convergence rates of the various solvers.
+The constant internal time-step size was then varied from \SIrange{e-6}{e-11}{\second}---corresponding to \numrange[retain-zero-exponent]{e0}{e5} internal integration steps---to measure the convergence rates of the various solvers.
 
 Figure~\ref{F:convergence} shows the convergence of error for the CPU solvers with decreasing time-step size, shown as increasing number of integration steps taken.
-The error of the \texttt{Radau-IIA} integrator drops over four orders of magnitude when changing from a single time step of \SI{e-6}{\second} to ten time steps of \SI{e-7}{\second}, i.e., fourth order convergence.
-Increasing the number of integration steps---by further reducing the time-step size---past this point does not reduce error further, due to numerical precision effects; this likely causes the apparent order reduction of the \texttt{Radau-IIA} solver, which is nominally fifth order.
+The error of the \texttt{Radau-IIA} integrator drops nearly four orders of magnitude when changing from a single internal time step of \SI{e-6}{\second} to ten internal time steps of \SI{e-7}{\second}, i.e., fourth-order convergence.
+Increasing the number of integration steps---by further reducing the internal time-step size---past this point does not reduce error further, due to numerical precision effects; this likely causes the apparent order reduction of the \texttt{Radau-IIA} solver, which is nominally fifth order.
 The exponential solvers utilizing an approximate Krylov subspace exhibit larger levels of error in general, with $\left\lvert\textbf{E}\right\rvert \sim \mathcal{O}(1)\text{--}\mathcal{O}(10)$ for a single integration step of $\delta t = \SI{e-6}{\second}$.
 As the time-step size is decreased, the convergence of the Arnoldi algorithm is affected by the internal integration time-step size (the matrix exponentials and error estimates are scaled by the internal time-step).
 To study the effect of the Arnoldi algorithm on error, Fig.~\ref{F:convergence} also presents the error convergence of the exponential integrators with the Krylov approximation error reduced far below the error of the overall method.
