@@ -403,7 +403,7 @@ The presentation of the performance data in raw form is also available in \ref{S
 \end{figure}
 
 Figure~\ref{F:H2_perf} shows the runtimes of the CPU and GPU integrators for the \ce{H2}\slash\ce{CO} model.
-In Fig.~\ref{F:h2_cpu_perf_small} the runtimes per ODE for the CPU integrators with a global time-step of $\delta t= \SI{e-6}{\second}$ decrease approximately linearly with the number of ODEs for small numbers of initial conditions (shown here on a log-log plot).
+In Fig.~\ref{F:h2_cpu_perf_small} the runtimes per ODE for the CPU integrators for a single global time-step of $\delta t= \SI{e-6}{\second}$ decrease approximately linearly with the number of ODEs for small numbers of initial conditions (shown here on a log-log plot).
 For small numbers of ODEs, the exponential integrators are faster than the implicit integration techniques due to the modest stiffness of the \ce{H2}\slash\ce{CO} model; even with many near-equilibrium states removed from the beginning of the PaSR database, the model is not particularly stiff for this small time-step size.
 Larger numbers of ODEs begin to saturate the CPU resources, and the runtime per ODE levels off to a more constant value.
 Eventually, relatively more stiff conditions are encountered and the performance of the implicit integration techniques catches up and then surpasses that of the exponential integrators; \texttt{CVODE} is the most efficient solver on the CPU when solving more than \num{e4} ODEs; however, \texttt{CVODE} is only $\sim$\num{1.87}$\times$ faster than the slowest solver (\texttt{exprb43}) on the whole database.
@@ -412,7 +412,7 @@ Unlike for the CPU solvers, the GPU-based \texttt{Radau-IIA} performs faster tha
 As will be seen in Section~\ref{S:divergence}, both solver classes experience minimal thread divergence due to differing internal integration time-step size in this case.
 Therefore, we conclude that the relatively slower runtimes per ODE for the exponential algorithms on the GPU results from thread divergence in the Arnoldi iteration---caused by varying Krylov subspace sizes between threads.
 
-Figures~\ref{F:h2_cpu_perf_large} and \ref{F:h2_gpu_perf_large} show the performance of the integration algorithms on both platforms for the \ce{H2}\slash\ce{CO} model with the larger global time-step size ($\delta t=\SI{e-4}{\second}$).
+Figures~\ref{F:h2_cpu_perf_large} and \ref{F:h2_gpu_perf_large} show the performance of the integration algorithms on both platforms for the \ce{H2}\slash\ce{CO} model with a single larger global time step ($\delta t=\SI{e-4}{\second}$).
 The performances of the CPU integration algorithms show similar trends to those of the smaller time-step size case: decreasing cost per ODE before reaching a more constant performance for higher numbers of ODEs.
 The larger time-step size induces additional stiffness, and the implicit solvers are more efficient for most numbers of ODEs; \texttt{CVODE} is again the most efficient CPU solver.
 Fig.~\ref{F:h2_gpu_perf_large} shows the performance of the GPU solvers for the larger global time-step size.
@@ -487,7 +487,7 @@ For researchers in numerical combustion, two issues stand out as particularly im
 As established in Section~\ref{sec:Intro}, large-scale reactive-flow simulations with realistic chemical kinetic models are extremely computationally expensive, and remain outside of the capabilities of most in the field.
 With this in mind, we ask, for a given simulation, what is the effect on the overall runtime of adding more CPU cores compared with adding GPU accelerators?
 In addition, if a budget is allocated to expand available computational resources, how might these funds be best allocated?
-To answer these questions, we attempt to derive a rough estimate of the number of CPU cores required for equivalent performance on the GPU.
+To answer these questions, we attempt to derive a rough estimate of the number of CPU cores\slash GPUs required for equivalent performance.
 
 A nominal performance metric for both the CPU- and GPU-based integration algorithms must first be obtained.
 As the most efficient solvers in all cases with large numbers of ODEs are \texttt{CVODE} for the CPU and \texttt{Radau-IIA} for the GPU, these algorithms will be considered the performance benchmarks.
