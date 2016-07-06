@@ -95,11 +95,11 @@
 A fifth-order implicit Runge--Kutta method and two fourth-order exponential integration methods equipped with Krylov subspace approximations were implemented for the GPU and paired with the analytical chemical kinetic Jacobian software \texttt{pyJac}.
 The performance of each algorithm was evaluated by integrating thermochemical state data sampled from stochastic partially stirred reactor simulations and compared with the commonly used CPU-based implicit integrator \texttt{CVODE}.
 We estimated that the implicit Runge--Kutta method running on a single GPU is equivalent to \texttt{CVODE} running on \numrange{11.7}{38.3} CPU cores for integration of a single global integration time step of \SI{e-6}{\second} with hydrogen\slash air and methane\slash air models.
-In the stiffest case studied---methane\slash air with a global integration time step of \SI{e-4}{\second}---thread divergence significantly decreased GPU performance to the equivalent of \texttt{CVODE} running on approximately three CPU cores.
+In the stiffest case studied---methane\slash air with a global integration time step of \SI{e-4}{\second}---thread divergence and higher memory traffic significantly decreased GPU performance to the equivalent of \texttt{CVODE} running on approximately three CPU cores.
 The exponential integration algorithms performed more slowly than the implicit integrators on both the CPU and GPU.
 Thread divergence and memory traffic were identified as the main limiters of GPU integrator performance, and techniques to mitigate these issues were discussed.
 Use of a finite-difference Jacobian on the GPU---in place of the analytical Jacobian provided by \texttt{pyJac}---greatly decreased integrator performance due to thread divergence, resulting in maximum slowdowns of \SIrange{7.11}{240.96}{$\times$}; in comparison, the corresponding slowdown on the CPU was just \SIrange{1.39}{2.61}{$\times$}, underscoring the importance of use of an analytical Jacobian for efficient GPU integration.
-Finally, future research directions were identified based on the current state-of-the-art of stiff chemical kinetics integration on the GPU.
+Finally, future research directions were identified, working towards enabling realistic chemistry in reactive-flow simulations via GPU\slash SIMD accelerated stiff chemical kinetic integration.
 \end{abstract}
 
 \begin{keyword}
@@ -187,7 +187,7 @@ Finally, we will study the three-stage\slash fifth-order implicit Runge--Kutta a
 The rest of the paper is structured as follows.
 Section~\ref{S:method} lays out the methods and implementation details of the algorithms used here.
 Subsequently, Section~\ref{S:results} presents and discusses the performance of the algorithms run using a database of partially stirred reactor thermochemical states, with particular focus on the effects of thread divergence and memory traffic.
-Further, this work is a starting point on a path to reduce the cost of reactive-flow simulations with realistic chemistry models.
+Further, this work is a starting point to reduce the cost of reactive-flow simulations with realistic chemistry via SIMD-accelerated chemical kinetic evaluation.
 Thus, we explore the potential impact of current state-of-the-art GPU-accelerated stiff chemical kinetic evaluation on large-scale reactive-flow simulations in Sec.~\ref{S:results}, while identifying the most promising future directions for GPU\slash SIMD accelerated chemical kinetic integration in Sec.~\ref{S:conclusions}.
 Finally~\ref{S:supp} and \ref{S:raw} present supplementary data, including the raw performance and validation data, scripts and \LaTeX\ source used in this work.
 
