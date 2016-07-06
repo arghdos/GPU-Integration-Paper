@@ -532,10 +532,10 @@ Slowdown due to memory traffic for a GPU integration algorithm implemented on a 
 Implicit integration algorithms, which typically require storage of the Jacobian matrix and\slash or factorized forms thereof, can quickly overwhelm the registers and L1 cache memory available to each thread and cause many slow global memory accesses.
 Reformulating the chemical kinetic equations to generate sparse Jacobian matrices~\cite{Schwer2002270} would greatly benefit GPU-based integration algorithms due to the reduced memory requirements, and in addition enable use of sparse multiplication\slash factorization algorithms (from which a CPU-based algorithm would equally benefit); this is a planned improvement to the \texttt{pyJac} software~\cite{Niemeyer:2016aa,niemeyer_2016_51139}.
 Further, the Tesla C2075 GPU used in this study was originally released in 2011 and is several generations old, newer models have much larger L1 cache sizes and many more available registers.
-Use of a newer GPU model may significantly improve solver performance for larger models due to the scarcity of on-chip memory in a per-thread approach.
-Finally, a per-block approach may be required for efficient integration of the largest models on the GPU, due to the much larger amounts of cache memory allowed for each ODE solution.
+Use of a newer GPU model may significantly improve solver performance for larger models by relieving the scarcity of on-chip memory in a per-thread approach.
+Finally, a per-block approach may be required for efficient integration of the largest models on the GPU, due to the much higher amount of cache memory allocated for each ODE solution.
 
-On the other hand, the performance penalty due to thread divergence depends both on the cost of the divergent branches as well as the proportion of the warp that executes each branch.
+The performance penalty due to thread divergence depends both on the cost of the divergent branches as well as the proportion of the warp that executes each branch.
 For example, if only one thread in a warp executes an expensive branch (e.g., a Jacobian update) the rest of the warp remains idle during that time, and the SM may become severely underutilized.
 To investigate the effects of thread divergence further, we adopted a modified version of the quantification of thread divergence of Niemeyer and Sung~\cite{Niemeyer:2014aa}:
 \begin{equation}
@@ -595,9 +595,8 @@ Investigation of thread divergence for such operations within a internal integra
 Figures~\ref{F:Rad_div_h2} and~\ref{F:Rad_div_gri} show the distribution of the divergence measure $D$ for the \texttt{Radau-IIA} solver with both global time-step sizes and kinetic models when run on \num{262144} ODEs, spread across \num{8192} warps.
 For both kinetic models with the small global time-step size, nearly \SI{100}{\percent} of the warps had a divergence measure near zero.
 Increasing the global time-step size causes the number of warps with high levels of thread divergence (e.g. $D > 0.5$) to increase for both models.
-For the \ce{H2}\slash\ce{CO} model, over \SI{40}{\percent} of warps were between $D=0.55$ and $D=0.65$, while over \SI{75}{\percent} of warps were between $D=0.6$ and $D=0.8$ for the GRI-Mech 3.0 model.
-Correspondingly, the approximate equivalent CPU core-count (Table~\ref{T:cpu_equiv}) dropped by \SI{2.5}{$\times$} for the \ce{H2}\slash\ce{CO} model at the larger global time-step sizes.
-Furthermore, the GRI-Mech 3.0 model experiences higher levels of thread divergence for the larger global time-step size, and subsequently experienced a higher drop in performance of \SI{4}{$\times$}.
+For the \ce{H2}\slash\ce{CO} model, over \SI{40}{\percent} of warps were between $D=0.55$ and $D=0.65$, and the approximate equivalent CPU core-count (Table~\ref{T:cpu_equiv}) dropped by \SI{2.5}{$\times$} between the small and large global time-step sizes.
+Further, over \SI{75}{\percent} of warps were between $D=0.6$ and $D=0.8$ for the GRI-Mech 3.0 model for the larger global time-step size, and subsequently a higher drop in performance of \SI{4}{$\times$} occured.
 This observation motivates future work aimed at developing strategies to reduce thread divergence.
 Potential solutions include adopting an ODE per-block approach~\cite{Stone:2013aa}, reordering ODEs to increase similarity of stiffness inside a warp, or synchronizing internal time-step sizes between threads in a warp.
 However, Figs.~\ref{F:Rad_div_h2} and \ref{F:Rad_div_gri} do not explain the drop in equivalent core count between the \ce{H2}\slash\ce{CO} model and the GRI-Mech 3.0 model for the smaller global time-step size.
@@ -605,7 +604,7 @@ This results from the increased memory traffic of the larger model (and subseque
 
 Figures~\ref{F:exprb43_div_h2} and \ref{F:exprb43_div_ch4} show the divergence levels of the \texttt{exprb43} GPU solver.
 Similar to the \texttt{Radau-IIA} solver, nearly \SI{100}{\percent} of warps for the \texttt{exprb43} solver have no thread divergence due to differing internal integration step sizes for the \ce{H2}\slash\ce{CO} model.
-The \texttt{exprb43} thread divergence levels increase somewhat for the GRI-Mech 3.0 model with the smaller time-step size; \SI{27}{\percent} of warps still had a divergence measure of $D=0$, but over \SI{63}{\percent} of the warps had divergence measures between \numrange{0.05}{0.2}.
+The \texttt{exprb43} thread divergence levels increase somewhat for the GRI-Mech 3.0 model with the smaller time-step size; \SI{27}{\percent} of warps still had a divergence measure of $D=0$, but $\sim$\SI{63}{\percent} of the warps had divergence measures between \numrange{0.05}{0.2}.
 With the larger time-step size, the \texttt{exprb43} solver experiences significantly more thread divergence for both models.
 The divergence measure distribution is fairly similar to that of the \texttt{Radau-IIA} solver for the GRI-Mech 3.0 model, but most warps experience a divergence measure of $D \sim 0.8$ for the \ce{H2}\slash\ce{CO} model (versus $D \sim 0.6$ for the \texttt{Radau-IIA} solver).
 The explicit solvers deal with stiffness less efficiently, and end up using a greater range of internal time-step sizes between conditions of varying stiffness.
