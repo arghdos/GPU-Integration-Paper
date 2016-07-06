@@ -497,9 +497,9 @@ To this end, Figs.~\ref{F:H2_perf} and \ref{F:CH4_perf} show vertical lines wher
 The cost per ODE above and including these thresholds was averaged and forms our nominal performance measure.
 The CPU performance measure must also be normalized by the total number of cores used: \num{40}.
 Table~\ref{T:cpu_equiv} presents the ratios of these performance measures, which give rough estimates for the number of CPU cores required to equal the GPU performance for the cases studied.
-The GPU is roughly equivalent to \num{11} or more CPU cores for all cases except GRI-Mech 3.0 with the larger time-step size, and equivalent to at most $\sim$\num{38} cores for the \ce{H2}\slash\ce{CO} case with the smaller time-step size.
+The GPU is roughly equivalent to \num{11.7} or more CPU cores for all cases except GRI-Mech 3.0 with the larger time-step size, and equivalent to at most \num{38.3} cores for the \ce{H2}\slash\ce{CO} case with the smaller time-step size.
 With the increasing size of the chemical kinetic model, the equivalent CPU core count of the GPU \texttt{Radau-IIA} solver drops significantly.
-As will be discussed in Sec.~\ref{S:divergence}, this drop in performance is due to higher memory traffic requirements and increased levels of thread divergence.
+As will be discussed in Sec.~\ref{S:divergence}, this drop in performance is primarily due to higher memory traffic requirements, however increased levels of thread divergence also play a role.
 Although this work represents the current state-of-the-art for implicit integration of stiff chemical kinetic ODEs on the GPU, it is clear that more effort is required to improve performance for larger chemical kinetic models.
 Approaches to mitigate these issues will be discussed in the subsequent section.
 
@@ -531,7 +531,7 @@ Thread divergence and memory traffic are two performance concerns particularly i
 Slowdown due to memory traffic for a GPU integration algorithm implemented on a per-thread basis primarily results from the small amount of on-chip memory available.
 Implicit integration algorithms, which typically require storage of the Jacobian matrix and\slash or factorized forms thereof, can quickly overwhelm the registers and L1 cache memory available to each thread and cause many slow global memory accesses.
 Reformulating the chemical kinetic equations to generate sparse Jacobian matrices~\cite{Schwer2002270} would greatly benefit GPU-based integration algorithms due to the reduced memory requirements, and in addition enable use of sparse multiplication\slash factorization algorithms (from which a CPU-based algorithm would equally benefit); this is a planned improvement to the \texttt{pyJac} software~\cite{Niemeyer:2016aa,niemeyer_2016_51139}.
-Further, the Tesla C2075 GPU used in this study was originally released in 2011 and is several generations old, newer models have much larger L1 cache sizes and many more available registers.
+Further, the Tesla C2075 GPU used in this study was originally released is nearly five years and several generations old; newer models have much larger L1 cache sizes and many more available registers.
 Use of a newer GPU model may significantly improve solver performance for larger models by relieving the scarcity of on-chip memory in a per-thread approach.
 Finally, a per-block approach may be required for efficient integration of the largest models on the GPU, due to the much higher amount of cache memory allocated for each ODE solution.
 
@@ -600,7 +600,7 @@ Further, over \SI{75}{\percent} of warps were between $D=0.6$ and $D=0.8$ for th
 This observation motivates future work aimed at developing strategies to reduce thread divergence.
 Potential solutions include adopting an ODE per-block approach~\cite{Stone:2013aa}, reordering ODEs to increase similarity of stiffness inside a warp, or synchronizing internal time-step sizes between threads in a warp.
 However, Figs.~\ref{F:Rad_div_h2} and \ref{F:Rad_div_gri} do not explain the drop in equivalent core count between the \ce{H2}\slash\ce{CO} model and the GRI-Mech 3.0 model for the smaller global time-step size.
-This results from the increased memory traffic of the larger model (and subsequent increase in slow global memory load\slash stores), along with effects of thread divergence inside the internal integration step; this further motivates development of a sparse version of the \texttt{pyJac} software.
+The minimal thread divergence of the \texttt{Radau-IIA} solver for both models at the smaller global time-step size suggests that this drop in performance is primarily caused by the increased memory traffic of the larger model, as well potential thread divergence inside the internal integration step; this further motivates development of a sparse version of the \texttt{pyJac} software.
 
 Figures~\ref{F:exprb43_div_h2} and \ref{F:exprb43_div_ch4} show the divergence levels of the \texttt{exprb43} GPU solver.
 Similar to the \texttt{Radau-IIA} solver, nearly \SI{100}{\percent} of warps for the \texttt{exprb43} solver have no thread divergence due to differing internal integration step sizes for the \ce{H2}\slash\ce{CO} model.
