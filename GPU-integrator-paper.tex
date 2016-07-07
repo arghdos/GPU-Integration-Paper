@@ -605,7 +605,7 @@ The minimal thread divergence of the \texttt{Radau-IIA} solver for both models a
 
 Figures~\ref{F:exprb43_div_h2} and \ref{F:exprb43_div_ch4} show the divergence levels of the \texttt{exprb43} GPU solver.
 Similar to the \texttt{Radau-IIA} solver, nearly \SI{100}{\percent} of warps for the \texttt{exprb43} solver have no thread divergence due to differing internal integration step sizes for the \ce{H2}\slash\ce{CO} model.
-The \texttt{exprb43} thread divergence levels increase somewhat for the GRI-Mech 3.0 model with the smaller time-step size; \SI{27}{\percent} of warps still had a divergence measure of $D=0$, but $\sim$\SI{63}{\percent} of the warps had divergence measures between \numrange{0.05}{0.2}.
+The \texttt{exprb43} thread divergence levels increase somewhat for the GRI-Mech 3.0 model with the smaller time-step size; \SI{27}{\percent} of warps still had a divergence measure of $D=0$, but nearly \SI{63}{\percent} of the warps had divergence measures between \numrange{0.05}{0.2}.
 With the larger time-step size, the \texttt{exprb43} solver experiences significantly more thread divergence for both models.
 The divergence measure distribution is fairly similar to that of the \texttt{Radau-IIA} solver for the GRI-Mech 3.0 model, but most warps experience a divergence measure of $D \sim 0.8$ for the \ce{H2}\slash\ce{CO} model (versus $D \sim 0.6$ for the \texttt{Radau-IIA} solver).
 The explicit solvers deal with stiffness less efficiently, and end up using a greater range of internal time-step sizes between conditions of varying stiffness.
