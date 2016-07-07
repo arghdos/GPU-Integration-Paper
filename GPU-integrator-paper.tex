@@ -527,7 +527,7 @@ However, combined with the equivalent core counts in Table~\ref{T:cpu_equiv}, th
 \subsection{Effects of thread divergence and memory traffic}
 \label{S:divergence}
 
-Thread divergence and memory traffic are two performance concerns particularly important for chemical kinetic integration on SIMD platforms.
+Thread divergence and memory traffic are two performance concerns particularly important for chemical kinetic integration on GPU and SIMD platforms.
 Slowdown due to memory traffic for a GPU integration algorithm implemented on a per-thread basis primarily results from the small amount of on-chip memory available.
 Implicit integration algorithms, which typically require storage of the Jacobian matrix and\slash or factorized forms thereof, can quickly overwhelm the registers and L1 cache memory available to each thread and cause many slow global memory accesses.
 Reformulating the chemical kinetic equations to generate sparse Jacobian matrices~\cite{Schwer2002270} would greatly benefit GPU-based integration algorithms due to the reduced memory requirements, and in addition enable use of sparse multiplication\slash factorization algorithms (from which a CPU-based algorithm would equally benefit); this is a planned improvement to the \texttt{pyJac} software~\cite{Niemeyer:2016aa,niemeyer_2016_51139}.
