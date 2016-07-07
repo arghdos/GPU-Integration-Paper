@@ -531,7 +531,7 @@ Thread divergence and memory traffic are two performance concerns particularly i
 Slowdown due to memory traffic for a GPU integration algorithm implemented on a per-thread basis primarily results from the small amount of on-chip memory available.
 Implicit integration algorithms, which typically require storage of the Jacobian matrix and\slash or factorized forms thereof, can quickly overwhelm the registers and L1 cache memory available to each thread and cause many slow global memory accesses.
 Reformulating the chemical kinetic equations to generate sparse Jacobian matrices~\cite{Schwer2002270} would greatly benefit GPU-based integration algorithms due to the reduced memory requirements, and in addition enable use of sparse multiplication\slash factorization algorithms (from which a CPU-based algorithm would equally benefit); this is a planned improvement to the \texttt{pyJac} software~\cite{Niemeyer:2016aa,niemeyer_2016_51139}.
-Further, the Tesla C2075 GPU used in this study was originally released is nearly five years and several generations old; newer models have much larger L1 cache sizes and many more available registers.
+Further, the Tesla C2075 GPU used in this study was originally released nearly five years and is several generations old; newer models have much larger L1 cache sizes and many more available registers.
 Use of a newer GPU model may significantly improve solver performance for larger models by relieving the scarcity of on-chip memory in a per-thread approach.
 Finally, a per-block approach may be required for efficient integration of the largest models on the GPU, due to the much higher amount of cache memory allocated for each ODE solution.
 
