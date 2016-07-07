@@ -549,7 +549,8 @@ Differing internal time-step sizes are not the only source of thread divergence 
 For instance, threads in a warp may use different Krylov subspace sizes for the exponential integrators or different numbers of Newton iterations for the \texttt{Radau-IIA} solver.
 Indeed, Section~\ref{S:perf} notes that we suspect thread divergence from differing Krylov subspace sizes as the reason the exponential solvers are less efficient for small numbers of ODEs for the \ce{H2}\slash\ce{CO} model with the small global time-step size.
 However, these operations clearly cost less than an entire internal integration step (in which they are embedded) and thus we look only at the thread divergence of internal integration time steps.
-Investigation of thread divergence for such operations within a internal integration step is an important consideration and will be explored in our future work.
+Thread divergence of such operations within a internal integration step could play an important role and will be investigated in our future work.
+
 
 \begin{figure}[htbp]
   \centering
