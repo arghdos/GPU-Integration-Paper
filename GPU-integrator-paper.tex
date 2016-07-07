@@ -533,7 +533,7 @@ Implicit integration algorithms, which typically require storage of the Jacobian
 Reformulating the chemical kinetic equations to generate sparse Jacobian matrices~\cite{Schwer2002270} would greatly benefit GPU-based integration algorithms due to the reduced memory requirements, and in addition enable use of sparse multiplication\slash factorization algorithms (from which a CPU-based algorithm would equally benefit); this is a planned improvement to the \texttt{pyJac} software~\cite{Niemeyer:2016aa,niemeyer_2016_51139}.
 Further, the Tesla C2075 GPU used in this study was originally released nearly five years and is several generations old; newer models have much larger L1 cache sizes and many more available registers.
 Using a newer GPU model could significantly improve solver performance for larger models by relieving the scarcity of on-chip memory in a per-thread approach.
-Finally, a per-block approach may be required for efficient integration of the largest models on the GPU, due to the much higher amount of cache memory allocated for each ODE solution.
+Finally, a per-block approach may be required to efficiently integrate the largest models on the GPU, due to the much higher amount of cache memory allocated for each ODE solution.
 
 The performance penalty due to thread divergence depends both on the cost of the divergent branches as well as the proportion of the warp that executes each branch.
 For example, if only one thread in a warp executes an expensive branch (e.g., a Jacobian update) the rest of the warp remains idle during that time, and the SM may become severely underutilized.
