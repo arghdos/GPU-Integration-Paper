@@ -488,7 +488,7 @@ For researchers in numerical combustion, two issues stand out as particularly im
 As established in Section~\ref{sec:Intro}, large-scale reactive-flow simulations with realistic chemical kinetic models are extremely computationally expensive, and remain outside of the capabilities of most in the field.
 With this in mind, we ask, for a given simulation, what is the effect on the overall runtime of adding more CPU cores compared with adding GPU accelerators?
 In addition, if a budget is allocated to expand available computational resources, how might these funds be best allocated?
-To answer these questions, we attempt to derive a rough estimate of the number of CPU cores\slash GPUs required for equivalent performance.
+To answer these questions, we derived a rough estimate of the number of CPU cores required for equivalent performance on the GPU.
 
 A nominal performance metric for both the CPU- and GPU-based integration algorithms must first be obtained.
 As the most efficient solvers in all cases with large numbers of ODEs are \texttt{CVODE} for the CPU and \texttt{Radau-IIA} for the GPU, these algorithms will be considered the performance benchmarks.
