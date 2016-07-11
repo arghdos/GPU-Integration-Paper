@@ -686,7 +686,7 @@ By comparing the performance of these algorithms using two chemical kinetics mod
  \item For a global time-step size relevant to Reynolds-averaged Navier--Stokes simulations, the GPU-based implicit Runga--Kutta solver performed equivalent to \texttt{CVODE} running on \num{15} cores for the hydrogen model, and just \num{3} cores for the GRI-Mech 3.0 model.
  \item The higher memory traffic required due to the size of the GRI-Mech 3.0 model significantly decreased GPU solver performance; a sparse analytical chemical kinetic Jacobian formulation must be developed to achieve high performance for still larger chemical kinetic models on the GPU.
  \item The exponential solvers were significantly less efficient than the implicit integrators on the CPU and GPU for all relevant cases.
- \item Using an analytical Jacobian matrix on the GPU is critical for efficient chemical kinetic integration due to thread divergence; speedups of \SIrange{7.11}{240.96}{$\times$} over a finite-difference-approximation were reached on the GPU, far surpassing the corresponding CPU speedup of \SIrange{1.58}{2.51}{$\times$}.
+ \item Using an analytical Jacobian matrix on the GPU is critical for efficient chemical kinetic integration due to thread divergence; speedups of \SIrange{7.11}{240.96}{$\times$} over a finite-difference-approximation were reached on the GPU, far surpassing the corresponding CPU speedup of \SIrange{1.58}{2.61}{$\times$}.
 
 \end{itemize}
 
