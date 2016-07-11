@@ -85,7 +85,7 @@
 
 % addresses
 \address[uconn]{Department of Mechanical Engineering\\
-  University of Connecticut, Storrs, CT, 06269, USA}
+  University of Connecticut, Storrs, CT 06269, USA}
 \address[osu]{School of Mechanical, Industrial, and Manufacturing Engineering\\
   Oregon State University, Corvallis, OR 97331, USA}
   
@@ -94,12 +94,12 @@
 \begin{abstract}
 A fifth-order implicit Runge--Kutta method and two fourth-order exponential integration methods equipped with Krylov subspace approximations were implemented for the GPU and paired with the analytical chemical kinetic Jacobian software \texttt{pyJac}.
 The performance of each algorithm was evaluated by integrating thermochemical state data sampled from stochastic partially stirred reactor simulations and compared with the commonly used CPU-based implicit integrator \texttt{CVODE}.
-We estimated that the implicit Runge--Kutta method running on a single GPU is equivalent to \texttt{CVODE} running on \numrange{11.7}{38.3} CPU cores for integration of a single global integration time step of \SI{e-6}{\second} with hydrogen\slash air and methane\slash air models.
-In the stiffest case studied---methane\slash air with a global integration time step of \SI{e-4}{\second}---thread divergence and higher memory traffic significantly decreased GPU performance to the equivalent of \texttt{CVODE} running on approximately three CPU cores.
+We estimated that the implicit Runge--Kutta method running on a single GPU is equivalent to \texttt{CVODE} running on \numrange{12}{38} CPU cores for integration of a single global integration time step of \SI{e-6}{\second} with hydrogen and methane models.
+In the stiffest case studied---the methane model with a global integration time step of \SI{e-4}{\second}---thread divergence and higher memory traffic significantly decreased GPU performance to the equivalent of \texttt{CVODE} running on approximately three CPU cores.
 The exponential integration algorithms performed more slowly than the implicit integrators on both the CPU and GPU.
 Thread divergence and memory traffic were identified as the main limiters of GPU integrator performance, and techniques to mitigate these issues were discussed.
-Use of a finite-difference Jacobian on the GPU---in place of the analytical Jacobian provided by \texttt{pyJac}---greatly decreased integrator performance due to thread divergence, resulting in maximum slowdowns of \SIrange{7.11}{240.96}{$\times$}; in comparison, the corresponding slowdown on the CPU was just \SIrange{1.39}{2.61}{$\times$}, underscoring the importance of use of an analytical Jacobian for efficient GPU integration.
-Finally, future research directions were identified, working towards enabling realistic chemistry in reactive-flow simulations via GPU\slash SIMD accelerated stiff chemical kinetic integration.
+Use of a finite-difference Jacobian on the GPU---in place of the analytical Jacobian provided by \texttt{pyJac}---greatly decreased integrator performance due to thread divergence, resulting in maximum slowdowns of \SIrange{7.11}{240.96}{$\times$}; in comparison, the corresponding slowdowns on the CPU were just \SIrange{1.39}{2.61}{$\times$}, underscoring the importance of use of an analytical Jacobian for efficient GPU integration.
+Finally, future research directions working towards enabling realistic chemistry in reactive-flow simulations via GPU\slash SIMD accelerated stiff chemical kinetic integration, were identified.
 \end{abstract}
 
 \begin{keyword}
@@ -128,7 +128,7 @@ These methods require repeated evaluation and factorization of the chemical kine
 However, significant cost savings in the Jacobian evaluation can be realized by using an analytical formulation, rather than the typical evaluation via finite difference approximations.
 This approach eliminates numerous chemical source term evaluations, and for a sparse Jacobian (e.g., formulated in terms of species concentrations) the cost of evaluation can drop to a linear dependence on the number of species in the model~\cite{Lu:2009gh}.
 
-In this work, our efforts to accelerate chemical kinetics focus on improving the integration strategy itself, via development of new algorithms and using high-performance hardware accelerators such as graphics processing units (GPUs) and similar single-instruction multiple-data (SIMD) devices.
+In this work, our efforts to accelerate simulations with chemical kinetics focus on improving the integration strategy itself, via development of new algorithms and using high-performance hardware accelerators such as graphics processing units (GPUs) and similar single-instruction multiple-data (SIMD) devices.
 Central processing unit (CPU) clock speeds increased regularly over the past few decades---commonly known as Moore's Law---however, power consumption and heat dissipation issues slowed this trend recently.
 While multicore parallelism has increased CPU performance, recently SIMD processors gained popularity as a low cost, low power consumption, and massively parallel high-performance computing alternative.
 GPUs were originally developed for graphics\slash video processing applications and consist of hundreds to thousands of separate processing units, compared with the tens of cores found on typical CPUs.
@@ -158,21 +158,21 @@ This results in expensive global memory loads.
 The performance of a per-thread approach can also be greatly impacted by thread divergence, because different threads may follow different execution paths within the ODE integration algorithm itself~\cite{Stone:2013aa,Niemeyer:2014aa}.
 For this reason, implicit integration algorithms---which typically have complex branching and evaluation paths---may suffer more from thread divergence when implemented on a per-thread basis than relatively simpler explicit integration techniques~\cite{Stone:2013aa}.
 The impact of thread divergence on integrators is typically less severe when following a per-block strategy, since the execution path of each thread is planned by design of the algorithm.
-A per-block approach also offers significantly more local cache memory and available registers for solving a set of ODEs, and thus memory access speeds and cache size are less of a concern.
+A per-block approach also offers significantly more local cache memory and available registers for solving a set of ODEs, and thus memory access speed and cache size are less of a concern.
 However, in our experience, optimizing use of these resources requires significant manual tuning and makes it more difficult to generalize the developed algorithm between different chemical kinetic models---a key feature for potential non-academic applications.
 In addition, Stone and Davis~\cite{Stone:2013aa} showed that a per-thread implicit integration algorithm outperforms the per-block implementation of the same algorithm in the best-case scenario (elimination of thread divergence by choice of identical initial conditions).
 
 Various studies in recent years explored the use of high-performance SIMD devices to accelerate (turbulent) reactive-flow simulations.
-Spafford et al.~\cite{Spafford:2010aa} investigated GPUs for accelerating a direct numerical simulation code for turbulent combustion, demonstrating a sub-order of magnitude speedup in evaluating the species production rates on the GPU.
-Shi et al.~\cite{Shi:2011aa} used a GPU to evaluate species rates and factorize the Jacobian for the integration of (single) independent kinetics systems, showing order-of-magnitude or greater speedups for large kinetic models.
-Niemeyer et al.~\cite{Niemeyer:2011aa} implemented an explicit fourth-order Runge--Kutta integrator for the GPU, and found a speedup of nearly two orders of magnitude with a nonstiff hydrogen model.
+Spafford et al.~\cite{Spafford:2010aa} investigated GPUs for accelerating a direct numerical simulation code for turbulent combustion, demonstrating a sub-order of magnitude speedup in evaluating the species production rates on the GPU, as compared to a highly optimized message-passing-interface-based CPU code.
+Shi et al.~\cite{Shi:2011aa} used a GPU to evaluate species rates and factorize the Jacobian for the integration of (single) independent kinetics systems, showing order-of-magnitude or greater speedups for large kinetic models over a CPU-based code which utilized standard \texttt{CHEMKIN}~\cite{kee1989chemkin} and LAPACK~\cite{Anderson:1999aa} libraries for the same operations.
+Niemeyer et al.~\cite{Niemeyer:2011aa} implemented an explicit fourth-order Runge--Kutta integrator for the GPU, and found a speedup of nearly two orders of magnitude with a nonstiff hydrogen model when comparing to the CPU counterpart.
 In a related work, Shi et al.~\cite{Shi:2012aa} developed a GPU-based stabilized explicit solver and paired it with a CPU-based implicit solver that handled integration of the most-stiff chemistry cells in a three-dimensional premixed diesel engine simulation, demonstrating an overall speedup of two to three times.
 Le et al.~\cite{Le2013596} implemented GPU versions of two high-order shock-capturing reactive-flow codes, and found a \numrange{30}{50}$\times$ speedup over the baseline single-core CPU version.
 Stone and Davis~\cite{Stone:2013aa} implemented the implicit VODE~\cite{Brown:1989vl} solver for the GPU and achieved an order of magnitude speedup over the baseline CPU version.
 They also showed that GPU-based VODE exhibits significant thread divergence, as expected due to its complicated program flow compared with an explicit integration scheme.
 Furthermore, Stone and Davis~\cite{Stone:2013aa} found that a per-thread implementation outperforms a per-block version of the same algorithm for $\sim$\num{e4} independent ODEs or more; the per-block implementation reached its maximum speedup for a smaller number of ODEs ($\sim$\num{e3}).
 Niemeyer and Sung~\cite{Niemeyer:2014aa} demonstrated an order-of-magnitude speedup for a GPU implementation of a stabilized explicit second-order Runge--Kutta--Chebyshev algorithm over a multicore CPU implementation of VODE for moderately stiff chemical kinetics.
-They also investigated levels of thread divergence due to differing integrator time-step sizes, and found it negatively impacts overall performance for dissimilar ODE initial conditions in a thread-block.
+They also investigated levels of thread divergence due to differing integrator time-step sizes, and found that it negatively impacts overall performance for dissimilar ODE initial conditions in a thread-block.
 Sewerin and Rigopoulos~\cite{Sewerin20151375} implemented a three-stage\slash fifth-order implicit Runge--Kutta GPU method~\cite{wanner1991solving} on a per-block basis, and found a \num{1.8}$\times$ slowdown at best compared with the same on an eight-core CPU.
 
 While increasing numbers of studies have explored GPU-based chemical kinetics integration, there remains a clear need to find or develop integration algorithms simultaneously suited for the SIMD parallelism of GPUs (along with similar accelerators) and capable of handling stiffness.
@@ -182,11 +182,12 @@ These methods do not require direct factorization of the Jacobian, but instead u
 Furthermore, Hochbruck and Lubich~\cite{Hochbruck:1997} demonstrated that the action of the matrix exponential on a vector obtained using Krylov subspace approximation converges faster than corresponding Krylov methods for the solution of linear equations.
 Others explored these explicit exponential methods for applications in stiff chemical systems~\cite{Bisetti:2012jw,falati2011integration} and found them stable for time-step sizes greatly exceeding the typical explicit stability bounds.
 The explicit nature of these algorithms makes them potentially better suited for SIMD acceleration due to an expected reduction of thread divergence (for a per-thread implementation) compared with implicit methods.
+Since this premise has not been demonstrated in the literature, we aim to conduct a systematic investigation to test and compare their performance.
 Finally, we will study the three-stage\slash fifth-order implicit Runge--Kutta algorithm~\cite{wanner1991solving} investigated by Sewerin and Rigopoulos~\cite{Sewerin20151375} here to determine the impact of increasing chemical stiffness on the algorithm and the performance benefits of using an analytical Jacobian matrix, such as that developed by Niemeyer et al.~\cite{niemeyer_2016_51139,Niemeyer:2015ws,Niemeyer:2016aa}.
 
 The rest of the paper is structured as follows.
 Section~\ref{S:method} lays out the methods and implementation details of the algorithms used here.
-Subsequently, Section~\ref{S:results} presents and discusses the performance of the algorithms run using a database of partially stirred reactor thermochemical states, with particular focus on the effects of thread divergence and memory traffic.
+Subsequently, Sec.~\ref{S:results} presents and discusses the performance of the algorithms run using a database of partially stirred reactor thermochemical states, with particular focus on the effects of thread divergence and memory traffic.
 Further, this work is a starting point to reduce the cost of reactive-flow simulations with realistic chemistry via SIMD-accelerated chemical kinetic evaluation.
 Thus, we explore the potential impact of current state-of-the-art GPU-accelerated stiff chemical kinetic evaluation on large-scale reactive-flow simulations in Sec.~\ref{S:results}, while identifying the most promising future directions for GPU\slash SIMD accelerated chemical kinetic integration in Sec.~\ref{S:conclusions}.
 Finally, \ref{S:supp} and \ref{S:raw} present supplementary data including \LaTeX\ source files, validation and performance data, plotting scripts, and unscaled plots of integrator runtimes.
@@ -229,12 +230,12 @@ Finally, the adaptive time stepping procedures of all integrators used absolute 
 \label{S:pasr_conditions}
 
 In order to measure the performance of the integrators for realistic conditions, a database of thermochemical states covering a wide range of temperatures and species mass fractions was generated using a previously developed constant-pressure stochastic partially stirred reactor (PaSR) code~\cite{Niemeyer:2016aa,niemeyer_2016_51139}.
-We selected two chemical kinetic models to span the range of model sizes typically used in high-fidelity simulations: the \ce{H2}\slash\ce{CO} model of Burke et al.~\cite{Burke:2011fh} with 13 species and 27 reactions, and the GRI-Mech 3.0 model with 53 species and 325 reactions~\cite{smith_gri-mech_30}.
+We selected two chemical kinetic models to span the range of model sizes typically used in high-fidelity simulations: the hydrogen model of Burke et al.~\cite{Burke:2011fh} with 13 species and 27 reactions, and the GRI-Mech 3.0 model for methane with 53 species and 325 reactions~\cite{smith_gri-mech_30}.
 The PaSR simulations were performed at the conditions listed in Table~\ref{T:pasr_parameters} for 10 residence times to reach a statistical steady state; Niemeyer et al.~\cite{Niemeyer:2016aa} describe the PaSR simulation process in greater detail, which follows approaches used by others~\cite{Chen:1997ta,Pope:1997wu,Ren:2014cd}.
 The PaSR particles were initialized using the equilibrium state, and gradually move away from equilibrium conditions due to mixing, inflow, and outflow.
 In order to reduce the influence of equilibrium conditions on the solution runtime trends for small numbers of ODEs, the first \num{1000} datapoints were removed from each database; this corresponds to a single pairing time, $\tau_\text{pair}$, the time interval at which selected particles in the reactor are randomly swapped with inflowing particles.
 At this point in the simulation, $\sim\SI{80}{\percent}$ of the particles were at or near an equilibrium state, and by the \num{5000}th datapoint only $\sim\SI{20}{\percent}$ of the particles were near equilibrium.
-The \ce{H2}\slash\ce{CO} and GRI-Mech 3.0 databases consisted of \num{899900} and \num{449900} total conditions, respectively.
+The hydrogen and GRI-Mech 3.0 databases consisted of \num{899900} and \num{449900} total conditions, respectively.
 
 \begin{table}[htb]
 \centering
@@ -252,7 +253,7 @@ $\tau_{\text{pair}}$ & \SI{1}{\milli\second} & \SI{1}{\milli\second} \\
 \bottomrule
 \end{tabular}
 \caption{
-PaSR parameters used for hydrogen\slash air and methane\slash air premixed combustion cases, where $\phi$ indicates equivalence ratio, $T_{\text{in}}$ is the temperature of the inflowing particles, $p$ is the pressure, $N_p$ is the number of particles, $\tau_{\text{res}}$ is the residence time, $\tau_{\text{mix}}$ is the mixing time, and $\tau_{\text{pair}}$ is the pairing time.
+PaSR parameters used for hydrogen\slash air and methane\slash air premixed combustion cases, where $\phi$ indicates equivalence ratio, $T_{\text{in}}$ is the temperature of the inflowing particles, $p$ is the pressure, $N_p$ is the number of particles in the reactor, $\tau_{\text{res}}$ is the residence time, $\tau_{\text{mix}}$ is the mixing time, and $\tau_{\text{pair}}$ is the pairing time.
 }
 \label{T:pasr_parameters}
 \end{table}
@@ -313,17 +314,17 @@ PaSR parameters used for hydrogen\slash air and methane\slash air premixed combu
 \begin{figure}[htb]
   \centering
   \includegraphics[width=0.7\linewidth]{c_nco_nosmem_error.pdf}
-  \caption{Maximum error of the various CPU solvers as a function of the total number of integration steps taken (corresponding to decreasing time-step size).
+  \caption{Maximum error of the various CPU solvers as a function of the total number of internal integration steps taken (corresponding to decreasing time-step size).
   Larger square and circle symbols indicate the use of Krylov subspace approximations with the exponential methods, while the smaller symbols indicate the use of ``exact'' Krylov subspaces.}
   \label{F:convergence}
  \end{figure}
 
-To investigate the correctness of the developed solvers, the first \num{10000} conditions in the \ce{H2}\slash\ce{CO} database were integrated by each solver using a global time-step size of \SI{e-6}{\second}.
+To investigate the correctness of the developed solvers, the first \num{10000} conditions in the hydrogen database were integrated by each solver using a global time-step size of \SI{e-6}{\second}.
 The error for condition $i$ was then determined using the weighted root-mean-square error
 \begin{equation}
  E_i(t) = \left\lVert\frac{y_i(t) - \hat{y}_i(t)}{\text{atol} + \hat{y}_i(t) \times \text{rtol}}\right\rVert_2 \;,
 \end{equation}
-where the $y_i(t)$ is the solution obtained from the various solvers, atol\slash rtol are the absolute\slash relative tolerances, and $\hat{y}_i(t)$ is the ``true'' solution obtained via \texttt{CVODE} using an internal time-step of $\delta t = \SI{e-10}{\second}$ and absolute\slash relative tolerances of \num{e-20} and \num{e-15}, respectively.
+where the $y_i(t)$ is the solution obtained from the various solvers, atol\slash rtol are the absolute\slash relative tolerances, and $\hat{y}_i(t)$ is the ``true'' solution obtained via \texttt{CVODE} using an internal time-step of $\delta t = \SI{e-10}{\second}$ and absolute\slash relative tolerances of \num{e-20} and \num{e-15}, respectively; note that the more stringent tolerances were used only to obtain the ``true'' solution.
 The maximum error over all conditions:
 \begin{equation}
  \left\lvert\textbf{E}\right\rvert = \max_{i= 1, \dots, \num{10000}}\{E_i(t)\}
@@ -332,8 +333,8 @@ was then used to measure the error of each solver.
 The error measurement used the same tolerances as for the performance testing ($\text{atol} = \num{e-10}$ and $\text{rtol} = \num{e-6}$, respectively).
 The constant internal time-step size was then varied from \SIrange{e-6}{e-11}{\second}---corresponding to \numrange[retain-zero-exponent]{e0}{e5} internal integration steps---to measure the convergence rates of the various solvers.
 
-Figure~\ref{F:convergence} shows the convergence of error for the CPU solvers with decreasing time-step size, shown as increasing number of integration steps taken.
-The error of the \texttt{Radau-IIA} integrator drops nearly four orders of magnitude when changing from a single internal time step of \SI{e-6}{\second} to ten internal time steps of \SI{e-7}{\second}, i.e., fourth-order convergence.
+Figure~\ref{F:convergence} shows the convergence of error for the CPU solvers with decreasing internal time-step size, shown as increasing number of integration steps taken.
+The error of the \texttt{Radau-IIA} integrator drops nearly four orders of magnitude when changing from a single internal time step of \SI{e-6}{\second} to ten internal time steps of \SI{e-7}{\second} each, i.e., fourth-order convergence.
 Increasing the number of integration steps---by further reducing the internal time-step size---past this point does not reduce error further, due to numerical precision effects; this likely causes the apparent order reduction of the \texttt{Radau-IIA} solver, which is nominally fifth order.
 The exponential solvers utilizing an approximate Krylov subspace exhibit larger levels of error in general, with $\left\lvert\textbf{E}\right\rvert \sim \mathcal{O}(1)\text{--}\mathcal{O}(10)$ for a single internal integration step of $\delta t = \SI{e-6}{\second}$.
 As the time-step size is decreased, the convergence of the Arnoldi algorithm is affected by the internal integration time-step size (the matrix exponentials and error estimates are scaled by the internal time-step).
@@ -353,7 +354,7 @@ Additionally, although not shown, the GPU solvers produce identical results.
 \label{S:results}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-We studied the performance of the three integrators by testing each on the PaSR conditions described in Section~\ref{S:pasr_conditions} for two different global integration time-step sizes: $\delta t = \SI{e-6}{\s}$ and $\delta t = \SI{e-4}{\s}$.
+We studied the performance of the three integrators by testing each on the PaSR conditions described in Sec.~\ref{S:pasr_conditions} for two different global integration time-step sizes: $\Delta t = \SI{e-6}{\s}$ and $\Delta t = \SI{e-4}{\s}$.
 Using a larger global time step induces additional stiffness and allows evaluation of the performance of the developed solvers on the same chemical kinetic model with varying levels of stiffness.
 In reactive-flow simulations, the chemical integration time-step is typically determined by the flow time-scale and stability requirements determined by the Courant--Friedrichs--Lewy number; typical time-step values range from \SIrange{e-6}{e-1}{\s}~\cite{Yang:2013ip}.
 Although the time-step size used in a given simulation depends highly on the problem and numerical methods, large-eddy simulations usually require higher time resolution than Reynolds-averaged Navier--Stokes simulations~\cite{Iaccarino:2003147}.
@@ -366,7 +367,7 @@ Reported runtimes for the GPU-based algorithms include time needed for CPU--GPU 
 The open-source \texttt{pyJac} software~\cite{niemeyer_2016_51139,Niemeyer:2015ws,Niemeyer:2016aa} produced CPU and GPU custom source-code functions for the chemical source terms and analytical Jacobian matrix evaluation.
 Finally, the L1\slash shared-memory cache was set to prefer a larger L1 cache using the \texttt{cudaDeviceSetCacheConfig()} function.
 
-\subsection{Performance}
+\subsection{Runtime performance}
 \label{S:perf}
 
 For all cases in this section, the integrator runtimes are presented as the runtime per ODE solved, for two reasons.
@@ -377,74 +378,74 @@ The presentation of the performance data in raw form is also available in \ref{S
   \centering
   \begin{subfigure}{0.49\textwidth}
       \includegraphics[width=\linewidth]{H2_1e-06_cpu.pdf}
-      \caption{CPU performance for $\delta t = \SI{e-6}{\second}$}
+      \caption{CPU performance results for $\Delta t = \SI{e-6}{\second}$}
       \label{F:h2_cpu_perf_small}
   \end{subfigure}
   %\hfill
   \begin{subfigure}{0.49\textwidth}
       \includegraphics[width=\linewidth]{H2_1e-04_cpu.pdf}
-      \caption{CPU performance for $\delta t = \SI{e-4}{\second}$}
+      \caption{CPU performance results for $\Delta t = \SI{e-4}{\second}$}
       \label{F:h2_cpu_perf_large}
   \end{subfigure}\\
   \begin{subfigure}{0.49\textwidth}
       \includegraphics[width=\linewidth]{H2_1e-06_gpu.pdf}
-      \caption{GPU performance results for $\delta t = \SI{e-6}{\second}$}
+      \caption{GPU performance results for $\Delta t = \SI{e-6}{\second}$}
       \label{F:h2_gpu_perf_small}
   \end{subfigure}
   %\hfill
   \begin{subfigure}{0.49\textwidth}
       \includegraphics[width=\linewidth]{H2_1e-04_gpu.pdf}
-      \caption{GPU performance results for $\delta t = \SI{e-4}{\second}$}
+      \caption{GPU performance results for $\Delta t = \SI{e-4}{\second}$}
       \label{F:h2_gpu_perf_large}
   \end{subfigure}
-  \caption{Average runtimes of the integrators on the CPU and GPU, scaled by the number of ODEs, for the \ce{H2}\slash\ce{CO} model at two different global time-step sizes.
+  \caption{Average runtimes of the integrators on the CPU and GPU, scaled by the number of ODEs, for the hydrogen model at two different global time-step sizes.
   Estimation of where the runtime per ODE reaches a constant value (based on the results for \texttt{CVODE}\slash\texttt{Radau-IIA} for the CPU\slash GPU respectively) is marked in with a vertical line for all cases.
   Error bars indicate standard deviation.}
   \label{F:H2_perf}
 \end{figure}
 
-Figure~\ref{F:H2_perf} shows the runtimes of the CPU and GPU integrators for the \ce{H2}\slash\ce{CO} model.
-In Fig.~\ref{F:h2_cpu_perf_small} the runtimes per ODE for the CPU integrators for a single global time-step of $\delta t= \SI{e-6}{\second}$ decrease approximately linearly with the number of ODEs for small numbers of initial conditions (shown here on a log-log plot).
-For small numbers of ODEs, the exponential integrators are faster than the implicit integration techniques due to the modest stiffness of the \ce{H2}\slash\ce{CO} model; even with many near-equilibrium states removed from the beginning of the PaSR database, the model is not particularly stiff for this small time-step size.
+Figure~\ref{F:H2_perf} shows the runtimes of the CPU and GPU integrators for the hydrogen model.
+In Fig.~\ref{F:h2_cpu_perf_small} the runtimes per ODE for the CPU integrators for a single global time-step of $\Delta t= \SI{e-6}{\second}$ decrease approximately linearly with the number of ODEs for small numbers of initial conditions (shown here on a log-log plot).
+For small numbers of ODEs, the exponential integrators are faster than the implicit integration techniques due to the modest stiffness of the hydrogen; even with many near-equilibrium states removed from the beginning of the PaSR database, the model is not particularly stiff for this small time-step size.
 Larger numbers of ODEs begin to saturate the CPU resources, and the runtime per ODE levels off to a more constant value.
 Eventually, relatively more stiff conditions are encountered and the performance of the implicit integration techniques catches up and then surpasses that of the exponential integrators; \texttt{CVODE} is the most efficient solver on the CPU when solving more than \num{e4} ODEs; however, \texttt{CVODE} is only $\sim$\num{1.87}$\times$ faster than the slowest solver (\texttt{exprb43}) on the whole database.
-Figure~\ref{F:h2_gpu_perf_small} shows the performance of the GPU integrators for the smaller global time-step size, which exhibit similar trends as the CPU solvers: a linearly decreasing solution cost that reaches a roughly constant value beyond \numrange{e3}{e4} ODEs.
+Figure~\ref{F:h2_gpu_perf_small} shows the performances of the GPU integrators for the smaller global time-step size, which exhibit similar trends as the CPU solvers: a linearly decreasing solution cost that reaches a roughly constant value beyond \numrange{e3}{e4} ODEs.
 Unlike for the CPU solvers, the GPU-based \texttt{Radau-IIA} performs faster than the exponential solvers for all numbers of ODEs.
-As will be seen in Section~\ref{S:divergence}, both solver classes experience minimal thread divergence due to differing internal integration time-step size in this case.
+As will be seen in Sec.~\ref{S:divergence}, both solver classes experience minimal thread divergence due to differing internal integration time-step size in this case.
 Therefore, we conclude that the relatively slower runtimes per ODE for the exponential algorithms on the GPU results from thread divergence in the Arnoldi iteration---caused by varying Krylov subspace sizes between threads.
 
-Figures~\ref{F:h2_cpu_perf_large} and \ref{F:h2_gpu_perf_large} show the performance of the integration algorithms on both platforms for the \ce{H2}\slash\ce{CO} model with a single larger global time step ($\delta t=\SI{e-4}{\second}$).
+Figures~\ref{F:h2_cpu_perf_large} and \ref{F:h2_gpu_perf_large} show the performance of the integration algorithms on both platforms for the hydrogen model with a single larger global time step ($\Delta t=\SI{e-4}{\second}$).
 The performances of the CPU integration algorithms show similar trends to those of the smaller time-step size case: decreasing cost per ODE before reaching a more constant performance for higher numbers of ODEs.
 The larger time-step size induces additional stiffness, and the implicit solvers are more efficient for most numbers of ODEs; \texttt{CVODE} is again the most efficient CPU solver.
-Fig.~\ref{F:h2_gpu_perf_large} shows the performance of the GPU solvers for the larger global time-step size.
+Figure~\ref{F:h2_gpu_perf_large} shows the performance of the GPU solvers for the larger global time-step size.
 The exponential solvers exhibit significant spikes in computational cost when changing from 2--4 and 16--32 ODEs, with the latter mimicked somewhat by the implicit \texttt{Radau-IIA} solver.
 A jump in solution cost between 2--4 ODEs is also present for the CPU exponential integrators, indicating chemical stiffness as the primary cause.
 On the other hand, between 16--32 ODEs the CPU exponential solvers exhibit only a very minor performance decrease, while the GPU-based \texttt{Radau-IIA} also shows a decrease in performance at the same point---a trend completely absent in the CPU \texttt{Radau-IIA} version.
-These factors indicate that thread divergence also plays a key role in the performance trend here, and will be investigated further in Section~\ref{S:divergence}.
+These factors indicate that thread divergence also plays a key role in the performance trend here, and will be investigated further in Sec.~\ref{S:divergence}.
 As in case of the smaller global time-step size, the \texttt{Radua-IIA} solver is the most efficient GPU algorithm in all cases.
 
 \begin{figure}[htbp]
   \centering
   \begin{subfigure}{0.49\textwidth}
       \includegraphics[width=\linewidth]{CH4_1e-06_cpu.pdf}
-      \caption{CPU performance for $\delta t = \SI{e-6}{\second}$}
+      \caption{CPU performance results for $\Delta t = \SI{e-6}{\second}$}
       \label{F:ch4_cpu_perf_small}
   \end{subfigure}
   %\hfill
   \begin{subfigure}{0.49\textwidth}
       \includegraphics[width=\linewidth]{CH4_1e-04_cpu.pdf}
-      \caption{CPU performance for $\delta t = \SI{e-4}{\second}$}
+      \caption{CPU performance results for $\Delta t = \SI{e-4}{\second}$}
       \label{F:ch4_cpu_perf_large}
   \end{subfigure}\\
   \begin{subfigure}{0.49\textwidth}
       \includegraphics[width=\linewidth]{CH4_1e-06_gpu.pdf}
-      \caption{GPU performance results for $\delta t = \SI{e-6}{\second}$}
+      \caption{GPU performance results for $\Delta t = \SI{e-6}{\second}$}
       \label{F:ch4_gpu_perf_small}
   \end{subfigure}
   %\hfill
   \begin{subfigure}{0.49\textwidth}
       \includegraphics[width=\linewidth]{CH4_1e-04_gpu.pdf}
-      \caption{GPU performance results for $\delta t = \SI{e-4}{\second}$}
+      \caption{GPU performance results for $\Delta t = \SI{e-4}{\second}$}
       \label{F:ch4_gpu_perf_large}
   \end{subfigure}
   \caption{Average runtimes of the integrators, scaled by number of ODEs, on the CPU and GPU for the GRI-Mech 3.0 model at two different global time-step sizes.
@@ -454,18 +455,18 @@ As in case of the smaller global time-step size, the \texttt{Radua-IIA} solver i
 \end{figure}
 
 Figure~\ref{F:CH4_perf} shows the runtime of the integrators for the GRI-Mech 3.0 model.
-Similar to the \ce{H2}\slash\ce{CO} case for the smaller global time-step size, the CPU exponential integrators are more efficient (Fig.~\ref{F:ch4_cpu_perf_small}) for the near-equilibrium conditions at the beginning of the database.
+Similar to the hydrogen case for the smaller global time-step size, the CPU exponential integrators are more efficient (Fig.~\ref{F:ch4_cpu_perf_small}) for the near-equilibrium conditions at the beginning of the database.
 For larger numbers of conditions, the implicit integrators are more efficient, and \texttt{CVODE} again performs the fastest.
-Compared to the \ce{H2}\slash\ce{CO} model (Fig.~\ref{F:h2_cpu_perf_small}), the \texttt{CVODE} performs better than the exponential algorithms for the GRI-Mech 3.0 model with the small global time-step size (Fig.~\ref{F:ch4_cpu_perf_small}), reaching a speedup of \SI{2.18}{$\times$} over \texttt{exp4} on the whole database; this results from the higher stiffness present in the model.
+Compared to the hydrogen model (Fig.~\ref{F:h2_cpu_perf_small}), the \texttt{CVODE} performs better than the exponential algorithms for the GRI-Mech 3.0 model with the small global time-step size (Fig.~\ref{F:ch4_cpu_perf_small}), reaching a speedup of \SI{2.18}{$\times$} over \texttt{exp4} on the whole database; this results from the higher stiffness present in the model.
 This performance gap between the CPU implicit\slash exponential integrators increases for the larger global time-step size (Fig.~\ref{F:ch4_cpu_perf_large}); \texttt{CVODE} is \SI{10.1}{$\times$} faster than \texttt{exp4} on the whole database.
 Comparing the performance of the CPU implicit solvers between the two kinetic models shows roughly an order-of-magnitude performance decrease for both global time-step sizes.
 This phenomena, due largely to the increase in model size, is also seen for the \texttt{Radau-IIA} GPU solver for the smaller global time-step size; the performance of which decreases by just over an order of magnitude.
-However, for the larger global time-step size, the GPU-based \texttt{Radau-IIA} solver performs roughly two orders-of-magnitude slower compared with the \ce{H2}\slash\ce{CO} case.
-As will be examined in Section~\ref{S:divergence}, this dramatic decrease likely results from increased thread divergence in the \texttt{Radau-IIA} solver, as well as the increased memory traffic inherent in the larger model.
+However, for the larger global time-step size, the GPU-based \texttt{Radau-IIA} solver performs roughly two orders-of-magnitude slower compared with the hydrogen case.
+As will be examined in Sec.~\ref{S:divergence}, this dramatic decrease likely results from increased thread divergence in the \texttt{Radau-IIA} solver, as well as the increased memory traffic inherent in the larger model.
 
-Unlike for the \ce{H2}\slash\ce{CO} model, the \texttt{exprb43} solver outperforms \texttt{exp4} with the GRI-Mech 3.0 model in almost all cases for the larger time-step size for both the CPU and GPU.
+Unlike for the hydrogen model, the \texttt{exprb43} solver outperforms \texttt{exp4} with the GRI-Mech 3.0 model in almost all cases for the larger global time-step size for both the CPU and GPU.
 Although the \texttt{exprb43} and \texttt{exp4} algorithms each require three exponential matrix function approximations per step, a single internal time step of \texttt{exprb43} is more expensive due to the extra chemical source term evaluations, matrix multiplications, and higher-order exponential matrix function requirement.
-As such, the relatively simpler CPU \texttt{exp4} integrator outperforms the CPU \texttt{exprb43} integrator for the \ce{H2}\slash\ce{CO} model where there is relatively less chemical stiffness.
+As such, the relatively simpler CPU \texttt{exp4} integrator outperforms the CPU \texttt{exprb43} integrator for the hydrogen model where there is relatively less chemical stiffness.
 However, as previously discussed the \texttt{exp4} algorithm may experience order reduction for stiff problems, and the \texttt{exprb43} algorithm typically outperforms \texttt{exp4} on both the CPU and GPU in the larger global time-step GRI-Mech 3.0 case as a result.
 
 
@@ -485,10 +486,10 @@ Although the runtimes of the GPU integration algorithms can be directly compared
 For instance, if a GPU algorithm performs $\SI{10}{\times}$ faster than its equivalent on two six-core CPUs, how does this compare to two eight-core CPUs, etc.?
 
 For researchers in numerical combustion, two issues stand out as particularly important for performance evaluation: runtime and cost.
-As established in Section~\ref{sec:Intro}, large-scale reactive-flow simulations with realistic chemical kinetic models are extremely computationally expensive, and remain outside of the capabilities of most in the field.
+As established in Sec.~\ref{sec:Intro}, large-scale reactive-flow simulations with realistic chemical kinetic models are extremely computationally expensive, and remain outside of the capabilities of most in the field.
 With this in mind, we ask, for a given simulation, what is the effect on the overall runtime of adding more CPU cores compared with adding GPU accelerators?
 In addition, if a budget is allocated to expand available computational resources, how might these funds be best allocated?
-To answer these questions, we derived a rough estimate of the number of CPU cores required for equivalent performance on the GPU.
+To answer these questions, we derived an estimate of the number of CPU cores required for equivalent performance on the GPU.
 
 A nominal performance metric for both the CPU- and GPU-based integration algorithms must first be obtained.
 As the most efficient solvers in all cases with large numbers of ODEs are \texttt{CVODE} for the CPU and \texttt{Radau-IIA} for the GPU, these algorithms will be considered the performance benchmarks.
@@ -496,11 +497,11 @@ Furthermore, most large-scale simulations consist of millions of cells (or more)
 To this end, Figs.~\ref{F:H2_perf} and \ref{F:CH4_perf} show vertical lines where the relative change in runtime per ODE between successive data-points is first smaller than \SI{15}{\percent} (based on \texttt{CVODE}\slash\texttt{Radau-IIA} for the CPU\slash GPU accordingly).
 The cost per ODE above and including these thresholds was averaged and forms our nominal performance measure.
 The CPU performance measure must also be normalized by the total number of cores used: \num{40}.
-Table~\ref{T:cpu_equiv} presents the ratios of these performance measures, which give rough estimates for the number of CPU cores required to equal the GPU performance for the cases studied.
-The GPU is roughly equivalent to \num{11.7} or more CPU cores for all cases except GRI-Mech 3.0 with the larger time-step size, and equivalent to at most \num{38.3} cores for the \ce{H2}\slash\ce{CO} case with the smaller time-step size.
+Table~\ref{T:cpu_equiv} presents the ratios of these performance measures, which give estimates for the number of CPU cores required to equal the GPU performance for the cases studied.
+The GPU is roughly equivalent to \num{12} or more CPU cores for all cases except GRI-Mech 3.0 with the larger global time-step size, and equivalent to at most \num{38} cores for the hydrogen case with the smaller global time-step size.
 With the increasing size of the chemical kinetic model, the equivalent CPU core count of the GPU \texttt{Radau-IIA} solver drops significantly.
 As will be discussed in Sec.~\ref{S:divergence}, this drop in performance is primarily due to higher memory traffic requirements, however increased levels of thread divergence also play a role.
-Although this work represents the current state-of-the-art for implicit integration of stiff chemical kinetic ODEs on the GPU, it is clear that more effort is required to improve performance for larger chemical kinetic models.
+Although this work represents the current state-of-the-art for implicit integration of stiff chemical kinetic ODEs on the GPU, it is clear that more effort is required to improve GPU performance for larger chemical kinetic models.
 Approaches to mitigate these issues will be discussed in the subsequent section.
 
 \begin{table}[htbp]
@@ -508,10 +509,10 @@ Approaches to mitigate these issues will be discussed in the subsequent section.
 \begin{tabular}{@{}l S[table-format=2.1] S[table-format=2.1] @{}}
 \toprule
 \multirow{2}{*}{Global time-step size} & \multicolumn{2}{c}{\# equivalent CPU cores} \\ \cmidrule{2-3}
- & \ce{H2}\slash\ce{CO} & {GRI-Mech 3.0} \\
+ & {Hydrogen} & {GRI-Mech 3.0} \\
 \midrule
-\SI{e-6}{\second} & 38.3 & 11.7 \\
-\SI{e-4}{\second} & 14.7 & 3.0 \\
+\SI{e-6}{\second} & 38 & 12 \\
+\SI{e-4}{\second} & 15 & 3 \\
 \bottomrule
 \end{tabular}
 \caption{The number of CPU cores (roughly) required for equivalent performance to a single GPU for the combinations of chemical kinetic models and global time-step sizes studied.}
@@ -547,16 +548,16 @@ $D$ represents the similarity of internal time step counts across threads in a w
 If all threads in a warp use identical internal integration time steps and thus the warp experiences no thread divergence from this source, then $D = 0$; however, if a warp experiences an unbalanced number of internal integration time steps, then $D \to 1$.
 Differing internal time-step sizes are not the only source of thread divergence for the GPU integration algorithms.
 For instance, threads in a warp may use different Krylov subspace sizes for the exponential integrators or different numbers of Newton iterations for the \texttt{Radau-IIA} solver.
-Indeed, Section~\ref{S:perf} notes that we suspect thread divergence from differing Krylov subspace sizes as the reason the exponential solvers are less efficient for small numbers of ODEs for the \ce{H2}\slash\ce{CO} model with the small global time-step size.
+Indeed, Sec.~\ref{S:perf} notes that we suspect thread divergence from differing Krylov subspace sizes as the reason the exponential solvers are less efficient for small numbers of ODEs for the hydrogen model with the small global time-step size.
 However, these operations clearly cost less than an entire internal integration step (in which they are embedded) and thus we look only at the thread divergence of internal integration time steps.
-Thread divergence of such operations within a internal integration step could play an important role and will be investigated in our future work.
+Thread divergence of such operations within an internal integration step could play an important role and will be investigated in our future work.
 
 
 \begin{figure}[htbp]
   \centering
   \begin{subfigure}{0.49\textwidth}
       \includegraphics[width=\linewidth]{H2_radau2a_div.pdf}
-      \caption{\texttt{Radau-IIA} solver for \ce{H2}\slash\ce{CO} model}
+      \caption{\texttt{Radau-IIA} solver for hydrogen model}
       \label{F:Rad_div_h2}
   \end{subfigure}
   %\hfill
@@ -568,7 +569,7 @@ Thread divergence of such operations within a internal integration step could pl
   \\
   \begin{subfigure}{0.49\textwidth}
       \includegraphics[width=\linewidth]{H2_exprb43_div.pdf}
-      \caption{\texttt{exprb43} solver for \ce{H2}\slash\ce{CO} model}
+      \caption{\texttt{exprb43} solver for hydrogen model}
       \label{F:exprb43_div_h2}
   \end{subfigure}
   %\hfill
@@ -580,7 +581,7 @@ Thread divergence of such operations within a internal integration step could pl
   \\
   \begin{subfigure}{0.49\textwidth}
       \includegraphics[width=\linewidth]{H2_exp4_div.pdf}
-      \caption{\texttt{exp4} solver \ce{H2}\slash\ce{CO} model}
+      \caption{\texttt{exp4} solver hydrogen model}
       \label{F:exp4_div_h2}
   \end{subfigure}
   %\hfill
@@ -589,30 +590,30 @@ Thread divergence of such operations within a internal integration step could pl
       \caption{\texttt{exp4} solver GRI-Mech 3.0 model}
       \label{F:exp4_div_ch4}
   \end{subfigure}
-  \caption{Thread divergence estimate for the various solvers for both models and time-step sizes.}
+  \caption{Thread divergence estimate for the various solvers for both models and global time-step sizes.}
   \label{F:divergence}
 \end{figure}
 
 Figures~\ref{F:Rad_div_h2} and~\ref{F:Rad_div_gri} show the distribution of the divergence measure $D$ for the \texttt{Radau-IIA} solver with both global time-step sizes and kinetic models when run on \num{262144} ODEs, spread across \num{8192} warps.
-For both kinetic models with the small global time-step size, nearly \SI{100}{\percent} of the warps had a divergence measure near zero.
+For both kinetic models with the smaller global time-step size, nearly \SI{100}{\percent} of the warps had a divergence measure near zero.
 Increasing the global time-step size causes the number of warps with high levels of thread divergence (e.g. $D > 0.5$) to increase for both models.
-For the \ce{H2}\slash\ce{CO} model, over \SI{40}{\percent} of warps were between $D=0.55$ and $D=0.65$, and the approximate equivalent CPU core-count (Table~\ref{T:cpu_equiv}) dropped by \SI{2.5}{$\times$} between the small and large global time-step sizes.
+For the hydrogen model, over \SI{40}{\percent} of warps were between $D=0.55$ and $D=0.65$, and the approximate equivalent CPU core-count (Table~\ref{T:cpu_equiv}) dropped by \SI{2.5}{$\times$} between the small and large global time-step sizes.
 Further, over \SI{75}{\percent} of warps were between $D=0.6$ and $D=0.8$ for the GRI-Mech 3.0 model for the larger global time-step size, and subsequently a higher drop in performance of \SI{4}{$\times$} occured.
 This observation motivates future work aimed at developing strategies to reduce thread divergence.
 Potential solutions include adopting an ODE per-block approach~\cite{Stone:2013aa}, reordering ODEs to increase similarity of stiffness inside a warp, or synchronizing internal time-step sizes between threads in a warp.
-However, Figs.~\ref{F:Rad_div_h2} and \ref{F:Rad_div_gri} do not explain the drop in equivalent core count between the \ce{H2}\slash\ce{CO} model and the GRI-Mech 3.0 model for the smaller global time-step size.
-The minimal thread divergence of the \texttt{Radau-IIA} solver for both models at the smaller global time-step size suggests that this drop in performance is primarily caused by the increased memory traffic of the larger model, as well potential thread divergence inside the internal integration step; this further motivates development of a sparse version of the \texttt{pyJac} software.
+However, Figs.~\ref{F:Rad_div_h2} and \ref{F:Rad_div_gri} do not explain the drop in equivalent core count between the hydrogen model and the GRI-Mech 3.0 model for the smaller global time-step size.
+The minimal thread divergence of the \texttt{Radau-IIA} solver for both models at the smaller global time-step size suggests that this drop in performance is primarily caused by the increased memory traffic of the larger model, as well potential thread divergence inside the internal integration step; this further motivates development of a sparse version of the \texttt{pyJac}~\cite{niemeyer_2016_51139,Niemeyer:2016aa} software.
 
 Figures~\ref{F:exprb43_div_h2} and \ref{F:exprb43_div_ch4} show the divergence levels of the \texttt{exprb43} GPU solver.
-Similar to the \texttt{Radau-IIA} solver, nearly \SI{100}{\percent} of warps for the \texttt{exprb43} solver have no thread divergence due to differing internal integration step sizes for the \ce{H2}\slash\ce{CO} model.
-The \texttt{exprb43} thread divergence levels increase somewhat for the GRI-Mech 3.0 model with the smaller time-step size; \SI{27}{\percent} of warps still had a divergence measure of $D=0$, but nearly \SI{63}{\percent} of the warps had divergence measures between \numrange{0.05}{0.2}.
+Similar to the \texttt{Radau-IIA} solver, nearly \SI{100}{\percent} of warps for the \texttt{exprb43} solver have no thread divergence due to differing internal integration step sizes for the hydrogen model.
+The \texttt{exprb43} thread divergence levels increase somewhat for the GRI-Mech 3.0 model with the smaller time-step size; \SI{27}{\percent} of warps still had a divergence measure of $D=0$, but nearly \SI{63}{\percent} of the warps had divergence measures between $D=0.05$ and $D=0.2$.
 With the larger time-step size, the \texttt{exprb43} solver experiences significantly more thread divergence for both models.
-The divergence measure distribution is fairly similar to that of the \texttt{Radau-IIA} solver for the GRI-Mech 3.0 model, but most warps experience a divergence measure of $D \sim 0.8$ for the \ce{H2}\slash\ce{CO} model (versus $D \sim 0.6$ for the \texttt{Radau-IIA} solver).
+The divergence measure distribution is fairly similar to that of the \texttt{Radau-IIA} solver for the GRI-Mech 3.0 model, but most warps experience a divergence measure of $D \sim 0.8$ for the hydrogen model (versus $D \sim 0.6$ for the \texttt{Radau-IIA} solver).
 The explicit solvers deal with stiffness less efficiently, and end up using a greater range of internal time-step sizes between conditions of varying stiffness.
 This results in an increase in thread divergence levels due to differing internal time-step sizes.
 
-The relatively worse stiffness handling of the \texttt{exp4} method is also apparent in Figs~\ref{F:exp4_div_h2} and \ref{F:exp4_div_ch4}; in most cases, significantly more thread divergence is seen for \texttt{exp4} than for either of the other solvers.
-The \texttt{exp4} algorithm is the only solver to show significant thread divergence even for the \ce{H2}\slash\ce{CO} model for the smaller global time-step size.
+The relatively worse stiffness handling of the \texttt{exp4} method is also apparent in Figs.~\ref{F:exp4_div_h2} and \ref{F:exp4_div_ch4}; in most cases, significantly more thread divergence is seen for \texttt{exp4} than for either of the other solvers.
+The \texttt{exp4} algorithm is the only solver to show significant thread divergence even for the hydrogen model for the smaller global time-step size.
 Further, the \texttt{exp4} algorithm experiences more thread divergence than the \texttt{exprb43} for both models at the larger global time-step size.
 
 \subsection{Effect of using a finite-difference-based chemical kinetic Jacobian}
@@ -624,12 +625,12 @@ In this section, we explore the relative performance benefits of the analytical 
 The exponential methods require an exact Jacobian matrix (rather than an approximation as given by finite-difference methods), so their performance was not considered in this section.
 
 Figure~\ref{F:AJ_comp} shows the speedup achieved on both the CPU and GPU for the \texttt{Radau-IIA} algorithm for various cases; the GRI-Mech 3.0 results for the larger global time-step have been omitted due to long run times.
-For the \ce{H2}\slash\ce{CO} model (Figs.~\ref{F:AJ_h2_small} and~\ref{F:AJ_h2_large}), using the analytical Jacobian offers minimal performance benefit for the CPU-based integrators, reaching a maximum speedup of \SI{1.49}{$\times$} and \SI{1.39}{$\times$} for the small and large global time-step sizes, respectively.
+For the hydrogen model (Figs.~\ref{F:AJ_h2_small} and~\ref{F:AJ_h2_large}), using the analytical Jacobian offers minimal performance benefit for the CPU-based integrators, reaching a maximum speedup of \SI{1.49}{$\times$} and \SI{1.39}{$\times$} for the small and large global time-step sizes, respectively.
 This results from both the relatively small size of the model (and resulting modest chemical source-term evaluation costs), as well as the lower chemical stiffness that requires only a few Jacobian evaluations for the \texttt{Radau-IIA} solver.
 In some cases the finite-difference Jacobian solver may be faster than the analytical Jacobian solver; although it is difficult to explain the exact cause of this phenomena, differences in the finite-difference Jacobian likely caused the integrator to follow a slightly different instruction path (e.g., with fewer Jacobian updates\slash chemical source term evaluations) changing the integration cost.
 However, for large numbers of conditions, the analytical-Jacobian-based CPU solver indeed performs faster than the finite-difference counterpart.
-In contrast, the analytical-Jacobian-based GPU solver performs significantly faster than the finite-difference GPU solver in all cases for the \ce{H2}\slash\ce{CO} model, reaching a maximum speedup of \SI{12.16}{$\times$} for the smaller global time-step size.
-As discussed in Section~\ref{S:divergence}, significantly higher levels of thread divergence are expected for the larger global time-step size.
+In contrast, the analytical-Jacobian-based GPU solver performs significantly faster than the finite-difference GPU solver in all cases for the hydrogen model, reaching a maximum speedup of \SI{12.16}{$\times$} for the smaller global time-step size.
+As discussed in Sec.~\ref{S:divergence}, significantly higher levels of thread divergence are expected for the larger global time-step size.
 Correspondingly, the maximum speedup of the GPU solver increases to \SI{240.96}{$\times$} for the larger global time-step size.
 Figure~\ref{F:AJ_ch4_small} shows that the speedup of the CPU and GPU solvers reach \SI{2.61}{$\times$} and \SI{7.11}{$\times$}, respectively, for the larger GRI-Mech 3.0 model at the smaller global time-step size.
 It is clear that for a per-thread-based GPU integrator, using an analytical Jacobian is essential for efficient integration due to thread-divergence concerns.
@@ -638,19 +639,19 @@ It is clear that for a per-thread-based GPU integrator, using an analytical Jaco
   \centering
   \begin{subfigure}{0.49\textwidth}
       \includegraphics[width=\linewidth]{H2_1e-06_ajac_comp.pdf}
-      \caption{\ce{H2}\slash\ce{CO} model with $\delta t = \SI{1e-6}{\second}$}   
+      \caption{Hydrogen model with $\Delta t = \SI{1e-6}{\second}$}   
       \label{F:AJ_h2_small}
   \end{subfigure}
   %\hfill
   \begin{subfigure}{0.49\textwidth}
       \includegraphics[width=\linewidth]{H2_1e-04_ajac_comp.pdf}
-      \caption{\ce{H2}\slash\ce{CO} model with $\delta t = \SI{1e-4}{\second}$}
+      \caption{Hydrogen model with $\Delta t = \SI{1e-4}{\second}$}
       \label{F:AJ_h2_large}
   \end{subfigure}
   \\
   \begin{subfigure}{0.49\textwidth}
       \includegraphics[width=\linewidth]{CH4_1e-06_ajac_comp.pdf}
-      \caption{GRI-Mech 3.0 model with $\delta t = \SI{1e-6}{\second}$}
+      \caption{GRI-Mech 3.0 model with $\Delta t = \SI{1e-6}{\second}$}
       \label{F:AJ_ch4_small}
   \end{subfigure}
   \caption{Ratio of the average finite-difference Jacobian based integrator runtime $\lvert\textbf{R}_{\text{FD}}\rvert$ to that of the analytical Jacobian runtime $\lvert\textbf{R}_{\text{AJ}}\rvert$ for the \texttt{Radau-IIA} (CPU\slash GPU) solvers.
@@ -677,13 +678,13 @@ The large size and chemical stiffness of chemical kinetic models for fuels tradi
 Past work showed orders-of-magnitude speedups for solution of nonstiff to moderately stiff chemical kinetic systems using explicit solvers on GPUs~\cite{Niemeyer:2011aa,Le2013596,Niemeyer:2014aa}.
 In contrast, work on stiff chemical kinetic integration with implicit GPU solvers has been limited to specialized cases, or failed to surpass current CPU-based techniques.
 
-This work demonstrated the performance of CPU- and GPU-based integration methods capable of handling greater stiffness, including an implicit fifth-order Runge--Kutta algorithm and two fourth-order exponential integration algorithms, using chemical source term and analytical Jacobian subroutines provided by the \texttt{pyJac} software~\cite{niemeyer_2016_51139,Niemeyer:2015ws,Niemeyer:2016aa}.
-By comparing the performance of these algorithms using two chemical kinetics models, including hydrogen\slash carbon monoxide with 13 species and 54 reactions~\cite{Burke:2011fh} and methane with 53 species and 325 reactions~\cite{smith_gri-mech_30}, and using two global time-step sizes (\SI{e-6}{\second} and \SI{e-4}{\second}), we drew the following conclusions:
+This work demonstrated and compared the performances of CPU- and GPU-based integration methods capable of handling greater stiffness, including an implicit fifth-order Runge--Kutta algorithm and two fourth-order exponential integration algorithms, using chemical source term and analytical Jacobian subroutines provided by the \texttt{pyJac} software~\cite{niemeyer_2016_51139,Niemeyer:2015ws,Niemeyer:2016aa}.
+By comparing the performance of these algorithms using two chemical kinetics models, including hydrogen with 13 species and 54 reactions~\cite{Burke:2011fh} and methane with 53 species and 325 reactions~\cite{smith_gri-mech_30}, and using two global time-step sizes (\SI{e-6}{\second} and \SI{e-4}{\second}), we drew the following conclusions:
 \begin{itemize}
- \item For global time-step sizes relevant to large-eddy simulations, the GPU-based implicit Runge--Kutta method was roughly equivalent to the CPU-based implicit \texttt{CVODE} integrator running on \numrange{11.7}{38.3} CPU cores.
- \item At longer global time-step sizes, the performance of all GPU-based integrators decreased significantly due to thread divergence.
- \item For a global time-step size relevant to Reynolds-averaged Navier--Stokes simulations, the GPU-based implicit Runga--Kutta solver performed equivalent to \texttt{CVODE} running on \num{14.7} cores for the \ce{H2}\slash\ce{CO} model, and just \num{3} cores for the GRI-Mech 3.0 model.
- \item The higher memory traffic required due to the size of the GRI-Mech 3.0 model significantly decreased GPU solver performance; a sparse analytical chemical kinetic Jacobian formulation must be developed to achieve high performance for still larger chemical kinetic mechanisms on the GPU.
+ \item For global time-step sizes relevant to large-eddy simulations, the GPU-based implicit Runge--Kutta method was roughly equivalent to the CPU-based implicit \texttt{CVODE} integrator running on \numrange{12}{38} CPU cores.
+ \item At longer global time-step sizes, the performances of all GPU-based integrators decreased significantly due to thread divergence.
+ \item For a global time-step size relevant to Reynolds-averaged Navier--Stokes simulations, the GPU-based implicit Runga--Kutta solver performed equivalent to \texttt{CVODE} running on \num{15} cores for the hydrogen model, and just \num{3} cores for the GRI-Mech 3.0 model.
+ \item The higher memory traffic required due to the size of the GRI-Mech 3.0 model significantly decreased GPU solver performance; a sparse analytical chemical kinetic Jacobian formulation must be developed to achieve high performance for still larger chemical kinetic models on the GPU.
  \item The exponential solvers were significantly less efficient than the implicit integrators on the CPU and GPU for all relevant cases.
  \item Using an analytical Jacobian matrix on the GPU is critical for efficient chemical kinetic integration due to thread divergence; speedups of \SIrange{7.11}{240.96}{$\times$} over a finite-difference-approximation were reached on the GPU, far surpassing the corresponding CPU speedup of \SIrange{1.58}{2.51}{$\times$}.
 
@@ -692,7 +693,7 @@ By comparing the performance of these algorithms using two chemical kinetics mod
 Based on these results, we conclude that the exponential solvers poorly fit the SIMD acceleration paradigm due to high levels of thread divergence combined with the relatively high cost of integration steps due to Arnoldi iteration (as compared to other explicit integration techniques).
 Instead, we recommend directing further focus on stiff explicit solvers such as (non-exponential) Rosenbrock solvers, explored for the CPU by Stone and Bisetti~\cite{stone2014comparison}, and inexact Jacobian W-methods~\cite{steihaug1979attempt,Schmitt2004}.
 Further improvements to the analytical Jacobian code, e.g., by using a chemical kinetic system based on species concentrations to increase Jacobian sparsity, are likely to further increase performance of the developed algorithms.
-Additionally, newer GPUs should be tested to examine the ability of larger cache sizes and more available registers to improve performance by reduction of slow global memory loads\slash stores; a per-block solution still may need to be adopted for efficient integration of the largest chemical kinetic models.
+Additionally, newer GPUs should be tested to examine the ability of larger cache sizes and more available registers to improve performance by reduction of slow global memory loads\slash stores; a per-block solution still may need to be adopted for efficient integration of larger chemical kinetic models.
 However, this work also showed that thread divergence poses a challenge to high performance of GPU-based integration techniques on a per-thread basis.
 Our future work will therefore include a more comprehensive study of thread divergence, as well as developing methods to mitigate or eliminate its negative performance impact.
 Finally, new integration techniques will be investigated and paired with work studying the selection of appropriate solvers based on estimated chemical stiffness.
@@ -721,31 +722,31 @@ The full \LaTeX\ source for this paper is available via a GitHub repository at \
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \label{S:raw}
 
-In this section we present the plots of the raw, unnormalized performance data for completeness, as described in Section~\ref{S:results}.
-Figures~\ref{F:raw_perf_H2CO} and \ref{F:raw_perf_CH4} show performance for the \ce{H2}\slash\ce{CO} and GRI-Mech 3.0 models, respectively.
+In this section we present the plots of the raw, unnormalized performance data for completeness, as described in Sec.~\ref{S:results}.
+Figures~\ref{F:raw_perf_H2CO} and \ref{F:raw_perf_CH4} show performance for the hydrogen and GRI-Mech 3.0 models, respectively.
 
 \begin{figure}[htbp]
   \centering
   \begin{subfigure}{0.49\textwidth}
       \includegraphics[width=\linewidth]{H2_1e-06_cpu_nonorm.pdf}
-      \caption{CPU performance for $\delta t = \SI{e-6}{\second}$}
+      \caption{CPU performance results for $\Delta t = \SI{e-6}{\second}$}
   \end{subfigure}
   %\hfill
   \begin{subfigure}{0.49\textwidth}
       \includegraphics[width=\linewidth]{H2_1e-04_cpu_nonorm.pdf}
-      \caption{CPU performance for $\delta t = \SI{e-4}{\second}$}
+      \caption{CPU performance results for $\Delta t = \SI{e-4}{\second}$}
  
   \end{subfigure}\\
   \begin{subfigure}{0.49\textwidth}
       \includegraphics[width=\linewidth]{H2_1e-06_gpu_nonorm.pdf}
-      \caption{GPU performance results for $\delta t = \SI{e-6}{\second}$}
+      \caption{GPU performance results for $\Delta t = \SI{e-6}{\second}$}
   \end{subfigure}
   %\hfill
   \begin{subfigure}{0.49\textwidth}
       \includegraphics[width=\linewidth]{H2_1e-04_gpu_nonorm.pdf}
-      \caption{GPU performance results for $\delta t = \SI{e-4}{\second}$}
+      \caption{GPU performance results for $\Delta t = \SI{e-4}{\second}$}
   \end{subfigure}
-  \caption{Average (unnormalized) runtimes of the integrators on the CPU and GPU for the \ce{H2}\slash\ce{CO} model at two different global time-step sizes.
+  \caption{Average (unnormalized) runtimes of the integrators on the CPU and GPU for the hydrogen model at two different global time-step sizes.
   Error bars indicate standard deviation.}
   \label{F:raw_perf_H2CO}
 \end{figure}
@@ -754,21 +755,21 @@ Figures~\ref{F:raw_perf_H2CO} and \ref{F:raw_perf_CH4} show performance for the 
   \centering
   \begin{subfigure}{0.49\textwidth}
       \includegraphics[width=\linewidth]{CH4_1e-06_cpu_nonorm.pdf}
-      \caption{CPU performance for $\delta t = \SI{e-6}{\second}$}
+      \caption{CPU performance results for $\Delta t = \SI{e-6}{\second}$}
   \end{subfigure}
   %\hfill
   \begin{subfigure}{0.49\textwidth}
       \includegraphics[width=\linewidth]{CH4_1e-04_cpu_nonorm.pdf}
-      \caption{CPU performance for $\delta t = \SI{e-4}{\second}$}
+      \caption{CPU performance results for $\Delta t = \SI{e-4}{\second}$}
   \end{subfigure}\\
   \begin{subfigure}{0.49\textwidth}
       \includegraphics[width=\linewidth]{CH4_1e-06_gpu_nonorm.pdf}
-      \caption{GPU performance results for $\delta t = \SI{e-6}{\second}$}
+      \caption{GPU performance results for $\Delta t = \SI{e-6}{\second}$}
   \end{subfigure}
   %\hfill
   \begin{subfigure}{0.49\textwidth}
       \includegraphics[width=\linewidth]{CH4_1e-04_gpu_nonorm.pdf}
-      \caption{GPU performance results for $\delta t = \SI{e-4}{\second}$}
+      \caption{GPU performance results for $\Delta t = \SI{e-4}{\second}$}
   \end{subfigure}
   \caption{Average (unnormalized) runtimes of the integrators on the CPU\slash GPU for the GRI-Mech 3.0 model at two different global time-step sizes.
   Error bars indicate standard deviation.}
