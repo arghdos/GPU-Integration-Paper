@@ -17,17 +17,6 @@ dt_dict = {}
 mech_dict = {}
 num_bins = 25
 
-def to_percent(y, position):
-    # Ignore the passed in position. This has the effect of scaling the default
-    # tick locations.
-    s = str(y) #str(100 * y)
-
-    # The percent symbol needs escaping in latex
-    if matplotlib.rcParams['text.usetex'] is True:
-        return s + r'$\%$'
-    else:
-        return s + '%'
-
 class data(object):
     def __init__(self, mech, solver, dt, div):
         self.mech = mech
@@ -94,7 +83,7 @@ for solver in solver_list:
                     dt_dict[dt] = marker_list.pop()
 
                 bins, edges = np.histogram(data.div, num_bins, range=(0., 1.))
-                formatter = FuncFormatter(to_percent)
+                #formatter = FuncFormatter(to_percent)
 
                 x = (edges[:-1] + edges[1:]) / 2
                 y = 100. * bins / float(np.sum(bins))
@@ -107,7 +96,7 @@ for solver in solver_list:
                 power = int(np.log10(float(dt)))
                 if dt_list.index(dt):
                     plt.plot(x, y,
-                        label=r'$\delta t = 1 \times 10^{{{}}}$'.format(power),
+                        label=r'$\Delta t = \num{{e{}}}$'.format(power),
                         linestyle='',
                         marker=dt_dict[dt],
                         markerfacecolor=mech_dict[data.dt],
@@ -115,7 +104,7 @@ for solver in solver_list:
                         markersize=12)
                 else:
                     plt.plot(x, y,
-                        label=r'$\delta t = 1 \times 10^{{{}}}$'.format(power),
+                        label=r'$\Delta t = \num{{e{}}}$'.format(power),
                         linestyle='',
                         marker=dt_dict[dt],
                         markerfacecolor='None',
@@ -129,7 +118,7 @@ for solver in solver_list:
         plt.xlabel('Divergence measure $D$')
         plt.ylabel('Percent of total warps')
         ax.set_ylim((0, 105))
-        plt.gca().yaxis.set_major_formatter(formatter)
+        #plt.gca().yaxis.set_major_formatter(formatter)
         ps.finalize()
         plt.savefig(os.path.join(ps.figpath,
             '{}_{}_div.pdf'.format(mech, solver)))
