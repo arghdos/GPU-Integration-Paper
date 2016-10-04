@@ -18,7 +18,8 @@ timestep = None
 
 lines = []
 files = [f for f in os.listdir(ps.datapath) if f.endswith('logfile')
-            and os.path.isfile(os.path.join(ps.datapath, f))]
+            and os.path.isfile(os.path.join(ps.datapath, f))
+            and not 'finite' in f]
 for f in files:
     with open(os.path.join(ps.datapath, f), 'r') as file:
         lines = [l.strip() for l in file.readlines() if l.strip()]
