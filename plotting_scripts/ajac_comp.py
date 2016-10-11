@@ -113,7 +113,7 @@ for dt in dt_list:
         #make legend
         make_comp_legend([], patch_names=['GPU', 'CPU'])
 
-        plt.xlabel('Number of ODEs')
+        plt.xlabel('Number of IVPs')
         plt.ylabel(r'$\lvert \textbf{R}_{\text{FD}}\rvert\slash\lvert \textbf{R}_{\text{AJ}}\rvert$')
         ps.finalize()
         plt.savefig(os.path.join(ps.figpath,

@@ -70,7 +70,7 @@ for dt in dt_list:
         labels.append('No SMEM Caching')
 
         plt.legend(artists, labels, **ps.legend_style)
-        plt.xlabel('Number of ODEs', )
+        plt.xlabel('Number of IVPs', )
         plt.ylabel('Runtime (s)')
         ps.finalize()
         plt.savefig(os.path.join(ps.figpath, 

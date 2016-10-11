@@ -76,9 +76,9 @@ def do_plot(normalize=True, smem=False):
         #make legend
         plt.legend(**ps.legend_style)
 
-        plt.xlabel('Number of ODEs')
+        plt.xlabel('Number of IVPs')
         if normalize:
-            plt.ylabel('Runtime / ODE (s)')
+            plt.ylabel('Runtime / IVP (s)')
         else:
             plt.ylabel('Runtime (s)')
         #final stylings
