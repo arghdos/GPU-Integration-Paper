@@ -381,7 +381,7 @@ The error for condition $i$ was then determined using the weighted root-mean-squ
 \begin{equation}
  E_i(t) = \left\lVert\frac{y_i(t) - \hat{y}_i(t)}{\text{atol} + \hat{y}_i(t) \times \text{rtol}}\right\rVert_2 \;,
 \end{equation}
-where the $y_i(t)$ is the solution obtained from the various solvers, atol\slash rtol are the absolute\slash relative tolerances, and $\hat{y}_i(t)$ is the ``true'' solution obtained via \texttt{CVODE} using an internal time-step of $\delta t = \SI{e-6}{\second}$ and absolute\slash relative tolerances of \num{e-20} and \num{e-15}, respectively; note that the more stringent tolerances were used only to obtain the ``true'' solution.
+where the $y_i(t)$ is the solution obtained from the various solvers, atol\slash rtol are the absolute\slash relative tolerances, and $\hat{y}_i(t)$ is the \hly{``true'' solution obtained via {\texttt{CVODE}} using an internal time-step of $\delta t = \SI{e-6}{\second}$} and absolute\slash relative tolerances of \num{e-20} and \num{e-15}, respectively; note that the more stringent tolerances were used only to obtain the ``true'' solution.
 The maximum error over all conditions:
 \begin{equation}
  \left\lvert\textbf{E}\right\rvert = \max_{i= 1, \dots, \num{10000}}\{E_i(t)\}
