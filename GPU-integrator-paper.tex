@@ -254,11 +254,11 @@ Method & CPU & GPU \\
 \texttt{exprb43} & $\times$ & $\times$ \\
 \bottomrule
 \end{tabular}
-\caption{The solvers used in this study, and platforms implemented on.}
+\caption{\hly{The solvers used in this study, and platforms considered for each.}}
 \label{T:solvers}
 \end{table}
 
-We investigated GPU implementations of three integration methods in this work, comparing them against equivalent CPU versions and a CPU-only implicit algorithm (Table~\ref{T:solvers}).
+We investigated GPU implementations of three integration methods in this work, comparing them against equivalent CPU versions and a CPU-only implicit algorithm \hly{(Table~\ref{T:solvers})}.
 While we describe important details or changes made in this work, full descriptions of all algorithms may be found in the cited sources.
 The \texttt{pyJac} software~\cite{niemeyer_2016_51139,Niemeyer:2015ws,Niemeyer:2016aa} provided subroutines for both chemical source terms and the analytical Jacobian matrix used by CPU- and GPU-based algorithms.
 We evaluated the relative performance impact of using a finite-difference Jacobian matrix (as compared with an analytical Jacobian) for both platforms with a first-order finite difference method based on that of \texttt{CVODE}~\cite{Hindmarsh:2005hg}.
