@@ -602,7 +602,7 @@ Using a newer GPU model could significantly improve solver performance for large
 Finally, a per-block approach may be required to efficiently integrate the largest models on the GPU, due to the much higher amount of cache memory allocated for each IVP solution.
 
 The performance penalty due to thread divergence depends both on the cost of the divergent branches as well as the proportion of the warp that executes each branch.
-\hlg{For example, if only one thread in a warp executes an expensive branch (e.g., a Jacobian update) the rest of the warp remains idle during that time, and the SM may become severely underutilized.}
+\hlg{For example, if only one thread in a warp executes an expensive branch (e.g., a Jacobian update), the rest of the warp remains idle during that time, and the SM may become severely underutilized.}
 To investigate the effects of thread divergence further, we adopted a modified version of the quantification of thread divergence of Niemeyer and Sung~\cite{Niemeyer:2014aa}:
 \begin{equation}
 	D = 1 - \frac{\sum_{i=1}^{32}{d_i}}{32 \times \max\limits_{i = 1, \dots, 32} d_i} \;,
