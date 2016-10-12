@@ -149,11 +149,11 @@ Central processing unit (CPU) clock speeds increased regularly over the past few
 While multicore parallelism increased CPU performance somewhat, recently SIMD\slash SIMT-enabled processors have gained popularity in high-performance computing due to their greatly increased floating operation per second count.
 A SIMD instruction utilizes a vector processing unit to execute the same instruction on multiple pieces of data, e.g. performing multiple floating point multiplications concurrently.
 In contrast, a SIMT process achieves SIMD parallelism by having many threads execute the same instruction concurrently.
-Many different flavors of \hlb{SIMD\slash SIMT-processing exist}:
+Many different flavors of \hlb{SIMD\slash SIMT processing exist}:
 \begin{itemize}
- \item \hlb{Modern CPUs have vector processing units capable of executing SIMD instructions (e.g. SSE, AVX2, etc.)}
+ \item \hlb{Modern CPUs have vector processing units capable of executing SIMD instructions (e.g., SSE, AVX2)}
  \item \hlb{Graphics processing units (GPUs) feature hundreds to thousands of separate processing units, and utilize the SIMT model}
- \item \hlb{Intel's Xeon Phi co-processor has tens of (hyperthreaded) cores containing wide-vector units designed for SIMD execution, with each core capable of running multiple independent threads}
+ \item \hlb{Intel's Xeon Phi co-processor has tens of (hyperthreaded) cores containing wide-vector units designed for SIMD execution, with each core capable of running multiple independent threads.}
 \end{itemize}
 Using the SIMD\slash SIMT parallelism model requires extra consideration to accelerate chemical kinetics integration.
 
@@ -174,7 +174,7 @@ The SMs further subdivide the blocks into groups of \num{32} threads called warp
 The resources available on a SM (memory, processing units, registers, etc.) are split between the warps from all the assigned blocks.
 The threads in a warp are executed in parallel on CUDA cores (processing units), with multiple warps typically being executed concurrently on a SM.
 Thread divergence occurs when the threads in a warp follow different execution paths, e.g., due to if\slash then branching, and is a key performance concern for SIMT processing; in such cases the divergent execution paths must execute in serial.
-\hlg{All threads in a warp are executed while any thread in the warp is unfinished; if a divergent path is long and complicated, or if only a handful of threads in a warp require its execution, significant computational wastage may occur as the other threads will be idle for long periods.}
+\hlg{All threads in a warp are executed while any thread in the warp is unfinished; if a divergent path is long and complicated, or if only a handful of threads in a warp require its execution, significant computational waste may occur as the other threads will be idle for long periods.}
 A related concept of waste within a SIMD work unit is described by Stone and Niemeyer~\cite{2016arXiv160805794S}.
 
 Furthermore, as compared with a typical CPU, GPUs possess relatively small memory caches and few registers per SM.
