@@ -417,11 +417,13 @@ Additionally, although not shown, the GPU solvers produce identical results.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 We studied the performance of the three integrators by \hlg{performing constant-pressure, homogeneous reactor simulations} with two global integration time-step sizes, $\Delta t = \SI{e-6}{\s}$ and $\Delta t = \SI{e-4}{\s}$, for each integrator. \hlg{Initial conditions were taken from} the PaSR databases described in Sec.~\ref{S:pasr_conditions}.
-Using a larger global time step induces additional stiffness and allows evaluation of the performance of the developed solvers on the same chemical kinetic model with varying levels of stiffness.
+A larger global time step induces additional stiffness and allows evaluation of the performance of the developed solvers on the same chemical kinetic model with varying levels of stiffness.
 In reactive-flow simulations, the chemical integration time-step is typically determined by the flow time-scale and stability requirements determined by the Courant--Friedrichs--Lewy number.
-\hlb{Typical time-step values of reactive-flow simulations are not not always clear in the literature, as adaptive time-stepping is often used, or the time-step size is simply not reported; our own experience suggests time-step sizes ranging from {\SI{e-7}{\s}} to {\SI{e-4}{\s}}, although others report ranges of {\SI{e-6}{\s}} to {\SI{e-1}{\s}}~\cite{Yang:2013ip}}.
-Although the time-step size used in a given simulation depends highly on the problem and numerical methods, large-eddy simulations usually require higher time resolution than Reynolds-averaged Navier--Stokes simulations~\cite{Iaccarino:2003147}.
-Hence, the time-steps chosen for study are representative of realistic values used in large-eddy~\cite{Wang20111319,Bulat20133155} and Reynolds-averaged Navier--Stokes~\cite{Ramirez2010,Galloni20091131} simulations.
+\hlb{Typical time-step values of reactive-flow simulations are not always clear in the literature, as adaptive time-stepping is often used, or the time-step size is simply not reported.
+Our own experience suggests time-step sizes ranging from {\SI{e-7}{\s}} to {\SI{e-4}{\s}}, although others report ranges of {\SI{e-6}{\s}} to {\SI{e-1}{\s}}~\cite{Yang:2013ip}}.
+The time-step size used in a given simulation depends highly on the problem and numerical methods, but large-eddy simulations usually require higher time resolution than Reynolds-averaged Navier--Stokes simulations~\cite{Iaccarino:2003147}.
+Hence, the time-step sizes we selected for study represent realistic values used in large-eddy~\cite{Wang20111319,Bulat20133155} and Reynolds-averaged Navier--Stokes~\cite{Ramirez2010,Galloni20091131} simulations.
+
 Runtimes are reported as the average over five runs, where each run started from the same set of PaSR conditions.
 All CPU integrators were compiled using \texttt{gcc 4.8.5} (with the compiler options ``\texttt{-O3 -funroll-loops -mtune=native}'') and executed in parallel via OpenMP on four ten-core \SI{2.2}{\giga\hertz} Intel Xeon E5-4640 v2 CPUs with \SI{20}{\mega\byte} of L3 cache memory, \hlb{installed on an Ace Powerworks PW8027R-TRF+ with a Supermicro X9QR7-TF+/X9QRi-F+ baseboard}.
 OpenMP was used to parallelize on a per-condition basis; i.e., each individual OpenMP thread was responsible for integrating a single chemical kinetic IVP, rather than cooperating with other OpenMP threads to solve the same.
