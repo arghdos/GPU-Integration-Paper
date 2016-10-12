@@ -143,7 +143,7 @@ This approach eliminates numerous chemical source term evaluations, and for a sp
 
 In this work, our efforts to accelerate simulations with chemical kinetics focus on improving the integration strategy itself, via development of new algorithms for high-performance hardware accelerators such as graphics processing units (GPUs) and similar single-instruction multiple-data\slash thread (SIMD\slash SIMT) devices.
 
-\subsection{SIMD\slash SIMT Architecture}
+\subsection{SIMD\slash SIMT architecture}
 
 Central processing unit (CPU) clock speeds increased regularly over the past few decades---commonly known as Moore's Law---however, power consumption and heat dissipation issues slowed this trend recently.
 While multicore parallelism increased CPU performance somewhat, recently SIMD\slash SIMT-enabled processors have gained popularity in high-performance computing due to their greatly increased floating operation per second count.
@@ -183,7 +183,7 @@ Overuse of these resources can cause slow global memory accesses for data not st
 The performance tradeoffs of various CUDA execution patterns are quite involved and beyond the scope of this work; for more details we refer the interested reader to several works that discussed these topics in depth~\cite{Cruz:2011gc,Brodtkorb:2013hn,Niemeyer:2014hn}.
 Instead, we will briefly highlight key considerations for CUDA-based integration of \hlg{chemical kinetic initial value problems (IVPs)}.
 
-\subsection{GPU-accelerated Chemical Kinetics}
+\subsection{GPU-accelerated chemical kinetics}
 
 The extent of thread cooperation within a CUDA-based chemical kinetic IVP integration algorithm is a key point that shapes much of implementation.
 GPU-accelerated chemical kinetic solvers typically follow either a ``per-thread'' pattern~\cite{Niemeyer:2011aa,Stone:2013aa,Niemeyer:2014aa}, in which each individual GPU thread solves a single chemical kinetic IVP, or a ``per-block'' approach~\cite{Stone:2013aa,Sewerin20151375}, in which all the threads in a block cooperate to solve the \hlg{ordinary differential equations (ODEs) that comprise the chemical kinetic IVP}.
