@@ -2,7 +2,6 @@
 import os
 import matplotlib
 import numpy as np
-import plot_styles as ps
 matplotlib.use('agg')
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches

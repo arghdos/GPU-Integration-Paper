@@ -10,6 +10,7 @@ import os
 import matplotlib
 matplotlib.use('agg')
 import matplotlib.pyplot as plt
+import plot_styles as ps
 import os
 plt.rc('text', usetex=True)
 plt.rc('font', family='serif')
@@ -26,6 +27,8 @@ mech_dir = os.path.expanduser('~/mechs')
 mechs = {'H2' : {'gas' : 'h2.cti', 'fuel' : 'H2', 'size' : 16},
          'CH4' : {'gas' : 'grimech30.cti', 'fuel' : 'CH4', 'size' : 56}
          }
+
+large_font = 20
 #check for valid models
 for directory in [d for d in os.listdir(home) if 
                 os.path.isdir(os.path.join(home, d))
@@ -57,14 +60,16 @@ for directory in [d for d in os.listdir(home) if
         Ts = arr[run_offset:run_offset + per_run, :, 1].flatten()
         plt.gca().set_xscale('log')
         plt.scatter(ys, Ts)
-        fuel_str = r'$\text{{Y}}_{{\ce{{{}}}}}$'.format(mech['fuel'])
+        fuel_str = r'\ce{{{}}} mass fraction'.format(mech['fuel'])
         xmin, xmax = plt.xlim()
         xv = np.linspace(xmin, xmax)
         plt.plot(xv, np.ones_like(xv) * T_ad, 'k--')
-        plt.text(np.power(10, 0.4 * (np.log10(xmax) + np.log10(xmin))), T_ad + 50, r'$\text{T}_{\text{ad}}$')
+        plt.text(np.power(10, 0.4 * (np.log10(xmax) + np.log10(xmin))), T_ad + 50, r'$\text{T}_{\text{ad}}$',
+            fontsize=large_font)
         plt.xlim([xmin, xmax])
         plt.xlabel(fuel_str)
         plt.ylabel('Temperature (K)')
+        ps.finalize()
         plt.savefig('{}{}dist_{}.pdf'.format(out_dir, directory, str(i)))
         plt.close()
 
@@ -76,8 +81,10 @@ for directory in [d for d in os.listdir(home) if
         xv = np.linspace(xmin, xmax)
         plt.plot(xv, np.ones_like(xv) * T_ad, 'k--')
         ymin, ymax = plt.ylim()
-        ydiff = 0.05 * (ymax - ymin)
-        plt.text(0.6 * (xmax + xmin), T_ad - ydiff, r'$\text{T}_{\text{ad}}$')
+        ydiff = 0.075 * (ymax - ymin)
+        plt.text(0.6 * (xmax + xmin), T_ad - ydiff, r'$\text{T}_{\text{ad}}$',
+            fontsize=large_font)
         plt.xlim([xmin, xmax])
+        ps.finalize()
         plt.savefig('{}{}tbar_{}.pdf'.format(out_dir, directory, str(i)))
         plt.close()
