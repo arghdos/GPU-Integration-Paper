@@ -111,7 +111,8 @@
 
 \begin{abstract}
 A fifth-order implicit Runge--Kutta method and two fourth-order exponential integration methods equipped with Krylov subspace approximations were implemented for the GPU and paired with the analytical chemical kinetic Jacobian software \texttt{pyJac}.
-The performance of each algorithm was evaluated by integrating thermochemical state data sampled from stochastic partially stirred reactor simulations and compared with the commonly used CPU-based implicit integrator \texttt{CVODE}.We estimated that the implicit Runge--Kutta method running on a single Tesla C2075 GPU is equivalent to \texttt{CVODE} running on \numrange{12}{38} Intel Xeon E5-4640 v2 CPU cores for integration of a single global integration time step of \SI{e-6}{\second} with hydrogen and methane kinetic models.
+The performance of each algorithm was evaluated by integrating thermochemical state data sampled from stochastic partially stirred reactor simulations and compared with the commonly used CPU-based implicit integrator \texttt{CVODE}.
+We estimated that the implicit Runge--Kutta method running on a single Tesla C2075 GPU is equivalent to \texttt{CVODE} running on \numrange{12}{38} Intel Xeon E5-4640 v2 CPU cores for integration of a single global integration time step of \SI{e-6}{\second} with hydrogen and methane kinetic models.
 In the stiffest case studied---the methane model with a global integration time step of \SI{e-4}{\second}---thread divergence and higher memory traffic significantly decreased GPU performance to the equivalent of \texttt{CVODE} running on approximately three CPU cores.
 The exponential integration algorithms performed more slowly than the implicit integrators on both the CPU and GPU.
 Thread divergence and memory traffic were identified as the main limiters of GPU integrator performance, and techniques to mitigate these issues were discussed.
