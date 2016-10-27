@@ -85,6 +85,7 @@ for directory in [d for d in os.listdir(home) if
         plt.text(0.6 * (xmax + xmin), T_ad - ydiff, r'$\text{T}_{\text{ad}}$',
             fontsize=large_font)
         plt.xlim([xmin, xmax])
+        plt.ylim([None, ymax + ydiff])
         ps.finalize()
         plt.savefig('{}{}tbar_{}.pdf'.format(out_dir, directory, str(i)))
         plt.close()
