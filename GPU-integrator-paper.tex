@@ -237,6 +237,7 @@ Others explored these semi-implicit exponential methods for applications in stif
 
 Since GPU-based semi-implicit exponential methods have not been demonstrated in the literature, we aim to conduct a systematic investigation to test and compare their performance to other common integration techniques.
 Finally, we will study the three-stage\slash fifth-order implicit Runge--Kutta algorithm~\cite{wanner1991solving} investigated by Sewerin and Rigopoulos~\cite{Sewerin20151375} here to determine the impact of increasing stiffness on the algorithm and the performance benefits of using an analytical Jacobian matrix, such as that developed by Niemeyer et al.~\cite{niemeyer_2016_51139,Niemeyer:2015ws,Niemeyer:2016aa}.
+\hlg{Recently, adaptive-preconditioner based implicit methods have shown promise in reducing integration cost for large chemical models as compared to implicit methods based on direct, dense linear algebra~\cite{mcnenly2013adaptive}, however these require use of linear iterative methods in addition to the standard newton iteration; thus greater levels of thread-divergence (and integrator performance penalties) are expected for the per-thread approach used in this work, this is an area that merits future study.}
 
 The rest of the paper is structured as follows.
 Section~\ref{S:method} lays out the methods and implementation details of the algorithms used here.
