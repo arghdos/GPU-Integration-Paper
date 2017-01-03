@@ -41,8 +41,8 @@
 \usepackage[usenames, dvipsnames]{xcolor}
 
 \newtoggle{highlight}
-%\toggletrue{highlight}
-\togglefalse{highlight}
+\toggletrue{highlight}
+%\togglefalse{highlight}
 
 %turn off highlight in main branch
 \iftoggle{highlight}{
@@ -154,7 +154,7 @@ The cost of these algorithms scales at best quadratically---and at worst cubical
 Lu and Law~\cite{Lu:2009gh} extensively reviewed techniques for reducing the cost of using detailed chemical kinetic models; however, significant cost savings can be realized by using an analytical Jacobian formulation, rather than the typical evaluation via finite difference approximations.
 This analytical Jacobian approach eliminates numerous chemical source term evaluations, and for a sparse Jacobian (e.g., formulated in terms of species concentrations) the cost of evaluation can drop to a linear dependence on the number of species in the model~\cite{Lu:2009gh}.
 
-In this work, our efforts to accelerate simulations with chemical kinetics focus on improving the integration strategy itself, via development of new algorithms for high-performance hardware accelerators such as graphics processing units (GPUs) and similar single-instruction multiple-data\slash thread (SIMD\slash SIMT) devices.
+In this work, our efforts to accelerate simulations with chemical kinetics focus on improving the integration strategy itself, via development of new algorithms for high-performance hardware accelerators such as graphics processing units (GPUs) and similar single-instruction multiple-data\slash thread (SIMD\slash SIMT) devices, \hlg{available on increasing numbers of US and international supercomputing clusters~\cite{nvidia,xsede,orlcf}}.
 
 \subsection{SIMD\slash SIMT architecture}
 
