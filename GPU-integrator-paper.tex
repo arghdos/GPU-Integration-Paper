@@ -40,14 +40,24 @@
 \usepackage{soul}
 \usepackage[usenames, dvipsnames]{xcolor}
 
+\newtoggle{highlight}
+%\toggletrue{highlight}
+\togglefalse{highlight}
+
 %turn off highlight in main branch
-%\DeclareRobustCommand{\hly}[1]{\sethlcolor{yellow}\hl{#1}}
-%\DeclareRobustCommand{\hlb}[1]{\sethlcolor{SkyBlue}\hl{#1}}
-%\DeclareRobustCommand{\hlg}[1]{\sethlcolor{green}\hl{#1}}
+\iftoggle{highlight}{
+\DeclareRobustCommand{\hly}[1]{\sethlcolor{yellow}\hl{#1}}
+\DeclareRobustCommand{\hlb}[1]{\sethlcolor{SkyBlue}\hl{#1}}
+\DeclareRobustCommand{\hlg}[1]{\sethlcolor{green}\hl{#1}}
 %better handling of \cite, etc. in soul highlight
-%\soulregister\cite7
-%\soulregister\ref7
-%\soulregister\pageref7
+\soulregister\cite7
+\soulregister\ref7
+\soulregister\pageref7
+}{
+\DeclareRobustCommand{\hly}[1]{\empty{#1}}
+\DeclareRobustCommand{\hlb}[1]{\empty{#1}}
+\DeclareRobustCommand{\hlg}[1]{\empty{#1}}
+}
 
 \usepackage{algorithm}
 \usepackage[noend]{algpseudocode}
