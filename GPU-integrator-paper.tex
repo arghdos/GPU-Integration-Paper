@@ -150,11 +150,13 @@ Furthermore, kinetic models for large hydrocarbon fuels tend to exhibit high sti
 
 Reactive-flow modeling codes commonly rely on high-order implicit integration techniques to solve the stiff governing equations posed by chemical kinetic models.
 The cost of these algorithms scales at best quadratically---and at worst cubically---with the number of species in a model~\cite{Lu:2009gh}, due to repeated evaluation and factorization of the chemical kinetic Jacobian matrix to solve the associated nonlinear algebraic equations through iterative solutions of linear systems of equations.
-\hlg{Several recent studies~\cite{Huang20091814,Bottone2012,Moiz2016123} demonstrate that even modestly sized chemical kinetic models can incur severe computation cost for realistic reactive-flow simulations; e.g., in~\cite{Moiz2016123} a single LES realization of a diesel spray--using a 54-species n-dodecane model---for {\SI{2}{\milli\second}} after start of injection took {\num{48000}} CPU core hours and up to {\num{20}} days of wall clock time.}
+\hlg{Several recent studies~\cite{Huang20091814,Bottone2012,Moiz2016123} demonstrate that use of even modestly sized chemical kinetic models can incur severe computation cost for realistic reactive-flow simulations; e.g., a single high-resolution LES realization of a diesel spray---up to 22 million cells, using a 54 species n-dodecane model---for {\SI{2}{\milli\second}} after start of injection with a common implicit solver~\cite{cvode:2.8.2} took {\num{48000}} CPU core hours and up to {\num{20}} days of wall clock time~\cite{Moiz2016123}.}
 Lu and Law~\cite{Lu:2009gh} extensively reviewed techniques for reducing the cost of using detailed chemical kinetic models; however, significant cost savings can be realized by using an analytical Jacobian formulation, rather than the typical evaluation via finite difference approximations.
 This analytical Jacobian approach eliminates numerous chemical source term evaluations, and for a sparse Jacobian (e.g., formulated in terms of species concentrations) the cost of evaluation can drop to a linear dependence on the number of species in the model~\cite{Lu:2009gh}.
 
-In this work, our efforts to accelerate simulations with chemical kinetics focus on improving the integration strategy itself, via development of new algorithms for high-performance hardware accelerators such as graphics processing units (GPUs) and similar single-instruction multiple-data\slash thread (SIMD\slash SIMT) devices, \hlg{available on increasing numbers of US and international supercomputing clusters~\cite{nvidia,xsede,orlcf}}.
+In this work, our efforts to accelerate simulations with chemical kinetics focus on improving the integration strategy itself, via development of new algorithms for high-performance hardware accelerators such as graphics processing units (GPUs) and similar single-instruction multiple-data\slash thread (SIMD\slash SIMT) devices, \hlg{increasingly available on supercomputing clusters~\cite{nvidia,xsede,orlcf}}.
+\hlg{While the eventual goal of the combustion community is to enable use of large detailed models in realistic reactive-flow simulations---potentially via use of GPU-accelerated chemical kinetics---a clear first step is to reduce the cost of realistic reactive-flow simulations with small to moderate sized mechanisms such that they are practical for iterative design purposes.}
+
 
 \subsection{SIMD\slash SIMT architecture}
 
@@ -203,10 +205,12 @@ The extent of thread cooperation within a CUDA-based chemical kinetic IVP integr
 GPU-accelerated chemical kinetic solvers typically follow either a ``per-thread'' pattern~\cite{Niemeyer:2011aa,Stone:2013aa,Niemeyer:2014aa}, in which each individual GPU thread solves a single chemical kinetic IVP, or a ``per-block'' approach~\cite{Stone:2013aa,Sewerin20151375}, in which all the threads in a block cooperate to solve the ordinary differential equations (ODEs) that comprise a single chemical kinetic IVP.
 The greatest potential benefit of a per-thread approach is that a much larger number of IVPs can theoretically be solved concurrently; the number of blocks that can be executed concurrently on each SM is usually around eight, whereas typical CUDA launch configurations in this work consist of 64 threads per block, or 512 sets of IVPs solved concurrently per SM.
 Unfortunately, the larger amount of parallelism offered by a per-thread approach does not come without drawbacks.
-A per-thread approach may encounter more cache-misses, since the memory available per SM must now be split between many more sets of IVPs.
+A per-thread approach may also encounter more cache-misses, since the memory available per SM must now be split between many more sets of IVPs.
 This results in expensive global memory loads.
 The performance of a per-thread approach can also be greatly impacted by thread divergence, because different threads may follow different execution paths within the IVP integration algorithm itself~\cite{Stone:2013aa,Niemeyer:2014aa}.
-For this reason, implicit integration algorithms---which typically have complex branching and evaluation paths---may suffer more from thread divergence when implemented on a per-thread basis than relatively simpler explicit integration techniques~\cite{Stone:2013aa}.
+\hlg{For example, in a per-thread based solver each thread in a warp advances its IVP by one internal integration step concurrently, on a step failure the thread simply does not update the solution vector at the end of the internal time-step. 
+If only a handful of threads in a warp require many more internal time-steps than the majority, they will force the majority of threads to wait idly until all threads in the warp have completed the global integration step, resulting in a serious waste of computational resources.}
+Additionally, implicit integration algorithms---which typically have complex branching and evaluation paths---may suffer more from thread divergence when implemented on a per-thread basis than relatively simpler explicit integration techniques~\cite{Stone:2013aa}.
 The impact of thread divergence on integrators is typically less severe when following a per-block strategy, since the execution path of each thread is planned by design of the algorithm.
 A per-block approach also offers significantly more local cache memory and available registers for solving an IVP, and thus memory access speed and cache size are less of a concern.
 However, in our experience, optimizing use of these resources requires significant manual tuning and makes it more difficult to generalize the developed algorithm between different chemical kinetic models---a key feature for potential non-academic applications.
@@ -237,6 +241,7 @@ Others explored these semi-implicit exponential methods for applications in stif
 
 Since GPU-based semi-implicit exponential methods have not been demonstrated in the literature, we aim to conduct a systematic investigation to test and compare their performance to other common integration techniques.
 Finally, we will study the three-stage\slash fifth-order implicit Runge--Kutta algorithm~\cite{wanner1991solving} investigated by Sewerin and Rigopoulos~\cite{Sewerin20151375} here to determine the impact of increasing stiffness on the algorithm and the performance benefits of using an analytical Jacobian matrix, such as that developed by Niemeyer et al.~\cite{niemeyer_2016_51139,Niemeyer:2015ws,Niemeyer:2016aa}.
+
 \hlg{Recently, adaptive-preconditioner based implicit methods have shown promise in reducing integration cost for large chemical models as compared to implicit methods based on direct, dense linear algebra~\cite{mcnenly2013adaptive}, however these require use of linear iterative methods in addition to the standard newton iteration; thus greater levels of thread-divergence (and integrator performance penalties) are expected for the per-thread approach used in this work, this is an area that merits future study.}
 
 The rest of the paper is structured as follows.
@@ -276,7 +281,7 @@ Method & CPU & GPU \\
 We investigated GPU implementations of three integration methods in this work, namely \texttt{Radau\-IIA}~\cite{wanner1991solving}, \texttt{exp4}~\cite{Hochbruck:1998}, and \texttt{exprb43}~\cite{Hockbruck:2009}, comparing them against equivalent CPU versions and a CPU-only implicit algorithm \texttt{CVODE}~\cite{Hindmarsh:2005hg,cvode:2.8.2}.
 Table~\ref{T:solvers} lists these solvers and their corresponding platforms.
 While we describe important details or changes made in this work, full descriptions of all algorithms may be found in the cited sources.
-The \texttt{pyJac} software~\cite{niemeyer_2016_51139,Niemeyer:2015ws,Niemeyer:2016aa} provided subroutines for both chemical source terms and the analytical Jacobian matrix used by CPU- and GPU-based algorithms.
+The \texttt{pyJac} software~\cite{niemeyer_2016_51139,Niemeyer:2015ws,Niemeyer:2016aa} provided subroutines for both chemical source terms and the analytical \hlg{constant-pressure, mass-fraction based} Jacobian matrix used by CPU- and GPU-based algorithms.
 We evaluated the relative performance impact of using a finite-difference Jacobian matrix (as compared with an analytical Jacobian) for both platforms with a first-order finite difference method based on that of \texttt{CVODE}~\cite{Hindmarsh:2005hg}.
 \texttt{pyJac} also provided the chemical source terms used by the finite-difference Jacobian in all cases.
 We direct readers to our previous work~\cite{Niemeyer:2015ws,Niemeyer:2016aa} for verification and performance assessments of \texttt{pyJac} itself.
@@ -294,7 +299,8 @@ Next, we developed GPU versions of the \texttt{Radau-IIA}, \texttt{exp4}, and \t
 These follow the same descriptions as the CPU versions, but require specialized implementations of several BLAS and LAPACK methods, mostly related to LU factorization of the Jacobian or Hessenberg matrices.
 All GPU routines were developed using the NVIDIA CUDA framework~\cite{Buck:2008aa,NVIDIA:2015aa}, and a block-size of 64 threads (8 blocks per SM) was found to be most efficient for all solvers.
 All solvers used adaptive time-stepping techniques; the \texttt{Radau-IIA} and \texttt{CVODE} integrators have built-in adaptive time-stepping, while the exponential methods, \texttt{exp4} and \texttt{exprb43}, used a standard adaptive time-stepping technique~\cite{wanner1991solving}.
-Finally, the adaptive time stepping procedures of all integrators used absolute and relative tolerances of \SI{e-10} and \SI{e-6}, respectively, throughout the work.
+The adaptive time stepping procedures of all integrators used absolute and relative tolerances of \SI{e-10} and \SI{e-6}, respectively, throughout the work.
+\hlg{Finally, the Jacobian was reused according to the built-in rules for the implicit methods, and only on step-failure for the exponential methods.}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Testing conditions}
