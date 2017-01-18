@@ -209,7 +209,7 @@ A per-thread approach may also encounter more cache-misses, since the memory ava
 This results in expensive global memory loads.
 The performance of a per-thread approach can also be greatly impacted by thread divergence, because different threads may follow different execution paths within the IVP integration algorithm itself~\cite{Stone:2013aa,Niemeyer:2014aa}.
 \hlg{For example, in a per-thread based solver each thread in a warp advances its IVP by one internal integration step concurrently, on a step failure the thread simply does not update the solution vector at the end of the internal time-step. 
-If only a handful of threads in a warp require many more internal time-steps than the majority, they will force the majority of threads to wait idly until all threads in the warp have completed the global integration step, resulting in a serious waste of computational resources.}
+If only a handful of threads in a warp require many more internal time-steps than the others, they will force the majority of threads to wait idly until all threads in the warp have completed the global integration step, resulting in a serious waste of computational resources.}
 Additionally, implicit integration algorithms---which typically have complex branching and evaluation paths---may suffer more from thread divergence when implemented on a per-thread basis than relatively simpler explicit integration techniques~\cite{Stone:2013aa}.
 The impact of thread divergence on integrators is typically less severe when following a per-block strategy, since the execution path of each thread is planned by design of the algorithm.
 A per-block approach also offers significantly more local cache memory and available registers for solving an IVP, and thus memory access speed and cache size are less of a concern.
@@ -300,7 +300,7 @@ These follow the same descriptions as the CPU versions, but require specialized 
 All GPU routines were developed using the NVIDIA CUDA framework~\cite{Buck:2008aa,NVIDIA:2015aa}, and a block-size of 64 threads (8 blocks per SM) was found to be most efficient for all solvers.
 All solvers used adaptive time-stepping techniques; the \texttt{Radau-IIA} and \texttt{CVODE} integrators have built-in adaptive time-stepping, while the exponential methods, \texttt{exp4} and \texttt{exprb43}, used a standard adaptive time-stepping technique~\cite{wanner1991solving}.
 The adaptive time stepping procedures of all integrators used absolute and relative tolerances of \SI{e-10} and \SI{e-6}, respectively, throughout the work.
-\hlg{Finally, the Jacobian was reused according to the built-in rules for the implicit methods, and only on step-failure for the exponential methods.}
+\hlg{Finally, the Jacobian was reused on a per-thread (per-IVP) basis according to the built-in rules for the implicit methods, and only on step-failure for the exponential methods.}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Testing conditions}
