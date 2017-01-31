@@ -293,7 +293,8 @@ These follow the same descriptions as the CPU versions, but require specialized 
 All GPU routines were developed using the NVIDIA CUDA framework~\cite{Buck:2008aa,NVIDIA:2015aa}, and a block-size of 64 threads (8 blocks per SM) was found to be most efficient for all solvers.
 All solvers used adaptive time-stepping techniques; the \texttt{Radau-IIA} and \texttt{CVODE} integrators have built-in adaptive time-stepping, while the exponential methods, \texttt{exp4} and \texttt{exprb43}, used a standard adaptive time-stepping technique~\cite{wanner1991solving}.
 The adaptive time stepping procedures of all integrators used absolute and relative tolerances of \SI{e-10} and \SI{e-6}, respectively, throughout the work.
-Finally, the Jacobian was reused on a per-thread (per-IVP) basis according to the built-in rules for the implicit methods, and only on step-failure for the exponential methods.
+Finally, the Jacobian was reused on a per-thread (per-IVP) basis according to the built-in rules for the implicit methods,
+and only recomputed on step failures for the exponential methods.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Testing conditions}
@@ -306,7 +307,7 @@ The PaSR particles were initialized using the equilibrium state, and gradually m
 In order to reduce the influence of equilibrium conditions on the solution runtime trends for small numbers of IVPs, the first \num{1000} datapoints were removed from each database; this corresponds to a single pairing time, $\tau_\text{pair}$, the time interval at which selected particles in the reactor are randomly swapped with inflowing particles.
 At this point in the simulation, $\sim\SI{80}{\percent}$ of the particles were at or near an equilibrium state, and by the \num{5000}th datapoint only $\sim\SI{20}{\percent}$ of the particles were near equilibrium.
 The hydrogen and GRI-Mech 3.0 databases consisted of \num{899900} and \num{449900} total conditions, respectively.
-Further characterization of the PaSR conditions used in this work can be found in~\ref{S:pasr_charac} and our previous study~\cite{Niemeyer:2016aa}.
+Further characterization of the PaSR conditions used in this work can be found in~\ref{S:supp} and our previous study~\cite{Niemeyer:2016aa}.
 
 \begin{table}[htb]
 \centering
@@ -452,7 +453,7 @@ Finally, the L1\slash shared-memory cache was set to prefer a larger L1 cache us
 
 For all cases in this section, the integrator runtimes are presented as the runtime per IVP solved, for two reasons.
 First, saturation of the available computational resources becomes visually apparent (transition from a nearly linear decrease to a flat trend), and second, it allows certain other performance trends (e.g., the effects of thread divergence) to be easily highlighted.
-The presentation of the performance data in raw form is also available in \ref{S:raw} for completeness.
+The presentation of the performance data in raw form is also available in \ref{S:supp} for completeness.
 
 \begin{figure}[htbp]
   \centering
@@ -479,7 +480,7 @@ The presentation of the performance data in raw form is also available in \ref{S
       \label{F:h2_gpu_perf_large}
   \end{subfigure}
   \caption{Average runtimes of the integrators on the CPU and GPU, scaled by the number of IVPs, for the hydrogen model at two different global time-step sizes.
-  Estimation of where the runtime per IVP levels off to a constant value (based on the results for \texttt{CVODE}\slash\texttt{Radau-IIA} for the CPU\slash GPU respectively) is marked with a vertical line for all cases.
+  Estimation of where the runtime per IVP levels off to a constant value (based on the results for \texttt{CVODE}\slash\texttt{Radau-IIA} for the CPU\slash GPU, respectively) is marked with a vertical line for all cases.
   Error bars indicate standard deviation.
   Data, plotting scripts, and figure files available under CC-BY~\cite{paperscript:2017}.}
   \label{F:H2_perf}
