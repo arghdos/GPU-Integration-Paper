@@ -1,3 +1,4 @@
+% !BIB TS-program = biber
 \pdfoutput=1
 \pdfminorversion=5
 
@@ -7,26 +8,24 @@
   \pdfsuppresswarningpagegroup=1\relax
 \fi
 
-\documentclass[preprint,review,11pt]{elsarticle}
+\documentclass[11pt]{scrartcl}
+
+\usepackage[letterpaper]{geometry}
+
+\usepackage[version=3]{mhchem} % Formula subscripts using \ce{}, e.g., \ce{H2SO4}
+\usepackage{latexsym,amsmath,amssymb}
+\usepackage{bm}
 
 \usepackage[utf8]{inputenc}
 
-%packages
-\usepackage[margin=1in]{geometry}
-
 \usepackage[hyphens]{url}
-\biboptions{sort&compress, square, comma}
-\usepackage[breaklinks=true, linkcolor=blue, citecolor=blue, colorlinks=true]{hyperref}
 
 \usepackage{graphicx}
-\usepackage{caption}
-\usepackage{subcaption}
+\usepackage{caption,subcaption}
 
 %\captionsetup[algorithm]{labelformat=empty}
 
 \usepackage{booktabs,multirow}
-\usepackage[version=3]{mhchem} % Formula subscripts using \ce{}, e.g., \ce{H2SO4}
-\usepackage{latexsym,amsmath,amssymb}
 
 \usepackage{mathtools}
 \usepackage{tablefootnote}
@@ -36,6 +35,8 @@
 \usepackage[english]{babel}
 \usepackage{csquotes}
 \usepackage{textcomp}
+
+\usepackage{authblk}
 
 %cross file reference
 \usepackage{xr}
@@ -57,17 +58,47 @@
 
 \DeclareSIUnit\atm{atm}
 
+
+\usepackage{doi}
+\usepackage[backend=biber,
+            hyperref=true,
+            autolang=hyphen,
+            style=numeric-comp,
+            bibencoding=UTF-8,
+            giveninits=true,
+            maxbibnames=1000,
+            terseinits=true,
+            block=none,
+            sorting=none
+]{biblatex}
+
+\hypersetup{linkcolor=blue, citecolor=blue, colorlinks=true}
+
+% biblatex
+\addbibresource{GPU-integrator-paper.bib}
+
+% remove "in: " from articles
+\renewbibmacro{in:}{%
+  \ifentrytype{article}{}{%
+  \printtext{\bibstring{in}\intitlepunct}}
+}
+
 \graphicspath{{./figures/}}
 
-\journal{Combustion and Flame}
+\title{Supplementary material for ``An investigation of GPU-based stiff chemical kinetics integration methods''}
+
+\author[1]{Nicholas~J.\ Curtis\thanks{Email: \href{mailto:nicholas.curtis@uconn.edu}{nicholas.curtis@uconn.edu}}}
+\author[2]{Kyle~E.\ Niemeyer}
+\author[1]{Chih-Jen Sung}
+
+\affil[1]{Department of Mechanical Engineering, University of Connecticut, Storrs, CT, USA}
+\affil[2]{School of Mechanical, Industrial, and Manufacturing Engineering, Oregon State University, Corvallis, OR, USA}
+
+\date{}
+
 
 \begin{document}
-
-\appendix
-\setcounter{figure}{0}
-
-% Fix for missing space between "Appendix" and letter
-\renewcommand*{\thesection}{Supplementary Data~\Alph{section}}
+\maketitle
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Raw performance plots}
@@ -98,7 +129,8 @@ Figures~\ref{F:raw_perf_H2CO} and \ref{F:raw_perf_CH4} show performance for the 
       \caption{GPU performance results for $\Delta t = \SI{e-4}{\second}$}
   \end{subfigure}
   \caption{Average (unnormalized) runtimes of the integrators on the CPU and GPU for the hydrogen model at two different global time-step sizes.
-  Error bars indicate standard deviation.}
+  Error bars indicate standard deviation.
+  Data, plotting scripts, and figure files available under CC-BY~\cite{paperscript:2017}.}
   \label{F:raw_perf_H2CO}
 \end{figure}
 
@@ -123,7 +155,8 @@ Figures~\ref{F:raw_perf_H2CO} and \ref{F:raw_perf_CH4} show performance for the 
       \caption{GPU performance results for $\Delta t = \SI{e-4}{\second}$}
   \end{subfigure}
   \caption{Average (unnormalized) runtimes of the integrators on the CPU\slash GPU for the GRI-Mech 3.0 model at two different global time-step sizes.
-  Error bars indicate standard deviation.}
+  Error bars indicate standard deviation.
+  Data, plotting scripts, and figure files available under CC-BY~\cite{paperscript:2017}.}
   \label{F:raw_perf_CH4}
 \end{figure}
 
@@ -154,7 +187,8 @@ Figures~\ref{F:raw_perf_H2CO} and \ref{F:raw_perf_CH4} show performance for the 
       \caption{Average temperature in the PaSR for a GRI-Mech 3.0 run.}
   \end{subfigure}
   \caption{Characterizations of the conditions sampled from the PaSR at \SI{400}{\kelvin}, \SI{1}{\atm} for both models.
-  The adiabatic flame temperature $\text{T}_{\text{ad}}$ is by a dashed line in all cases.}
+  The adiabatic flame temperature $\text{T}_{\text{ad}}$ is by a dashed line in all cases.
+  Data, plotting scripts, and figure files available under CC-BY~\cite{paperscript:2017}.}
   \label{F:pasr_characterization}
 \end{figure}
 
@@ -163,9 +197,7 @@ Significantly more diversity in fuel mass-fraction is seen for the GRI-Mech 3.0 
 Further, the hydrogen model is more sensitive to the mixing\slash pairing time-scales, showing many large temperature changes quickly recovering to a semi-stable temperature.
 The databases used in this work are available online~\cite{Curtis2016:h2,Curtis2016:ch4}.
 
-\clearpage
 
-\bibliography{GPU-integrator-paper}
-\bibliographystyle{elsarticle-num}
+\printbibliography[title={References}]
 
 \end{document}
