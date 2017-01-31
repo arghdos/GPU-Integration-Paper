@@ -274,7 +274,7 @@ Method & CPU & GPU \\
 We investigated GPU implementations of three integration methods in this work, namely \texttt{Radau\-IIA}~\cite{wanner1991solving}, \texttt{exp4}~\cite{Hochbruck:1998}, and \texttt{exprb43}~\cite{Hockbruck:2009}, comparing them against equivalent CPU versions and a CPU-only implicit algorithm \texttt{CVODE}~\cite{Hindmarsh:2005hg,cvode:2.8.2}.
 Table~\ref{T:solvers} lists these solvers and their corresponding platforms.
 While we describe important details or changes made in this work, full descriptions of all algorithms may be found in the cited sources.
-The \texttt{pyJac} software~\cite{niemeyer_2016_51139,Niemeyer:2015ws,Niemeyer:2016aa} provided subroutines for both chemical source terms and the analytical constant-pressure, mass-fraction based Jacobian matrix used by CPU- and GPU-based algorithms.
+The \texttt{pyJac} software~\cite{niemeyer_2016_51139,Niemeyer:2015ws,Niemeyer:2016aa} provided subroutines for both chemical source terms and the analytical constant-pressure, mass-fraction-based Jacobian matrix used by CPU- and GPU-based algorithms.
 We evaluated the relative performance impact of using a finite-difference Jacobian matrix (as compared with an analytical Jacobian) for both platforms with a first-order finite difference method based on that of \texttt{CVODE}~\cite{Hindmarsh:2005hg}.
 \texttt{pyJac} also provided the chemical source terms used by the finite-difference Jacobian in all cases.
 We direct readers to our previous work~\cite{Niemeyer:2015ws,Niemeyer:2016aa} for verification and performance assessments of \texttt{pyJac} itself.
