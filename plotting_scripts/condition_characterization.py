@@ -30,9 +30,10 @@ mechs = {'H2' : {'gas' : 'h2.cti', 'fuel' : 'H2', 'size' : 16},
 
 large_font = 20
 #check for valid models
-for directory in [d for d in os.listdir(home) if 
+for directory in [d for d in os.listdir(home) if
                 os.path.isdir(os.path.join(home, d))
                 and any(mech in d for mech in mechs)]:
+
 
     mech = mechs[directory]
     gas = ct.Solution(os.path.join(mech_dir, mechs[directory]['gas']))
@@ -58,15 +59,39 @@ for directory in [d for d in os.listdir(home) if
         ts = np.unique(arr[run_offset:run_offset + per_run, :, 0])
         ys = arr[run_offset:run_offset + per_run, :, fuel_ind].flatten()
         Ts = arr[run_offset:run_offset + per_run, :, 1].flatten()
-        plt.gca().set_xscale('log')
-        plt.scatter(ys, Ts)
+        fig, ax = plt.subplots()
+        def get_lim(array, log=False):
+            minv = np.min(array)
+            maxv = np.max(array)
+            if log:
+                minv = np.floor(np.log10(minv))
+                maxv = np.ceil(np.log10(maxv))
+            return minv, maxv
+
+        xmin, xmax = get_lim(ys, True)
+        ymin, ymax = get_lim(Ts)
+
+        #plt.gca().set_xscale('log')
+        hb = plt.hexbin(ys, Ts, xscale='log', bins='log',
+                gridsize=75, cmap='viridis',
+                extent=(xmin, xmax, ymin - 50, T_ad + 50))
+        cb = fig.colorbar(hb, ax=ax)
+        label = cb.set_label('\\math{\\log_{10}\\lvert \\text{count} + 1\\rvert}',
+                                fontsize=ps.tick_font_size)
         fuel_str = r'\ce{{{}}} mass fraction'.format(mech['fuel'])
+        #plot adiabatic flame temp
         xmin, xmax = plt.xlim()
         xv = np.linspace(xmin, xmax)
-        plt.plot(xv, np.ones_like(xv) * T_ad, 'k--')
-        plt.text(np.power(10, 0.4 * (np.log10(xmax) + np.log10(xmin))), T_ad + 50, r'$\text{T}_{\text{ad}}$',
-            fontsize=large_font)
+        plt.plot(xv, np.ones_like(xv) * T_ad, 'w--')
+        factor = 0.3 if directory == 'CH4' else 0.4
+        plt.text(np.power(10, factor * (np.log10(xmax) + np.log10(xmin))), T_ad - 150, r'$\text{T}_{\text{ad}}$',
+            fontsize=large_font, color='w')
+        #fiddle with ticks
+        for tl in ax.get_xticklines() + ax.get_yticklines():
+            tl.set_color('w')
+        #set limits
         plt.xlim([xmin, xmax])
+        plt.ylim([None, T_ad + 50])
         plt.xlabel(fuel_str)
         plt.ylabel('Temperature (K)')
         ps.finalize()
