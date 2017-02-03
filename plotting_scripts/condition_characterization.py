@@ -73,7 +73,7 @@ for directory in [d for d in os.listdir(home) if
 
         #plt.gca().set_xscale('log')
         hb = plt.hexbin(ys, Ts, xscale='log', bins='log',
-                gridsize=75, cmap='viridis',
+                gridsize=75, cmap='Blues', mincnt=1,
                 extent=(xmin, xmax, ymin - 50, T_ad + 50))
         cb = fig.colorbar(hb, ax=ax)
         label = cb.set_label('\\math{\\log_{10}\\lvert \\text{count} + 1\\rvert}',
@@ -82,10 +82,10 @@ for directory in [d for d in os.listdir(home) if
         #plot adiabatic flame temp
         xmin, xmax = plt.xlim()
         xv = np.linspace(xmin, xmax)
-        plt.plot(xv, np.ones_like(xv) * T_ad, 'w--')
+        plt.plot(xv, np.ones_like(xv) * T_ad, 'k--')
         factor = 0.3 if directory == 'CH4' else 0.4
         plt.text(np.power(10, factor * (np.log10(xmax) + np.log10(xmin))), T_ad - 150, r'$\text{T}_{\text{ad}}$',
-            fontsize=large_font, color='w')
+            fontsize=large_font, color='k')
         #fiddle with ticks
         for tl in ax.get_xticklines() + ax.get_yticklines():
             tl.set_color('w')
