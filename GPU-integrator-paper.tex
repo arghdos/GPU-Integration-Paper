@@ -165,7 +165,7 @@ Using the SIMD\slash SIMT parallelism model requires extra consideration to acce
   Program calls (kernels) are split into a grid of blocks, which are in turn composed of threads.
   Threads are grouped in warps (note: warps are typically composed of 32 threads) and executed concurrently on streaming multiprocessors.
   Streaming multiprocessors have registers and L1 cache memory shared between all executing warps.
-  Figure file available under CC-BY~\cite{paperscript:2017}.}
+  Figure file is available under CC-BY~\cite{paperscript:2017}.}
   \label{F:cuda}
 \end{figure}
 
@@ -389,7 +389,7 @@ PaSR parameters used for hydrogen\slash air and methane\slash air premixed combu
   \includegraphics[width=0.7\linewidth]{c_nco_nosmem_error.pdf}
   \caption{Maximum error of the three CPU solvers as a function of the total number of internal integration steps taken (corresponding to decreasing time-step size).
   Larger square and circle symbols indicate the use of Krylov subspace approximations with the exponential methods, while the smaller symbols indicate the use of ``exact'' Krylov subspaces.
-  Data, plotting scripts, and figure file available under CC-BY~\cite{paperscript:2017}.}
+  Data, plotting scripts, and figure file are available under CC-BY~\cite{paperscript:2017}.}
   \label{F:convergence}
  \end{figure}
 
@@ -482,7 +482,7 @@ The presentation of the performance data in raw form is also available in \ref{S
   \caption{Average runtimes of the integrators on the CPU and GPU, scaled by the number of IVPs, for the hydrogen model at two different global time-step sizes.
   Estimation of where the runtime per IVP levels off to a constant value (based on the results for \texttt{CVODE}\slash\texttt{Radau-IIA} for the CPU\slash GPU, respectively) is marked with a vertical line for all cases.
   Error bars indicate standard deviation.
-  Data, plotting scripts, and figure files available under CC-BY~\cite{paperscript:2017}.}
+  Data, plotting scripts, and figure files are available under CC-BY~\cite{paperscript:2017}.}
   \label{F:H2_perf}
 \end{figure}
 
@@ -533,7 +533,7 @@ As in case of the smaller global time-step size, the \texttt{Radua-IIA} solver i
   \caption{Average runtimes of the integrators, scaled by number of IVPs, on the CPU and GPU for the GRI-Mech 3.0 model at two different global time-step sizes.
   Estimation of where the runtime per IVP levels off to a constant value (based on the results for \texttt{CVODE}\slash\texttt{Radau-IIA} for the CPU\slash GPU respectively) is marked with a vertical line for all cases.
   Error bars indicate standard deviation.
-  Data, plotting scripts, and figure files available under CC-BY~\cite{paperscript:2017}.}
+  Data, plotting scripts, and figure files are available under CC-BY~\cite{paperscript:2017}.}
   \label{F:CH4_perf}
 \end{figure}
 
@@ -674,7 +674,7 @@ Thread divergence of such operations within an internal integration step could p
       \label{F:exp4_div_ch4}
   \end{subfigure}
   \caption{Thread divergence estimate for the three solvers for both models and global time-step sizes.
-  Data, plotting scripts, and figure files available under CC-BY~\cite{paperscript:2017}.}
+  Data, plotting scripts, and figure files are available under CC-BY~\cite{paperscript:2017}.}
   \label{F:divergence}
 \end{figure}
 
@@ -740,7 +740,7 @@ It is clear that for a per-thread-based GPU integrator, using an analytical Jaco
   \end{subfigure}
   \caption{Ratio of the average finite-difference Jacobian based integrator runtime $\lvert\textbf{R}_{\text{FD}}\rvert$ to that of the analytical Jacobian runtime $\lvert\textbf{R}_{\text{AJ}}\rvert$ for the \texttt{Radau-IIA} (CPU\slash GPU) solvers.
   Error bars indicate standard deviation, and the horizontal lines show a ratio of one.
-  Data, plotting scripts, and figure files available under CC-BY~\cite{paperscript:2017}.}
+  Data, plotting scripts, and figure files are available under CC-BY~\cite{paperscript:2017}.}
   \label{F:AJ_comp}
 \end{figure}
 
