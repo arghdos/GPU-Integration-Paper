@@ -134,13 +134,13 @@ Furthermore, kinetic models for large hydrocarbon fuels tend to exhibit high sti
 
 Reactive-flow modeling codes commonly rely on high-order implicit integration techniques to solve the stiff governing equations posed by chemical kinetic models.
 The cost of these algorithms scales at best quadratically---and at worst cubically---with the number of species in a model~\cite{Lu:2009gh}, due to repeated evaluation and factorization of the chemical kinetic Jacobian matrix to solve the associated nonlinear algebraic equations through iterative solutions of linear systems of equations.
-Several recent studies~\cite{Huang20091814,Bottone2012,Moiz2016123} demonstrate that using even modestly sized chemical kinetic models can incur severe computation cost for realistic reactive-flow simulations.
-For example, a single high-resolution LES realization of a diesel spray---using up to 22 million grid cells with a 54-species \emph{n}-dodecane model---for {\SI{2}{\milli\second}} after start of injection with a common implicit solver~\cite{cvode:2.8.2} took {\num{48000}} CPU core hours and up to {\num{20}} days of wall clock time~\cite{Moiz2016123}.
+Several recent studies~\cite{Huang20091814,Bottone2012,Moiz2016123} demonstrated that using even modestly sized chemical kinetic models can incur severe computation cost for realistic reactive-flow simulations.
+For example, a single high-resolution Lage Eddy Simumation (LES) realization of a diesel spray---using up to 22 million grid cells with a 54-species \emph{n}-dodecane model---for {\SI{2}{\milli\second}} after start of injection with the common implicit CVODE solver~\cite{cvode:2.8.2} took {\num{48000}} CPU core hours and up to {\num{20}} days of wall clock time~\cite{Moiz2016123}.
 Lu and Law~\cite{Lu:2009gh} extensively reviewed techniques for reducing the cost of using detailed chemical kinetic models; however, significant cost savings can be realized by using an analytical Jacobian formulation, rather than the typical evaluation via finite difference approximations.
 This analytical Jacobian approach eliminates numerous chemical source term evaluations, and for a sparse Jacobian (e.g., formulated in terms of species concentrations) the cost of evaluation can drop to a linear dependence on the number of species in the model~\cite{Lu:2009gh}.
 
 In this work, our efforts to accelerate simulations with chemical kinetics focus on improving the integration strategy itself, by developing new algorithms for high-performance hardware accelerators, such as graphics processing units (GPUs) and similar single-instruction multiple-data\slash thread (SIMD\slash SIMT) devices, increasingly available on supercomputing clusters~\cite{nvidia,xsede,orlcf}.
-The eventual goal of the combustion community is to enable use of large detailed models in realistic reactive-flow simulations---potentially via use of GPU-accelerated chemical kinetics.
+The ultimate goal of the combustion community is to enable use of detailed kinetic models in realistic reactive-flow simulations---potentially via use of GPU-accelerated chemical kinetics.
 However, a clear first step is to reduce the cost of realistic reactive-flow simulations with small-to-moderate sized model to the point where they are practical for iterative design purposes.
 
 
@@ -195,7 +195,7 @@ Unfortunately, the larger amount of parallelism offered by a per-thread approach
 A per-thread approach may also encounter more cache-misses, since the memory available per SM must now be split between many more sets of IVPs.
 This results in expensive global memory loads.
 The performance of a per-thread approach can also be greatly impacted by thread divergence, because different threads may follow different execution paths within the IVP integration algorithm itself~\cite{Stone:2013aa,Niemeyer:2014aa}.
-For example, in a per-thread-based solver each thread in a warp advances its IVP by one internal integration step concurrently, on a step failure the thread simply does not update the solution vector at the end of the internal time-step.
+For example, in a per-thread-based solver each thread in a warp advances its IVP by one internal integration step concurrently, and here on a step failure the thread simply does not update the solution vector at the end of the internal time-step.
 If only a handful of threads in a warp require many more internal time-steps than the others, they will force the majority of threads to wait until all threads in the warp have completed the global integration step, wasting computational resources.
 Additionally, implicit integration algorithms---which typically have complex branching and evaluation paths---may suffer more from thread divergence when implemented on a per-thread basis than relatively simpler explicit integration techniques~\cite{Stone:2013aa}.
 The impact of thread divergence on integrators is typically less severe when following a per-block strategy, since the execution path of each thread is planned by design of the algorithm.
@@ -453,7 +453,7 @@ Finally, the L1\slash shared-memory cache was set to prefer a larger L1 cache us
 
 For all cases in this section, the integrator runtimes are presented as the runtime per IVP solved, for two reasons.
 First, saturation of the available computational resources becomes visually apparent (transition from a nearly linear decrease to a flat trend), and second, it allows certain other performance trends (e.g., the effects of thread divergence) to be easily highlighted.
-The presentation of the performance data in raw form is also available in \ref{S:supp} for completeness.
+The presentation of the performance data in raw form is also available in the supplementary material for completeness.
 
 \begin{figure}[htbp]
   \centering
@@ -771,7 +771,7 @@ By comparing the performance of these algorithms using two chemical kinetic mode
  \item For a global time-step size relevant to Reynolds-averaged Navier--Stokes simulations (e.g., $\Delta t = \SI{e-4}{\s}$), the GPU-based implicit Runga--Kutta solver performed equivalent to \texttt{CVODE} running on \num{15} cores for the hydrogen model, and just \num{3} cores for the GRI-Mech 3.0 model.
  \item The higher memory traffic required due to the size of the GRI-Mech 3.0 model significantly decreased GPU solver performance; a sparse analytical chemical kinetic Jacobian formulation must be developed to achieve high performance for still larger chemical kinetic models on the GPU.
  \item The exponential solvers were significantly less efficient than the implicit integrators on the CPU and GPU for all relevant cases.
- \item Using an analytical Jacobian matrix on the GPU is critical for efficient chemical kinetics integration due to thread divergence; speedups of \SIrange{7.11}{240.96}{$\times$} over a finite-difference-approximation were reached on the GPU, far surpassing the corresponding CPU speedup of \SIrange{1.58}{2.61}{$\times$}.
+ \item Using an analytical Jacobian matrix on the GPU is critical for efficient chemical kinetics integration due to thread divergence; speedups of \SIrange{7.11}{240.96}{$\times$} over a finite-difference-approximation were reached on the GPU, far surpassing the corresponding CPU speedup of \SIrange{1.39}{2.61}{$\times$}.
 \end{itemize}
 
 Based on these results, we conclude that the exponential solvers poorly fit the SIMT acceleration paradigm due to high levels of thread divergence combined with the relatively high cost of integration steps due to Arnoldi iteration (as compared with other semi-implicit integration techniques).
@@ -796,13 +796,13 @@ This material is based upon work supported by the National Science Foundation un
 % Fix for missing space between "Appendix" and letter
 \renewcommand*{\thesection}{\appendixname~\Alph{section}}
 
-\section{Supplementary material}
+\section{}
 \label{S:supp}
 
 The results for this paper were obtained using \texttt{accelerInt} v1.0-beta~\cite{accelerInt:beta}.
 The most recent version of \texttt{accelerInt} can be found at its GitHub
 repository \url{https://github.com/SLACKHA/accelerInt}.
-All figures, and the data and plotting scripts necessary to reproduce them, are
+All figures as well as the data and plotting scripts necessary to reproduce them, are
 available openly under the CC-BY license~\cite{paperscript:2017}.
 
 Supplementary material associated with this article includes unscaled
